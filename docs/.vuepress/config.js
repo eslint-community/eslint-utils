@@ -1,13 +1,13 @@
 "use strict"
 
 module.exports = {
-    title: "eslint-utils",
+    title: "@eslint-community/eslint-utils",
     description: "Utilities for ESLint plugins and custom rules.",
     serviceWorker: true,
 
     themeConfig: {
-        repo: "mysticatea/eslint-utils",
-        docsRepo: "mysticatea/eslint-utils",
+        repo: "eslint-community/eslint-utils",
+        docsRepo: "eslint-community/eslint-utils",
         docsDir: "docs",
         docsBranch: "main",
         editLinks: true,

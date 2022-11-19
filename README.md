@@ -1,10 +1,10 @@
-# eslint-utils
+# @eslint-community/eslint-utils
 
-[![npm version](https://img.shields.io/npm/v/eslint-utils.svg)](https://www.npmjs.com/package/eslint-utils)
-[![Downloads/month](https://img.shields.io/npm/dm/eslint-utils.svg)](http://www.npmtrends.com/eslint-utils)
-[![Build Status](https://github.com/mysticatea/eslint-utils/workflows/CI/badge.svg)](https://github.com/mysticatea/eslint-utils/actions)
-[![Coverage Status](https://codecov.io/gh/mysticatea/eslint-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/mysticatea/eslint-utils)
-[![Dependency Status](https://david-dm.org/mysticatea/eslint-utils.svg)](https://david-dm.org/mysticatea/eslint-utils)
+[![npm version](https://img.shields.io/npm/v/@eslint-community/eslint-utils.svg)](https://www.npmjs.com/package/@eslint-community/eslint-utils)
+[![Downloads/month](https://img.shields.io/npm/dm/@eslint-community/eslint-utils.svg)](http://www.npmtrends.com/@eslint-community/eslint-utils)
+[![Build Status](https://github.com/eslint-community/eslint-utils/workflows/CI/badge.svg)](https://github.com/eslint-community/eslint-utils/actions)
+[![Coverage Status](https://codecov.io/gh/eslint-community/eslint-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/eslint-community/eslint-utils)
+[![Dependency Status](https://david-dm.org/eslint-community/eslint-utils.svg)](https://david-dm.org/eslint-community/eslint-utils)
 
 ## 🏁 Goal
 
@@ -17,11 +17,11 @@ For examples:
 
 ## 📖 Usage
 
-See [documentation](https://eslint-utils.mysticatea.dev/).
+See [documentation](https://eslint-utils.mysticatea.dev).
 
 ## 📰 Changelog
 
-See [releases](https://github.com/mysticatea/eslint-utils/releases).
+See [releases](https://github.com/eslint-community/eslint-utils/releases).
 
 ## ❤️ Contributing
 

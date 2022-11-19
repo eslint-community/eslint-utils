@@ -1,5 +1,5 @@
 {
-  "name": "eslint-utils",
+  "name": "@eslint-community/eslint-utils",
   "version": "3.0.0",
   "description": "Utilities for ESLint plugins.",
   "engines": {
@@ -63,7 +63,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mysticatea/eslint-utils.git"
+    "url": "https://github.com/eslint-community/eslint-utils"
   },
   "keywords": [
     "eslint"
@@ -71,7 +71,7 @@
   "author": "Toru Nagashima",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mysticatea/eslint-utils/issues"
+    "url": "https://github.com/eslint-community/eslint-utils/issues"
   },
-  "homepage": "https://github.com/mysticatea/eslint-utils#readme"
+  "homepage": "https://github.com/eslint-community/eslint-utils#readme"
 }

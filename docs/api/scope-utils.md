@@ -22,7 +22,7 @@ The found variable or `null`.
 ### Example
 
 ```js{8}
-const { findVariable } = require("eslint-utils")
+const { findVariable } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -59,7 +59,7 @@ If such scope doesn't exist then it returns the 1st argument `initialScope`.
 ### Example
 
 ```js{9}
-const { getInnermostScope } = require("eslint-utils")
+const { getInnermostScope } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -121,7 +121,7 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils");
 
 module.exports = {
   meta: {},
@@ -189,7 +189,7 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils");
 
 module.exports = {
   meta: {},
@@ -256,7 +256,7 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils");
 
 module.exports = {
   meta: {},

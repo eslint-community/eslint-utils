@@ -159,7 +159,7 @@ The location object.
 ### Example
 
 ```js{12}
-const { getFunctionHeadLocation } = require("eslint-utils")
+const { getFunctionHeadLocation } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -286,7 +286,7 @@ The name and kind of the function.
 ### Example
 
 ```js{11}
-const { getFunctionNameWithKind } = require("eslint-utils")
+const { getFunctionNameWithKind } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -334,7 +334,7 @@ If the property name is not constant then it returns `null`.
 ### Example
 
 ```js{8}
-const { getPropertyName } = require("eslint-utils")
+const { getPropertyName } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -390,7 +390,7 @@ If it couldn't compute the static value of the node, it returns `null`.
 ### Example
 
 ```js{8}
-const { getStaticValue } = require("eslint-utils")
+const { getStaticValue } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -475,7 +475,7 @@ The side effect means that it _may_ modify a certain variable or object member. 
 ### Example
 
 ```js{9}
-const { hasSideEffect } = require("eslint-utils")
+const { hasSideEffect } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -548,7 +548,7 @@ If `times` was given, it returns `true` only if the node is parenthesized the `t
 ### Example
 
 ```js{9}
-const { isParenthesized } = require("eslint-utils")
+const { isParenthesized } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
@@ -605,7 +605,7 @@ The generator which iterates [RegExpExecArray](https://developer.mozilla.org/en-
 ### Example
 
 ```js{9}
-const { PatternMatcher } = require("eslint-utils")
+const { PatternMatcher } = require("@eslint-community/eslint-utils")
 const matcher = new PatternMatcher(/\(\?<[_$\w]/g)
 
 module.exports = {
@@ -650,7 +650,7 @@ Check whether this pattern matches a given string or not.
 ### Example
 
 ```js{9}
-const { PatternMatcher } = require("eslint-utils")
+const { PatternMatcher } = require("@eslint-community/eslint-utils")
 const matcher = new PatternMatcher(/\(\?<[_$\w]/g)
 
 module.exports = {
@@ -692,7 +692,7 @@ The replaced result.
 ### Example
 
 ```js{9}
-const { PatternMatcher } = require("eslint-utils")
+const { PatternMatcher } = require("@eslint-community/eslint-utils")
 const matcher = new PatternMatcher(/\\p{Script=Greek}/g)
 
 module.exports = {

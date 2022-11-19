@@ -12,7 +12,7 @@ Check whether a given token is a `=>` token or not.
 ### Examples
 
 ```js{10}
-const { isArrowToken } = require("eslint-utils")
+const { isArrowToken } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
