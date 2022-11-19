@@ -3,7 +3,7 @@
 ## findVariable
 
 ```js
-const variable = utils.findVariable(initialScope, name);
+const variable = utils.findVariable(initialScope, name)
 ```
 
 Get the variable of a given name.
@@ -39,7 +39,7 @@ module.exports = {
 ## getInnermostScope
 
 ```js
-const scope = utils.getInnermostScope(initialScope, node);
+const scope = utils.getInnermostScope(initialScope, node)
 ```
 
 Get the innermost scope which contains a given node.
@@ -77,7 +77,7 @@ module.exports = {
 ## ReferenceTracker class
 
 ```js
-const tracker = new utils.ReferenceTracker(globalScope, options);
+const tracker = new utils.ReferenceTracker(globalScope, options)
 ```
 
 The tracker for references.
@@ -94,7 +94,7 @@ This provides reference tracking for global variables, CommonJS modules, and ES 
 ## tracker.iterateGlobalReferences
 
 ```js
-const it = tracker.iterateGlobalReferences(traceMap);
+const it = tracker.iterateGlobalReferences(traceMap)
 ```
 
 Iterate the references that the given `traceMap` determined.
@@ -121,48 +121,48 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("@eslint-community/eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils")
 
 module.exports = {
-  meta: {},
-  create(context) {
-    return {
-      "Program:exit"() {
-        const tracker = new ReferenceTracker(context.getScope());
-        const traceMap = {
-          // Find `console.log`, `console.info`, `console.warn`, and `console.error`.
-          console: {
-            log: { [ReferenceTracker.READ]: true },
-            info: { [ReferenceTracker.READ]: true },
-            warn: { [ReferenceTracker.READ]: true },
-            error: { [ReferenceTracker.READ]: true },
-          },
-          // Find `Buffer()` and `new Buffer()`.
-          Buffer: {
-            [ReferenceTracker.CALL]: true,
-            [ReferenceTracker.CONSTRUCT]: true,
-          },
-        };
+    meta: {},
+    create(context) {
+        return {
+            "Program:exit"() {
+                const tracker = new ReferenceTracker(context.getScope())
+                const traceMap = {
+                    // Find `console.log`, `console.info`, `console.warn`, and `console.error`.
+                    console: {
+                        log: { [ReferenceTracker.READ]: true },
+                        info: { [ReferenceTracker.READ]: true },
+                        warn: { [ReferenceTracker.READ]: true },
+                        error: { [ReferenceTracker.READ]: true },
+                    },
+                    // Find `Buffer()` and `new Buffer()`.
+                    Buffer: {
+                        [ReferenceTracker.CALL]: true,
+                        [ReferenceTracker.CONSTRUCT]: true,
+                    },
+                }
 
-        for (const { node, path } of tracker.iterateGlobalReferences(
-          traceMap
-        )) {
-          context.report({
-            node,
-            message: "disallow {{name}}.",
-            data: { name: path.join(".") },
-          });
+                for (const { node, path } of tracker.iterateGlobalReferences(
+                    traceMap,
+                )) {
+                    context.report({
+                        node,
+                        message: "disallow {{name}}.",
+                        data: { name: path.join(".") },
+                    })
+                }
+            },
         }
-      },
-    };
-  },
-};
+    },
+}
 ```
 
 ## tracker.iterateCjsReferences
 
 ```js
-const it = tracker.iterateCjsReferences(traceMap);
+const it = tracker.iterateCjsReferences(traceMap)
 ```
 
 Iterate the references that the given `traceMap` determined.
@@ -189,47 +189,49 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("@eslint-community/eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils")
 
 module.exports = {
-  meta: {},
-  create(context) {
-    return {
-      "Program:exit"() {
-        const tracker = new ReferenceTracker(context.getScope());
-        const traceMap = {
-          // Find `Buffer()` and `new Buffer()` of `buffer` module.
-          buffer: {
-            Buffer: {
-              [ReferenceTracker.CALL]: true,
-              [ReferenceTracker.CONSTRUCT]: true,
-            },
-          },
-          // Find `exists` of `fs` module.
-          fs: {
-            exists: {
-              [ReferenceTracker.READ]: true,
-            },
-          },
-        };
+    meta: {},
+    create(context) {
+        return {
+            "Program:exit"() {
+                const tracker = new ReferenceTracker(context.getScope())
+                const traceMap = {
+                    // Find `Buffer()` and `new Buffer()` of `buffer` module.
+                    buffer: {
+                        Buffer: {
+                            [ReferenceTracker.CALL]: true,
+                            [ReferenceTracker.CONSTRUCT]: true,
+                        },
+                    },
+                    // Find `exists` of `fs` module.
+                    fs: {
+                        exists: {
+                            [ReferenceTracker.READ]: true,
+                        },
+                    },
+                }
 
-        for (const { node, path } of tracker.iterateCjsReferences(traceMap)) {
-          context.report({
-            node,
-            message: "disallow {{name}}.",
-            data: { name: path.join(".") },
-          });
+                for (const { node, path } of tracker.iterateCjsReferences(
+                    traceMap,
+                )) {
+                    context.report({
+                        node,
+                        message: "disallow {{name}}.",
+                        data: { name: path.join(".") },
+                    })
+                }
+            },
         }
-      },
-    };
-  },
-};
+    },
+}
 ```
 
 ## tracker.iterateEsmReferences
 
 ```js
-const it = tracker.iterateEsmReferences(traceMap);
+const it = tracker.iterateEsmReferences(traceMap)
 ```
 
 Iterate the references that the given `traceMap` determined.
@@ -256,39 +258,41 @@ Every reference is the object that has the following properties.
 ### Examples
 
 ```js
-const { ReferenceTracker } = require("@eslint-community/eslint-utils");
+const { ReferenceTracker } = require("@eslint-community/eslint-utils")
 
 module.exports = {
-  meta: {},
-  create(context) {
-    return {
-      "Program:exit"() {
-        const tracker = new ReferenceTracker(context.getScope());
-        const traceMap = {
-          // Find `Buffer()` and `new Buffer()` of `buffer` module.
-          buffer: {
-            Buffer: {
-              [ReferenceTracker.CALL]: true,
-              [ReferenceTracker.CONSTRUCT]: true,
-            },
-          },
-          // Find `exists` of `fs` module.
-          fs: {
-            exists: {
-              [ReferenceTracker.READ]: true,
-            },
-          },
-        };
+    meta: {},
+    create(context) {
+        return {
+            "Program:exit"() {
+                const tracker = new ReferenceTracker(context.getScope())
+                const traceMap = {
+                    // Find `Buffer()` and `new Buffer()` of `buffer` module.
+                    buffer: {
+                        Buffer: {
+                            [ReferenceTracker.CALL]: true,
+                            [ReferenceTracker.CONSTRUCT]: true,
+                        },
+                    },
+                    // Find `exists` of `fs` module.
+                    fs: {
+                        exists: {
+                            [ReferenceTracker.READ]: true,
+                        },
+                    },
+                }
 
-        for (const { node, path } of tracker.iterateEsmReferences(traceMap)) {
-          context.report({
-            node,
-            message: "disallow {{name}}.",
-            data: { name: path.join(".") },
-          });
+                for (const { node, path } of tracker.iterateEsmReferences(
+                    traceMap,
+                )) {
+                    context.report({
+                        node,
+                        message: "disallow {{name}}.",
+                        data: { name: path.join(".") },
+                    })
+                }
+            },
         }
-      },
-    };
-  },
-};
+    },
+}
 ```

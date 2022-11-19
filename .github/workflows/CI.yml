@@ -1,136 +1,137 @@
 name: CI
 on:
-  push:
-    branches:
-      # default semantic-release branches
-      - +([0-9])?(.{+([0-9]),x}).x
-      - main
-      - next
-      - next-major
-      - beta
-      - alpha
-  pull_request:
-  schedule:
-    - cron: 0 0 * * 0
+    push:
+        branches:
+            # default semantic-release branches
+            - +([0-9])?(.{+([0-9]),x}).x
+            - main
+            - next
+            - next-major
+            - beta
+            - alpha
+    pull_request:
+    schedule:
+        - cron: 0 0 * * 0
 
 jobs:
-  lint:
-    name: ⬣ Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.11.0
+    lint:
+        name: ⬣ Lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: 🛑 Cancel Previous Runs
+              uses: styfle/cancel-workflow-action@0.11.0
 
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+            - name: ⬇️ Checkout repo
+              uses: actions/checkout@v3
 
-      - name: ⎔ Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+            - name: ⎔ Setup Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
 
-      - name: 📥 Install dependencies
-        run: npm install
+            - name: 📥 Install dependencies
+              run: npm install
 
-      - name: ▶️ Run format:check script
-        run: npm run format:check
+            - name: ▶️ Run format:check script
+              run: npm run format:check
 
-      - name: ▶️ Run lint script
-        run: npm run lint
+            - name: ▶️ Run lint script
+              run: npm run lint
 
-  test:
-    name: 🧪 Test (Node@${{ matrix.node }} - ESLint@${{ matrix.eslint }} - ${{
-      matrix.os }})
-    strategy:
-      matrix:
-        eslint: [7]
-        node: [10, 12.0.0, 12, 14.0.0, 14, 16, 18] # 10.0.0 is missing
-        os: [ubuntu-latest]
-        include:
-          # On other platforms
-          - os: windows-latest
-            eslint: 7
-            node: 18
-          - os: macos-latest
-            eslint: 7
-            node: 18
-          # On old ESLint versions
-          - eslint: 6
-            node: 18
-            os: ubuntu-latest
-          # - eslint: 5
-          #   node: 18
-          #   os: ubuntu-latest
-          # On the minimum supported ESLint/Node.js version
-          # - eslint: 5.0.0
-          #   node: 10.0.0
-          #   os: ubuntu-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.11.0
+    test:
+        name:
+            🧪 Test (Node@${{ matrix.node }} - ESLint@${{ matrix.eslint }} - ${{
+            matrix.os }})
+        strategy:
+            matrix:
+                eslint: [7]
+                node: [10, 12.0.0, 12, 14.0.0, 14, 16, 18] # 10.0.0 is missing
+                os: [ubuntu-latest]
+                include:
+                    # On other platforms
+                    - os: windows-latest
+                      eslint: 7
+                      node: 18
+                    - os: macos-latest
+                      eslint: 7
+                      node: 18
+                    # On old ESLint versions
+                    - eslint: 6
+                      node: 18
+                      os: ubuntu-latest
+                    # - eslint: 5
+                    #   node: 18
+                    #   os: ubuntu-latest
+                    # On the minimum supported ESLint/Node.js version
+                    # - eslint: 5.0.0
+                    #   node: 10.0.0
+                    #   os: ubuntu-latest
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: 🛑 Cancel Previous Runs
+              uses: styfle/cancel-workflow-action@0.11.0
 
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+            - name: ⬇️ Checkout repo
+              uses: actions/checkout@v3
 
-      - name: ⎔ Setup Node v${{ matrix.node }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
+            - name: ⎔ Setup Node v${{ matrix.node }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node }}
 
-      - name: 📥 Install dependencies
-        run: npm install
+            - name: 📥 Install dependencies
+              run: npm install
 
-      - name: 📥 Install ESLint v${{ matrix.eslint }}
-        run: npm install --save-dev eslint@${{ matrix.eslint }}
+            - name: 📥 Install ESLint v${{ matrix.eslint }}
+              run: npm install --save-dev eslint@${{ matrix.eslint }}
 
-      - name: 🏗 Build
-        run: npm run build
+            - name: 🏗 Build
+              run: npm run build
 
-      - name: ▶️ Run test script
-        run: npm run test
+            - name: ▶️ Run test script
+              run: npm run test
 
-      - name: ⬆️ Upload coverage report
-        uses: codecov/codecov-action@v3
+            - name: ⬆️ Upload coverage report
+              uses: codecov/codecov-action@v3
 
-  release:
-    name: 🚀 Release
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-    if: github.repository == 'eslint-community/eslint-utils' &&
-      contains('refs/heads/main,refs/heads/next,refs/heads/beta,refs/heads/alpha',
-      github.ref) && github.event_name == 'push'
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.11.0
+    release:
+        name: 🚀 Release
+        needs: [lint, test]
+        runs-on: ubuntu-latest
+        if: github.repository == 'eslint-community/eslint-utils' &&
+            contains('refs/heads/main,refs/heads/next,refs/heads/beta,refs/heads/alpha',
+            github.ref) && github.event_name == 'push'
+        steps:
+            - name: 🛑 Cancel Previous Runs
+              uses: styfle/cancel-workflow-action@0.11.0
 
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+            - name: ⬇️ Checkout repo
+              uses: actions/checkout@v3
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+            - name: ⎔ Setup node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
 
-      - name: 📥 Install dependencies
-        run: npm install
+            - name: 📥 Install dependencies
+              run: npm install
 
-      - name: 🏗 Build
-        run: npm run build
+            - name: 🏗 Build
+              run: npm run build
 
-      - name: 🚀 Release
-        uses: cycjimmy/semantic-release-action@v3
-        with:
-          semantic_version: 19
-          branches: |
-            [
-              '+([0-9])?(.{+([0-9]),x}).x',
-              'main',
-              'next',
-              'next-major',
-              {name: 'beta', prerelease: true},
-              {name: 'alpha', prerelease: true}
-            ]
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: 🚀 Release
+              uses: cycjimmy/semantic-release-action@v3
+              with:
+                  semantic_version: 19
+                  branches: |
+                      [
+                        '+([0-9])?(.{+([0-9]),x}).x',
+                        'main',
+                        'next',
+                        'next-major',
+                        {name: 'beta', prerelease: true},
+                        {name: 'alpha', prerelease: true}
+                      ]
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

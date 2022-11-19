@@ -1,5 +1,5 @@
 {
-  "cache": true,
-  "debug": true,
-  "sourceMap": true
+    "cache": true,
+    "debug": true,
+    "sourceMap": true
 }

@@ -5,7 +5,7 @@
 ## getFunctionHeadLocation
 
 ```js
-const loc = utils.getFunctionHeadLocation(node, sourceCode);
+const loc = utils.getFunctionHeadLocation(node, sourceCode)
 ```
 
 Get the proper location of a given function node to report.
@@ -184,7 +184,7 @@ module.exports = {
 ## getFunctionNameWithKind
 
 ```js
-const name = utils.getFunctionNameWithKind(node);
+const name = utils.getFunctionNameWithKind(node)
 ```
 
 Get the name and kind of a given function node.
@@ -311,8 +311,8 @@ module.exports = {
 ## getPropertyName
 
 ```js
-const name = utils.getPropertyName(node);
-const name = utils.getPropertyName(node, initialScope);
+const name = utils.getPropertyName(node)
+const name = utils.getPropertyName(node, initialScope)
 ```
 
 Get the property name of a given property node.
@@ -353,8 +353,8 @@ module.exports = {
 ## getStaticValue
 
 ```js
-const ret1 = utils.getStaticValue(node);
-const ret2 = utils.getStaticValue(node, initialScope);
+const ret1 = utils.getStaticValue(node)
+const ret2 = utils.getStaticValue(node, initialScope)
 ```
 
 Get the value of a given node if it can decide the value statically.
@@ -413,8 +413,8 @@ module.exports = {
 ## getStringIfConstant
 
 ```js
-const str1 = utils.getStringIfConstant(node);
-const str2 = utils.getStringIfConstant(node, initialScope);
+const str1 = utils.getStringIfConstant(node)
+const str2 = utils.getStringIfConstant(node, initialScope)
 ```
 
 Get the string value of a given node.
@@ -424,8 +424,8 @@ I.e., this is the same as below:
 
 ```js
 function getStringIfConstant(node, initialScope) {
-  const evaluated = getStaticValue(node, initialScope);
-  return evaluated && String(evaluated.value);
+    const evaluated = getStaticValue(node, initialScope)
+    return evaluated && String(evaluated.value)
 }
 ```
 
@@ -434,30 +434,30 @@ function getStringIfConstant(node, initialScope) {
 ## hasSideEffect
 
 ```js
-const ret = utils.hasSideEffect(node, sourceCode, options);
+const ret = utils.hasSideEffect(node, sourceCode, options)
 ```
 
 Check whether a given node has any side effect or not.
 
 The side effect means that it _may_ modify a certain variable or object member. This function considers the node which contains the following types as the node which has side effects:
 
-- `AssignmentExpression`
-- `AwaitExpression`
-- `CallExpression`
-- `ImportExpression`
-- `NewExpression`
-- `UnaryExpression` (`[operator = "delete"]`)
-- `UpdateExpression`
-- `YieldExpression`
-- When `options.considerGetters` is `true`:
-  - `MemberExpression`
-- When `options.considerImplicitTypeConversion` is `true`:
-  - `BinaryExpression` (`[operator = "==" | "!=" | "<" | "<=" | ">" | ">=" | "<<" | ">>" | ">>>" | "+" | "-" | "*" | "/" | "%" | "|" | "^" | "&" | "in"]`)
-  - `MemberExpression` (`[computed = true]`)
-  - `MethodDefinition` (`[computed = true]`)
-  - `Property` (`[computed = true]`)
-  - `PropertyDefinition` (`[computed = true]`)
-  - `UnaryExpression` (`[operator = "-" | "+" | "!" | "~"]`)
+-   `AssignmentExpression`
+-   `AwaitExpression`
+-   `CallExpression`
+-   `ImportExpression`
+-   `NewExpression`
+-   `UnaryExpression` (`[operator = "delete"]`)
+-   `UpdateExpression`
+-   `YieldExpression`
+-   When `options.considerGetters` is `true`:
+    -   `MemberExpression`
+-   When `options.considerImplicitTypeConversion` is `true`:
+    -   `BinaryExpression` (`[operator = "==" | "!=" | "<" | "<=" | ">" | ">=" | "<<" | ">>" | ">>>" | "+" | "-" | "*" | "/" | "%" | "|" | "^" | "&" | "in"]`)
+    -   `MemberExpression` (`[computed = true]`)
+    -   `MethodDefinition` (`[computed = true]`)
+    -   `Property` (`[computed = true]`)
+    -   `PropertyDefinition` (`[computed = true]`)
+    -   `UnaryExpression` (`[operator = "-" | "+" | "!" | "~"]`)
 
 ### Parameters
 
@@ -497,8 +497,8 @@ module.exports = {
 ## isParenthesized
 
 ```js
-const ret1 = utils.isParenthesized(times, node, sourceCode);
-const ret2 = utils.isParenthesized(node, sourceCode);
+const ret1 = utils.isParenthesized(times, node, sourceCode)
+const ret2 = utils.isParenthesized(node, sourceCode)
 ```
 
 Check whether a given node is parenthesized or not.
@@ -507,26 +507,26 @@ This function detects it correctly even if it's parenthesized by specific syntax
 
 ```js
 // those `a` are not parenthesized.
-f(a);
-new C(a);
+f(a)
+new C(a)
 if (a) {
 }
 switch (a) {
 }
 while (a) {}
-do {} while (a);
+do {} while (a)
 with (a) {
 }
 
 // those `b` are parenthesized.
-f(b);
-new C(b);
+f(b)
+new C(b)
 if (b) {
 }
 switch (b) {
 }
 while (b) {}
-do {} while (b);
+do {} while (b)
 with (b) {
 }
 ```
@@ -570,7 +570,7 @@ module.exports = {
 ## PatternMatcher class
 
 ```js
-const matcher = new utils.PatternMatcher(pattern, options);
+const matcher = new utils.PatternMatcher(pattern, options)
 ```
 
 The class to find a pattern in strings as handling escape sequences.
@@ -587,7 +587,7 @@ It ignores the found pattern if it's escaped with `\`.
 ## matcher.execAll
 
 ```js
-const iterator = matcher.execAll(str);
+const iterator = matcher.execAll(str)
 ```
 
 Iterate all matched parts in a given string.
@@ -632,7 +632,7 @@ module.exports = {
 ## matcher.test
 
 ```js
-const matched = matcher.test(str);
+const matched = matcher.test(str)
 ```
 
 Check whether this pattern matches a given string or not.
@@ -673,7 +673,7 @@ module.exports = {
 ## matcher[Symbol.replace]
 
 ```js
-const replacedStr = str.replace(matcher, replacer);
+const replacedStr = str.replace(matcher, replacer)
 ```
 
 Replace all matched parts by a given replacer.

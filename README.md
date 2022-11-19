@@ -12,8 +12,8 @@ This package provides utility functions and classes for make ESLint custom rules
 
 For examples:
 
-- [getStaticValue](https://eslint-utils.mysticatea.dev/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
-- [ReferenceTracker](https://eslint-utils.mysticatea.dev/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
+-   [getStaticValue](https://eslint-utils.mysticatea.dev/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
+-   [ReferenceTracker](https://eslint-utils.mysticatea.dev/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
 
 ## 📖 Usage
 
@@ -31,8 +31,8 @@ Please use GitHub's Issues/PRs.
 
 ### Development Tools
 
-- `npm test` runs tests and measures coverage.
-- `npm run clean` removes the coverage result of `npm test` command.
-- `npm run coverage` shows the coverage result of the last `npm test` command.
-- `npm run lint` runs ESLint.
-- `npm run watch` runs tests on each file change.
+-   `npm test` runs tests and measures coverage.
+-   `npm run clean` removes the coverage result of `npm test` command.
+-   `npm run coverage` shows the coverage result of the last `npm test` command.
+-   `npm run lint` runs ESLint.
+-   `npm run watch` runs tests on each file change.

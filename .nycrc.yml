@@ -1,7 +1,7 @@
 include:
-  - src/**/*.js
+    - src/**/*.js
 reporter:
-  - lcov
-  - text-summary
+    - lcov
+    - text-summary
 require:
-  - esm
+    - esm
