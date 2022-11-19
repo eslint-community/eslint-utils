@@ -3,76 +3,85 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
   schedule:
     - cron: 0 0 * * 0
 
 jobs:
   lint:
-    name: Lint
+    name: ⬣ Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Node.js
-        uses: actions/setup-node@v2
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
-      - name: Install Packages
+          node-version: 18
+
+      - name: 📥 Install dependencies
         run: npm install
-      - name: Lint
-        run: npm run -s lint
+
+      - name: ▶️ Run format:check script
+        run: npm run format:check
+
+      - name: ▶️ Run lint script
+        run: npm run lint
 
   test:
-    name: Test
+    name: 🧪 Test (Node@${{ matrix.node }} - ESLint@${{ matrix.eslint }} - ${{
+      matrix.os }})
     strategy:
       matrix:
-        os: [ubuntu-latest]
         eslint: [7]
-        node: [14]
+        node: [10, 12.0.0, 12, 14.0.0, 14, 16, 18] # 10.0.0 is missing
+        os: [ubuntu-latest]
         include:
           # On other platforms
-          - eslint: 7
-            node: 14
-            os: windows-latest
-          - eslint: 7
-            node: 14
-            os: macos-latest
-          # On old Node.js versions
-          - eslint: 7
-            node: 12
-            os: ubuntu-latest
-          - eslint: 7
-            node: 10
-            os: ubuntu-latest
+          - os: windows-latest
+            eslint: 7
+            node: 18
+          - os: macos-latest
+            eslint: 7
+            node: 18
           # On old ESLint versions
           - eslint: 6
-            node: 14
+            node: 18
             os: ubuntu-latest
-          - eslint: 5
-            node: 14
-            os: ubuntu-latest
+          # - eslint: 5
+          #   node: 18
+          #   os: ubuntu-latest
           # On the minimum supported ESLint/Node.js version
-          - eslint: 5
-            node: 10
-            os: ubuntu-latest
+          # - eslint: 5.0.0
+          #   node: 10.0.0
+          #   os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Node.js v${{ matrix.node }}
-        uses: actions/setup-node@v2
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup Node v${{ matrix.node }}
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - name: Install Packages
+
+      - name: 📥 Install dependencies
         run: npm install
-      - name: Install ESLint ${{ matrix.eslint }}
-        run: npm install --no-save eslint@${{ matrix.eslint }}
-      - name: Build
-        run: npm run -s build
-      - name: Test
-        run: npm run -s test:mocha
-      - name: Send Coverage
-        run: npm run -s codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: 📥 Install ESLint v${{ matrix.eslint }}
+        run: npm install --save-dev eslint@${{ matrix.eslint }}
+
+      - name: 🏗 Build
+        run: npm run build
+
+      - name: ▶️ Run test script
+        run: npm run test
+
+      - name: ⬆️ Upload coverage report
+        uses: codecov/codecov-action@v3
