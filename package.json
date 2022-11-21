@@ -40,7 +40,7 @@
         "warun": "^1.0.0"
     },
     "peerDependencies": {
-        "eslint": ">=5"
+        "eslint": ">=6"
     },
     "scripts": {
         "prebuild": "npm run -s clean",
