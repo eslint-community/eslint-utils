@@ -1,4 +1,4 @@
-import evk from "eslint-visitor-keys"
+import * as evk from "eslint-visitor-keys"
 
 const typeConversionBinaryOps = Object.freeze(
     new Set([

@@ -19,17 +19,17 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "eslint-visitor-keys": "^2.1.0"
+        "eslint-visitor-keys": "^3.3.0"
     },
     "devDependencies": {
-        "@mysticatea/eslint-plugin": "^13.0.0",
-        "dot-prop": "^4.2.1",
+        "@eslint-community/eslint-plugin-mysticatea": "^15.2.0",
+        "dot-prop": "^6.0.1",
         "eslint": "^7.32.0",
         "esm": "^3.2.25",
         "espree": "github:eslint/espree#1c744b3a602b783926344811a9459b92afe57444",
-        "mocha": "^6.2.3",
+        "mocha": "^8.4.0",
         "npm-run-all": "^4.1.5",
-        "nyc": "^14.1.1",
+        "nyc": "^15.1.0",
         "opener": "^1.5.2",
         "prettier": "2.7.1",
         "rimraf": "^3.0.2",
@@ -53,7 +53,7 @@
         "format": "npm run -s format:prettier -- --write",
         "format:prettier": "prettier docs/.vuepress/config.js src/**/*.js test/**/*.js rollup.config.js .vscode/*.json *.json .github/**/*.yml *.yml docs/**/*.md *.md",
         "format:check": "npm run -s format:prettier -- --check",
-        "lint": "eslint docs/.vuepress/config.js src test rollup.config.js",
+        "lint": "eslint .",
         "test": "nyc mocha --reporter dot \"test/*.js\"",
         "preversion": "npm test && npm run -s build",
         "postversion": "git push && git push --tags",

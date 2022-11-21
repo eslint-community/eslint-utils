@@ -1,19 +1,19 @@
 root: true
 
 extends:
-    - plugin:@mysticatea/es2020
+    - plugin:@eslint-community/mysticatea/es2020
 
 rules:
-    "@mysticatea/prettier": "off"
+    "@eslint-community/mysticatea/prettier": "off"
 
 overrides:
     - files:
           - src/**/*.js
           - test/**/*.js
       extends:
-          - plugin:@mysticatea/+modules
+          - plugin:@eslint-community/mysticatea/+modules
       rules:
           init-declarations: "off"
-          "@mysticatea/node/no-unsupported-features/es-syntax":
+          "@eslint-community/mysticatea/node/no-unsupported-features/es-syntax":
               - error
               - ignores: [modules]

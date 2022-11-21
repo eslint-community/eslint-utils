@@ -228,7 +228,7 @@ const operations = Object.freeze({
                 case "%":
                     return { value: left.value % right.value }
                 case "**":
-                    return { value: Math.pow(left.value, right.value) }
+                    return { value: left.value ** right.value }
                 case "|":
                     return { value: left.value | right.value }
                 case "^":
