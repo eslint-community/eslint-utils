@@ -24,7 +24,7 @@
     "devDependencies": {
         "@eslint-community/eslint-plugin-mysticatea": "^15.2.0",
         "dot-prop": "^6.0.1",
-        "eslint": "^7.32.0",
+        "eslint": "^8.28.0",
         "esm": "^3.2.25",
         "espree": "github:eslint/espree#1c744b3a602b783926344811a9459b92afe57444",
         "mocha": "^8.4.0",
@@ -40,7 +40,7 @@
         "warun": "^1.0.0"
     },
     "peerDependencies": {
-        "eslint": ">=6"
+        "eslint": "^6.0.0 || ^7.0.0 || ^8.0.0"
     },
     "scripts": {
         "prebuild": "npm run -s clean",
