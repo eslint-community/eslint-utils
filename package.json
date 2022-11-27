@@ -24,6 +24,7 @@
     "devDependencies": {
         "@eslint-community/eslint-plugin-mysticatea": "^15.2.0",
         "dot-prop": "^6.0.1",
+        "esbuild": "^0.15.15",
         "esbuild-register": "^3.4.1",
         "eslint": "^8.28.0",
         "espree": "github:eslint/espree#1c744b3a602b783926344811a9459b92afe57444",
