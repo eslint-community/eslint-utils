@@ -1,6 +1,7 @@
 "use strict"
 
 module.exports = {
+    base: "/eslint-utils/",
     title: "@eslint-community/eslint-utils",
     description: "Utilities for ESLint plugins and custom rules.",
     serviceWorker: true,
