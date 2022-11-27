@@ -22,10 +22,11 @@
         "eslint-visitor-keys": "^3.3.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.20.2",
+        "@babel/plugin-transform-modules-commonjs": "^7.19.6",
+        "@babel/register": "^7.18.9",
         "@eslint-community/eslint-plugin-mysticatea": "^15.2.0",
         "dot-prop": "^6.0.1",
-        "esbuild": "^0.15.15",
-        "esbuild-register": "^3.4.1",
         "eslint": "^8.28.0",
         "espree": "github:eslint/espree#1c744b3a602b783926344811a9459b92afe57444",
         "mocha": "^8.4.0",
