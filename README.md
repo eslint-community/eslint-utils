@@ -11,12 +11,12 @@ This package provides utility functions and classes for make ESLint custom rules
 
 For examples:
 
--   [`getStaticValue`](https://eslint-utils.mysticatea.dev/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
--   [`ReferenceTracker`](https://eslint-utils.mysticatea.dev/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
+-   [`getStaticValue`](https://eslint-community.github.io/eslint-utils/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
+-   [`ReferenceTracker`](https://eslint-community.github.io/eslint-utils/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
 
 ## 📖 Usage
 
-See [documentation](https://eslint-utils.mysticatea.dev).
+See [documentation](https://eslint-community.github.io/eslint-utils).
 
 ## 📰 Changelog
 
