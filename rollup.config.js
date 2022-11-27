@@ -18,7 +18,6 @@ function config(ext) {
             file: `index${ext}`,
             format: ext === ".mjs" ? "es" : "cjs",
             sourcemap: true,
-            banner: "/*! @author Toru Nagashima <https://github.com/mysticatea> */",
         },
         plugins: [sourcemaps()],
         external: Object.keys(packageInfo.dependencies),
