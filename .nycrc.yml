@@ -4,4 +4,4 @@ reporter:
     - lcov
     - text-summary
 require:
-    - esm
+    - esbuild-register
