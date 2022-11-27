@@ -4,4 +4,4 @@ reporter:
     - lcov
     - text-summary
 require:
-    - esm
+    - "@babel/register"
