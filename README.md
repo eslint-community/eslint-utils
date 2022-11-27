@@ -4,7 +4,6 @@
 [![Downloads/month](https://img.shields.io/npm/dm/@eslint-community/eslint-utils.svg)](http://www.npmtrends.com/@eslint-community/eslint-utils)
 [![Build Status](https://github.com/eslint-community/eslint-utils/workflows/CI/badge.svg)](https://github.com/eslint-community/eslint-utils/actions)
 [![Coverage Status](https://codecov.io/gh/eslint-community/eslint-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/eslint-community/eslint-utils)
-[![Dependency Status](https://david-dm.org/eslint-community/eslint-utils.svg)](https://david-dm.org/eslint-community/eslint-utils)
 
 ## 🏁 Goal
 
@@ -12,8 +11,8 @@ This package provides utility functions and classes for make ESLint custom rules
 
 For examples:
 
--   [getStaticValue](https://eslint-utils.mysticatea.dev/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
--   [ReferenceTracker](https://eslint-utils.mysticatea.dev/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
+-   [`getStaticValue`](https://eslint-utils.mysticatea.dev/api/ast-utils.html#getstaticvalue) evaluates static value on AST.
+-   [`ReferenceTracker`](https://eslint-utils.mysticatea.dev/api/scope-utils.html#referencetracker-class) checks the members of modules/globals as handling assignments and destructuring.
 
 ## 📖 Usage
 
