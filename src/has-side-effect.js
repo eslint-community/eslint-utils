@@ -1,4 +1,4 @@
-import * as evk from "eslint-visitor-keys"
+import { getKeys, KEYS } from "eslint-visitor-keys"
 
 const typeConversionBinaryOps = Object.freeze(
     new Set([
@@ -48,7 +48,7 @@ const visitor = Object.freeze(
         $visitChildren(node, options, visitorKeys) {
             const { type } = node
 
-            for (const key of visitorKeys[type] || evk.getKeys(node)) {
+            for (const key of visitorKeys[type] || getKeys(node)) {
                 const value = node[key]
 
                 if (Array.isArray(value)) {
@@ -174,7 +174,7 @@ const visitor = Object.freeze(
  * @param {object} [options] The option object.
  * @param {boolean} [options.considerGetters=false] If `true` then it considers member accesses as the node which has side effects.
  * @param {boolean} [options.considerImplicitTypeConversion=false] If `true` then it considers implicit type conversion as the node which has side effects.
- * @param {object} [options.visitorKeys=evk.KEYS] The keys to traverse nodes. Use `context.getSourceCode().visitorKeys`.
+ * @param {object} [options.visitorKeys=KEYS] The keys to traverse nodes. Use `context.getSourceCode().visitorKeys`.
  * @returns {boolean} `true` if the node has a certain side effect.
  */
 export function hasSideEffect(
@@ -185,6 +185,6 @@ export function hasSideEffect(
     return visitor.$visit(
         node,
         { considerGetters, considerImplicitTypeConversion },
-        sourceCode.visitorKeys || evk.KEYS,
+        sourceCode.visitorKeys || KEYS,
     )
 }
