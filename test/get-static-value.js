@@ -145,106 +145,102 @@ const aMap = Object.freeze({
             code: "RegExp.$1",
             expected: null,
         },
-        ...(semver.gte(eslint.Linter.version, "6.0.0")
-            ? [
-                  {
-                      code: "const a = null, b = 42; a ?? b",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = undefined, b = 42; a ?? b",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = false, b = 42; a ?? b",
-                      expected: { value: false },
-                  },
-                  {
-                      code: "const a = 42, b = null; a ?? b",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = 42, b = undefined; a ?? b",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = { b: { c: 42 } }; a?.b?.c",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = { b: { c: 42 } }; a?.b?.['c']",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = { b: null }; a?.b?.c",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = { b: undefined }; a?.b?.c",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = { b: null }; a?.b?.['c']",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = null; a?.b?.c",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = null; a?.b.c",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = void 0; a?.b.c",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = { b: { c: 42 } }; (a?.b).c",
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: "const a = null; (a?.b).c",
-                      expected: null,
-                  },
-                  {
-                      code: "const a = { b: null }; (a?.b).c",
-                      expected: null,
-                  },
-                  {
-                      code: "const a = { b: { c: String } }; a?.b?.c?.(42)",
-                      expected: { value: "42" },
-                  },
-                  {
-                      code: "const a = null; a?.b?.c?.(42)",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = { b: { c: String } }; a?.b.c(42)",
-                      expected: { value: "42" },
-                  },
-                  {
-                      code: "const a = null; a?.b.c(42)",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "null?.()",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "const a = null; a?.()",
-                      expected: { value: undefined },
-                  },
-                  {
-                      code: "a?.()",
-                      expected: null,
-                  },
-                  {
-                      code: "({'a': 1, 1e+1: 2, 2n: 3})",
-                      expected: { value: { a: 1, 10: 2, 2: 3 } },
-                  },
-              ]
-            : []),
+        {
+            code: "const a = null, b = 42; a ?? b",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = undefined, b = 42; a ?? b",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = false, b = 42; a ?? b",
+            expected: { value: false },
+        },
+        {
+            code: "const a = 42, b = null; a ?? b",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = 42, b = undefined; a ?? b",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = { b: { c: 42 } }; a?.b?.c",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = { b: { c: 42 } }; a?.b?.['c']",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = { b: null }; a?.b?.c",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = { b: undefined }; a?.b?.c",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = { b: null }; a?.b?.['c']",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = null; a?.b?.c",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = null; a?.b.c",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = void 0; a?.b.c",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = { b: { c: 42 } }; (a?.b).c",
+            expected: { value: 42 },
+        },
+        {
+            code: "const a = null; (a?.b).c",
+            expected: null,
+        },
+        {
+            code: "const a = { b: null }; (a?.b).c",
+            expected: null,
+        },
+        {
+            code: "const a = { b: { c: String } }; a?.b?.c?.(42)",
+            expected: { value: "42" },
+        },
+        {
+            code: "const a = null; a?.b?.c?.(42)",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = { b: { c: String } }; a?.b.c(42)",
+            expected: { value: "42" },
+        },
+        {
+            code: "const a = null; a?.b.c(42)",
+            expected: { value: undefined },
+        },
+        {
+            code: "null?.()",
+            expected: { value: undefined },
+        },
+        {
+            code: "const a = null; a?.()",
+            expected: { value: undefined },
+        },
+        {
+            code: "a?.()",
+            expected: null,
+        },
+        {
+            code: "({'a': 1, 1e+1: 2, 2n: 3})",
+            expected: { value: { a: 1, 10: 2, 2: 3 } },
+        },
         ...(semver.gte(eslint.Linter.version, "7.0.0")
             ? [
                   {
@@ -305,9 +301,7 @@ const aMap = Object.freeze({
                 parserOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "7.0.0")
                         ? 2022
-                        : semver.gte(eslint.Linter.version, "6.0.0")
-                        ? 2020
-                        : 2018,
+                        : 2020,
                 },
                 rules: { test: "error" },
             })
