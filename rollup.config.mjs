@@ -2,8 +2,10 @@
  * @author Toru Nagashima
  * See LICENSE file in root directory for full license.
  */
+import fs from "node:fs"
 import sourcemaps from "rollup-plugin-sourcemaps"
-import packageInfo from "./package.json"
+
+const packageInfo = JSON.parse(fs.readFileSync("./package.json"))
 
 /**
  * Define the output configuration.
