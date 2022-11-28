@@ -64,6 +64,11 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "class A { static async foo() {} }": "static async method 'foo'",
         "class A { static get foo() {} }": "static getter 'foo'",
         "class A { static set foo(a) {} }": "static setter 'foo'",
+        "export default async function* foo() {}":
+            "async generator function 'foo'",
+        "export default async function* () {}":
+            "async generator function 'default'",
+        "export default async () => {}": "async arrow function 'default'",
 
         ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? {
@@ -142,6 +147,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
+                    sourceType: "module",
                 },
             })
 
@@ -171,6 +177,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
+                    sourceType: "module",
                 },
             })
 

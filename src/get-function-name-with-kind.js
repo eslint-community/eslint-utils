@@ -83,6 +83,11 @@ export function getFunctionNameWithKind(node, sourceCode) {
         parent.left.type === "Identifier"
     ) {
         tokens.push(`'${parent.left.name}'`)
+    } else if (
+        parent.type === "ExportDefaultDeclaration" &&
+        parent.declaration === node
+    ) {
+        tokens.push("'default'")
     }
 
     return tokens.join(" ")
