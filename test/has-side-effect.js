@@ -152,7 +152,7 @@ describe("The 'hasSideEffect' function", () => {
             options: { considerImplicitTypeConversion: true },
             expected: false,
         },
-        ...(semver.gte(eslint.Linter.version, "7.0.0")
+        ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? [
                   {
                       code: "(class { x })",
@@ -318,7 +318,7 @@ describe("The 'hasSideEffect' function", () => {
             const messages = linter.verify(code, {
                 env: { es6: true },
                 parserOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "7.0.0")
+                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                 },

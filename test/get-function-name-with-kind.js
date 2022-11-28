@@ -65,7 +65,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "class A { static get foo() {} }": "static getter 'foo'",
         "class A { static set foo(a) {} }": "static setter 'foo'",
 
-        ...(semver.gte(eslint.Linter.version, "7.0.0")
+        ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? {
                   "class A { #foo() {} }": "private method #foo",
                   "class A { '#foo'() {} }": "method '#foo'",
@@ -139,7 +139,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
             const messages = linter.verify(key, {
                 rules: { test: "error" },
                 parserOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "7.0.0")
+                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2018,
                 },
@@ -168,7 +168,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
             const messages = linter.verify(key, {
                 rules: { test: "error" },
                 parserOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "7.0.0")
+                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2018,
                 },

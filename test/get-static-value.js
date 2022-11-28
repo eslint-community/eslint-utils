@@ -241,7 +241,7 @@ const aMap = Object.freeze({
             code: "({'a': 1, 1e+1: 2, 2n: 3})",
             expected: { value: { a: 1, 10: 2, 2: 3 } },
         },
-        ...(semver.gte(eslint.Linter.version, "7.0.0")
+        ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? [
                   {
                       code: `class A {
@@ -299,7 +299,7 @@ const aMap = Object.freeze({
             const messages = linter.verify(code, {
                 env: { es6: true },
                 parserOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "7.0.0")
+                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                 },
