@@ -31,7 +31,7 @@ describe("The 'getStringIfConstant' function", () => {
                 },
             }))
             linter.verify(code, {
-                parserOptions: { ecmaVersion: 2018 },
+                parserOptions: { ecmaVersion: 2020 },
                 rules: { test: "error" },
             })
 
@@ -57,7 +57,7 @@ describe("The 'getStringIfConstant' function", () => {
                     },
                 }))
                 linter.verify(code, {
-                    parserOptions: { ecmaVersion: 2018 },
+                    parserOptions: { ecmaVersion: 2020 },
                     rules: { test: "error" },
                 })
 

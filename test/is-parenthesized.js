@@ -226,7 +226,7 @@ describe("The 'isParenthesized' function", () => {
                     }))
                     const messages = linter.verify(code, {
                         env: { es6: true },
-                        parserOptions: { ecmaVersion: 2018 },
+                        parserOptions: { ecmaVersion: 2020 },
                         rules: { test: "error" },
                     })
 
@@ -302,7 +302,7 @@ describe("The 'isParenthesized' function", () => {
                     }))
                     const messages = linter.verify(code, {
                         env: { es6: true },
-                        parserOptions: { ecmaVersion: 2018 },
+                        parserOptions: { ecmaVersion: 2020 },
                         rules: { test: "error" },
                     })
 

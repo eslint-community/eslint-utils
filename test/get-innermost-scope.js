@@ -67,7 +67,7 @@ describe("The 'getInnermostScope' function", () => {
                 },
             }))
             linter.verify(code, {
-                parserOptions: { ecmaVersion: 2018, ...parserOptions },
+                parserOptions: { ecmaVersion: 2020, ...parserOptions },
                 rules: { test: "error" },
             })
 

@@ -13,7 +13,7 @@ describe("The 'findVariable' function", () => {
             },
         }))
         linter.verify(code, {
-            parserOptions: { ecmaVersion: 2018 },
+            parserOptions: { ecmaVersion: 2020 },
             rules: { test: "error" },
         })
 

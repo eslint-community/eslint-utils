@@ -121,7 +121,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                     parserOptions: {
                         ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                             ? 2022
-                            : 2018,
+                            : 2020,
                     },
                 },
                 "test.js",

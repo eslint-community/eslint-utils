@@ -70,7 +70,7 @@ describe("The 'getPropertyName' function", () => {
                 parserOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
-                        : 2018,
+                        : 2020,
                 },
                 rules: { test: "error" },
             })
