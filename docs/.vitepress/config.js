@@ -1,5 +1,3 @@
-"use strict"
-
 const { defineConfig } = require("vitepress")
 const path = require("path")
 
