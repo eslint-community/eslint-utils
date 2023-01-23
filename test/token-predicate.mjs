@@ -22,7 +22,7 @@ import {
     isOpeningBracketToken,
     isOpeningParenToken,
     isSemicolonToken,
-} from "../src/"
+} from "../src/index.mjs"
 
 describe("The predicate functions for tokens", () => {
     for (const { positive, negative, patterns } of [

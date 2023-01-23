@@ -1,4 +1,4 @@
-import { isArrowToken, isOpeningParenToken } from "./token-predicate"
+import { isArrowToken, isOpeningParenToken } from "./token-predicate.mjs"
 
 /**
  * Get the `(` token of the given function node.

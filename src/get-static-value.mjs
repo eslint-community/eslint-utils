@@ -1,6 +1,6 @@
 /* globals globalThis, global, self, window */
 
-import { findVariable } from "./find-variable"
+import { findVariable } from "./find-variable.mjs"
 
 const globalObject =
     typeof globalThis !== "undefined"

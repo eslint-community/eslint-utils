@@ -1,7 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
-import { getFunctionNameWithKind } from "../src/"
+import { getFunctionNameWithKind } from "../src/index.mjs"
 
 describe("The 'getFunctionNameWithKind' function", () => {
     const expectedResults = {

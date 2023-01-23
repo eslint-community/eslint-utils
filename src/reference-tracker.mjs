@@ -1,6 +1,6 @@
-import { findVariable } from "./find-variable"
-import { getPropertyName } from "./get-property-name"
-import { getStringIfConstant } from "./get-string-if-constant"
+import { findVariable } from "./find-variable.mjs"
+import { getPropertyName } from "./get-property-name.mjs"
+import { getStringIfConstant } from "./get-string-if-constant.mjs"
 
 const IMPORT_TYPE = /^(?:Import|Export(?:All|Default|Named))Declaration$/u
 const has = Function.call.bind(Object.hasOwnProperty)

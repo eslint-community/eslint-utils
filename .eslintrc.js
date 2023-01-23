@@ -9,7 +9,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: ["src/**/*.js", "test/**/*.js"],
+            files: ["src/**/*.mjs", "test/**/*.mjs"],
             extends: ["plugin:@eslint-community/mysticatea/+modules"],
             rules: {
                 "init-declarations": "off",

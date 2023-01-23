@@ -1,4 +1,4 @@
-import { getPropertyName } from "./get-property-name"
+import { getPropertyName } from "./get-property-name.mjs"
 
 /**
  * Get the name and kind of the given function node.

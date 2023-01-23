@@ -1,4 +1,4 @@
-import { getInnermostScope } from "./get-innermost-scope"
+import { getInnermostScope } from "./get-innermost-scope.mjs"
 
 /**
  * Find the variable of a given name.

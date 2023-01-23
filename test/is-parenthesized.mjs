@@ -1,7 +1,7 @@
 import assert from "assert"
 import dotProp from "dot-prop"
 import eslint from "eslint"
-import { isParenthesized } from "../src/"
+import { isParenthesized } from "../src/index.mjs"
 
 describe("The 'isParenthesized' function", () => {
     for (const { code, expected } of [

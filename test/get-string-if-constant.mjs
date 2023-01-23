@@ -1,6 +1,6 @@
 import assert from "assert"
 import eslint from "eslint"
-import { getStringIfConstant } from "../src/"
+import { getStringIfConstant } from "../src/index.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [

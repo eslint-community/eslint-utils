@@ -1,0 +1,4 @@
+{
+    "include": ["src/**/*.mjs"],
+    "reporter": ["lcov", "text-summary"]
+}

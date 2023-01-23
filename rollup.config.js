@@ -12,7 +12,7 @@ import packageInfo from "./package.json"
  */
 function config(ext) {
     return {
-        input: "src/index.js",
+        input: "src/index.mjs",
         output: {
             exports: ext === ".mjs" ? undefined : "named",
             file: `index${ext}`,
