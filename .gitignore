@@ -1,6 +1,7 @@
 /.nyc_output
 /coverage
-/docs/.vuepress/dist
+/docs/.vitepress/dist
+/docs/.vitepress/cache
 /node_modules
 /index.*
 /test.*
