@@ -1,7 +1,7 @@
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import eslint from "eslint"
-import { isParenthesized } from "../src/index.mjs"
+import { isParenthesized } from "../src/index"
 
 describe("The 'isParenthesized' function", () => {
     for (const { code, expected } of [
@@ -217,30 +217,30 @@ describe("The 'isParenthesized' function", () => {
         },
     ]) {
         describe(`on the code \`${code}\``, () => {
-            for (const key of Object.keys(expected)) {
-                it(`should return ${expected[key]} at "${key}"`, () => {
+            for (const key of Object.keys(
+                expected,
+            ) as (keyof typeof expected)[]) {
+                it(`should return ${String(expected[key])} at "${key}"`, () => {
                     const linter = new eslint.Linter()
 
                     let actual = null
-                    linter.defineRule("test", (context) => ({
-                        Program(node) {
-                            actual = isParenthesized(
-                                getProperty(node, key),
-                                context.getSourceCode(),
-                            )
-                        },
-                    }))
+                    linter.defineRule("test", {
+                        create: (context) => ({
+                            Program(node) {
+                                actual = isParenthesized(
+                                    getProperty(node, key)!,
+                                    context.getSourceCode(),
+                                )
+                            },
+                        }),
+                    })
                     const messages = linter.verify(code, {
                         env: { es6: true },
                         parserOptions: { ecmaVersion: 2020 },
                         rules: { test: "error" },
                     })
 
-                    assert.strictEqual(
-                        messages.length,
-                        0,
-                        messages[0] && messages[0].message,
-                    )
+                    assert.strictEqual(messages.length, 0, messages[0]?.message)
                     assert.strictEqual(actual, expected[key])
                 })
             }
@@ -292,31 +292,31 @@ describe("The 'isParenthesized' function", () => {
         },
     ]) {
         describe(`on the code \`${code}\` and 2 times`, () => {
-            for (const key of Object.keys(expected)) {
-                it(`should return ${expected[key]} at "${key}"`, () => {
+            for (const key of Object.keys(
+                expected,
+            ) as (keyof typeof expected)[]) {
+                it(`should return ${String(expected[key])} at "${key}"`, () => {
                     const linter = new eslint.Linter()
 
                     let actual = null
-                    linter.defineRule("test", (context) => ({
-                        Program(node) {
-                            actual = isParenthesized(
-                                2,
-                                getProperty(node, key),
-                                context.getSourceCode(),
-                            )
-                        },
-                    }))
+                    linter.defineRule("test", {
+                        create: (context) => ({
+                            Program(node) {
+                                actual = isParenthesized(
+                                    2,
+                                    getProperty(node, key)!,
+                                    context.getSourceCode(),
+                                )
+                            },
+                        }),
+                    })
                     const messages = linter.verify(code, {
                         env: { es6: true },
                         parserOptions: { ecmaVersion: 2020 },
                         rules: { test: "error" },
                     })
 
-                    assert.strictEqual(
-                        messages.length,
-                        0,
-                        messages[0] && messages[0].message,
-                    )
+                    assert.strictEqual(messages.length, 0, messages[0]?.message)
                     assert.strictEqual(actual, expected[key])
                 })
             }

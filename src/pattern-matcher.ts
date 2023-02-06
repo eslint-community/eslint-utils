@@ -5,16 +5,18 @@
 
 const placeholder = /\$(?:[$&`']|[1-9][0-9]?)/gu
 
-/** @type {WeakMap<PatternMatcher, {pattern:RegExp,escaped:boolean}>} */
-const internal = new WeakMap()
+const internal = new WeakMap<
+    PatternMatcher,
+    { pattern: RegExp; escaped: boolean }
+>()
 
 /**
  * Check whether a given character is escaped or not.
- * @param {string} str The string to check.
- * @param {number} index The location of the character to check.
- * @returns {boolean} `true` if the character is escaped.
+ * @param str The string to check.
+ * @param index The location of the character to check.
+ * @returns `true` if the character is escaped.
  */
-function isEscaped(str, index) {
+function isEscaped(str: string, index: number) {
     let escaped = false
     for (let i = index - 1; i >= 0 && str.charCodeAt(i) === 0x5c; --i) {
         escaped = !escaped
@@ -24,23 +26,20 @@ function isEscaped(str, index) {
 
 /**
  * Replace a given string by a given matcher.
- * @param {PatternMatcher} matcher The pattern matcher.
- * @param {string} str The string to be replaced.
- * @param {string} replacement The new substring to replace each matched part.
- * @returns {string} The replaced string.
+ * @param matcher The pattern matcher.
+ * @param str The string to be replaced.
+ * @param replacement The new substring to replace each matched part.
+ * @returns The replaced string.
  */
-function replaceS(matcher, str, replacement) {
+function replaceS(matcher: PatternMatcher, str: string, replacement: string) {
     const chunks = []
     let index = 0
 
-    /** @type {RegExpExecArray} */
-    let match = null
-
     /**
-     * @param {string} key The placeholder.
-     * @returns {string} The replaced string.
+     * @param key The placeholder.
+     * @returns The replaced string.
      */
-    function replacer(key) {
+    function replacer(key: string, match: RegExpExecArray) {
         switch (key) {
             case "$$":
                 return "$"
@@ -53,16 +52,16 @@ function replaceS(matcher, str, replacement) {
             default: {
                 const i = key.slice(1)
                 if (i in match) {
-                    return match[i]
+                    return match[Number(i)]
                 }
                 return key
             }
         }
     }
 
-    for (match of matcher.execAll(str)) {
+    for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(replacement.replace(placeholder, replacer))
+        chunks.push(replacement.replace(placeholder, (s) => replacer(s, match)))
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -72,18 +71,30 @@ function replaceS(matcher, str, replacement) {
 
 /**
  * Replace a given string by a given matcher.
- * @param {PatternMatcher} matcher The pattern matcher.
- * @param {string} str The string to be replaced.
- * @param {(...strs[])=>string} replace The function to replace each matched part.
- * @returns {string} The replaced string.
+ * @param matcher The pattern matcher.
+ * @param str The string to be replaced.
+ * @param replace The function to replace each matched part.
+ * @returns The replaced string.
  */
-function replaceF(matcher, str, replace) {
+function replaceF(
+    matcher: PatternMatcher,
+    str: string,
+    replace: (substring: string, ...args: any[]) => string,
+) {
     const chunks = []
     let index = 0
 
     for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(String(replace(...match, match.index, match.input)))
+        chunks.push(
+            String(
+                replace(
+                    ...(match as unknown as [string, ...string[]]),
+                    match.index,
+                    match.input,
+                ),
+            ),
+        )
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -91,16 +102,22 @@ function replaceF(matcher, str, replace) {
     return chunks.join("")
 }
 
+export interface PatternMatherOptions {
+    escaped?: boolean
+}
 /**
  * The class to find patterns as considering escape sequences.
  */
 export class PatternMatcher {
     /**
      * Initialize this matcher.
-     * @param {RegExp} pattern The pattern to match.
-     * @param {{escaped:boolean}} options The options.
+     * @param pattern The pattern to match.
+     * @param options The options.
      */
-    constructor(pattern, { escaped = false } = {}) {
+    public constructor(
+        pattern: RegExp,
+        { escaped = false }: PatternMatherOptions = {},
+    ) {
         if (!(pattern instanceof RegExp)) {
             throw new TypeError("'pattern' should be a RegExp instance.")
         }
@@ -116,11 +133,11 @@ export class PatternMatcher {
 
     /**
      * Find the pattern in a given string.
-     * @param {string} str The string to find.
-     * @returns {IterableIterator<RegExpExecArray>} The iterator which iterate the matched information.
+     * @param str The string to find.
+     * @returns The iterator which iterate the matched information.
      */
-    *execAll(str) {
-        const { pattern, escaped } = internal.get(this)
+    public *execAll(str: string): IterableIterator<RegExpExecArray> {
+        const { pattern, escaped } = internal.get(this)!
         let match = null
         let lastIndex = 0
 
@@ -136,10 +153,10 @@ export class PatternMatcher {
 
     /**
      * Check whether the pattern is found in a given string.
-     * @param {string} str The string to check.
-     * @returns {boolean} `true` if the pattern was found in the string.
+     * @param str The string to check.
+     * @returns `true` if the pattern was found in the string.
      */
-    test(str) {
+    public test(str: string): boolean {
         const it = this.execAll(str)
         const ret = it.next()
         return !ret.done
@@ -147,11 +164,14 @@ export class PatternMatcher {
 
     /**
      * Replace a given string.
-     * @param {string} str The string to be replaced.
-     * @param {(string|((...strs:string[])=>string))} replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
-     * @returns {string} The replaced string.
+     * @param str The string to be replaced.
+     * @param replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
+     * @returns The replaced string.
      */
-    [Symbol.replace](str, replacer) {
+    public [Symbol.replace](
+        str: string,
+        replacer: string | ((substring: string, ...args: any[]) => string),
+    ): string {
         return typeof replacer === "function"
             ? replaceF(this, String(str), replacer)
             : replaceS(this, String(str), String(replacer))

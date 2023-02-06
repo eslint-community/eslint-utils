@@ -1,9 +1,15 @@
-import { findVariable } from "./find-variable.mjs"
-import { getPropertyName } from "./get-property-name.mjs"
-import { getStringIfConstant } from "./get-string-if-constant.mjs"
+import type { Scope } from "eslint"
+import type * as ESTree from "estree"
+import { findVariable } from "./find-variable"
+import { getParent } from "./get-parent"
+import { getPropertyName } from "./get-property-name"
+import { getStringIfConstant } from "./get-string-if-constant"
 
 const IMPORT_TYPE = /^(?:Import|Export(?:All|Default|Named))Declaration$/u
-const has = Function.call.bind(Object.hasOwnProperty)
+const has = Function.call.bind(Object.hasOwnProperty) as (
+    o: any,
+    k: string | symbol,
+) => boolean
 
 export const READ = Symbol("read")
 export const CALL = Symbol("call")
@@ -12,12 +18,28 @@ export const ESM = Symbol("esm")
 
 const requireCall = { require: { [CALL]: true } }
 
+function isImportNodeAndHasSource(node: ESTree.Node): node is
+    | (ESTree.ExportAllDeclaration & {
+          source: ESTree.Literal & { value: string }
+      })
+    | (ESTree.ImportDeclaration & {
+          source: ESTree.Literal & { value: string }
+      }) {
+    return (
+        IMPORT_TYPE.test(node.type) &&
+        (node as ESTree.ExportAllDeclaration | ESTree.ImportDeclaration)
+            .source != null
+    )
+}
+
 /**
  * Check whether a given variable is modified or not.
- * @param {Variable} variable The variable to check.
- * @returns {boolean} `true` if the variable is modified.
+ * @param variable The variable to check.
+ * @returns `true` if the variable is modified.
  */
-function isModifiedGlobal(variable) {
+function isModifiedGlobal(
+    variable: Scope.Variable | null | undefined,
+): boolean {
     return (
         variable == null ||
         variable.defs.length !== 0 ||
@@ -31,10 +53,10 @@ function isModifiedGlobal(variable) {
  * @param {Node} node A node to check.
  * @returns {boolean} `true` if the node is passed through.
  */
-function isPassThrough(node) {
-    const parent = node.parent
+function isPassThrough(node: ESTree.Node) {
+    const parent = getParent(node)
 
-    switch (parent && parent.type) {
+    switch (parent?.type) {
         case "ConditionalExpression":
             return parent.consequent === node || parent.alternate === node
         case "LogicalExpression":
@@ -49,23 +71,105 @@ function isPassThrough(node) {
     }
 }
 
+export interface ReferenceTrackerOptions {
+    /**
+     * The variable names for Global Object. Default is ["global","globalThis","self","window"]
+     */
+    globalObjectNames?: string[]
+
+    /**
+     * The mode to determine the ImportDeclaration's behavior for CJS modules. Default is "strict"
+     */
+    mode?: "legacy" | "strict"
+}
+
+export type TraceMap<
+    CallInfo = never,
+    ConstructInfo = never,
+    ReadInfo = never,
+> = Record<string, TraceMapObject<CallInfo, ConstructInfo, ReadInfo>>
+
+export interface TraceMapObject<CallInfo, ConstructInfo, ReadInfo> {
+    [i: string]: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>
+    [CALL]?: CallInfo
+    [CONSTRUCT]?: ConstructInfo
+    [ESM]?: boolean
+    [READ]?: ReadInfo
+}
+
+export type TrackedReferenceWithCallInfo<CallInfo = unknown> = {
+    info: CallInfo
+    node: ESTree.SimpleCallExpression
+    path: string[]
+    type: symbol
+}
+export type TrackedReferenceWithConstructInfo<ConstructInfo = unknown> = {
+    info: ConstructInfo
+    node: ESTree.NewExpression
+    path: string[]
+    type: symbol
+}
+
+export type TrackedReferenceWithReadInfo<ReadInfo = unknown> = {
+    info: ReadInfo
+    node:
+        | ESTree.AssignmentProperty
+        | ESTree.ExportAllDeclaration
+        | ESTree.ExportSpecifier
+        | ESTree.Expression
+        | ESTree.ImportDeclaration
+        | ESTree.ImportDefaultSpecifier
+        | ESTree.ImportSpecifier
+        | ESTree.RestElement
+    path: string[]
+    type: symbol
+}
+
+export type TrackedReferences<CallInfo, ConstructInfo, ReadInfo> =
+    | (CallInfo extends never ? never : TrackedReferenceWithCallInfo<CallInfo>)
+    | (ConstructInfo extends never
+          ? never
+          : TrackedReferenceWithConstructInfo<ConstructInfo>)
+    | (ReadInfo extends never ? never : TrackedReferenceWithReadInfo<ReadInfo>)
+
+type TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo> =
+    | TrackedReferenceWithCallInfo<CallInfo>
+    | TrackedReferenceWithConstructInfo<ConstructInfo>
+    | TrackedReferenceWithReadInfo<ReadInfo>
+
 /**
  * The reference tracker.
  */
 export class ReferenceTracker {
+    public static readonly READ = READ
+
+    public static readonly CALL = CALL
+
+    public static readonly CONSTRUCT = CONSTRUCT
+
+    public static readonly ESM = ESM
+
+    private readonly globalScope: Scope.Scope
+
+    private readonly mode: "legacy" | "strict"
+
+    private readonly globalObjectNames: string[]
+
+    private readonly variableStack: Scope.Variable[]
+
     /**
      * Initialize this tracker.
-     * @param {Scope} globalScope The global scope.
-     * @param {object} [options] The options.
-     * @param {"legacy"|"strict"} [options.mode="strict"] The mode to determine the ImportDeclaration's behavior for CJS modules.
-     * @param {string[]} [options.globalObjectNames=["global","globalThis","self","window"]] The variable names for Global Object.
+     * @param globalScope The global scope.
+     * @param options The options.
+     * @param options.mode The mode to determine the ImportDeclaration's behavior for CJS modules. Default is "strict"
+     * @param options.globalObjectNames The variable names for Global Object. Default is ["global","globalThis","self","window"]
      */
-    constructor(
-        globalScope,
+    public constructor(
+        globalScope: Scope.Scope,
         {
             mode = "strict",
             globalObjectNames = ["global", "globalThis", "self", "window"],
-        } = {},
+        }: ReferenceTrackerOptions = {},
     ) {
         this.variableStack = []
         this.globalScope = globalScope
@@ -75,10 +179,69 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references of global variables.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
-    *iterateGlobalReferences(traceMap) {
+    public iterateGlobalReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<TrackedReferences<CallInfo, ConstructInfo, ReadInfo>> {
+        return this._iterateGlobalReferences(traceMap) as IterableIterator<
+            TrackedReferences<CallInfo, ConstructInfo, ReadInfo>
+        >
+    }
+
+    /**
+     * Iterate the references of CommonJS modules.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
+     */
+    public iterateCjsReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<TrackedReferences<CallInfo, ConstructInfo, ReadInfo>> {
+        return this._iterateCjsReferences(traceMap) as IterableIterator<
+            TrackedReferences<CallInfo, ConstructInfo, ReadInfo>
+        >
+    }
+
+    /**
+     * Iterate the references of ES modules.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
+     */
+    public iterateEsmReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<TrackedReferences<CallInfo, ConstructInfo, ReadInfo>> {
+        return this._iterateEsmReferences(traceMap) as IterableIterator<
+            TrackedReferences<CallInfo, ConstructInfo, ReadInfo>
+        >
+    }
+
+    /**
+     * Iterate the references of global variables.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
+     */
+    private *_iterateGlobalReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
         for (const key of Object.keys(traceMap)) {
             const nextTraceMap = traceMap[key]
             const path = [key]
@@ -97,7 +260,7 @@ export class ReferenceTracker {
         }
 
         for (const key of this.globalObjectNames) {
-            const path = []
+            const path: string[] = []
             const variable = this.globalScope.set.get(key)
 
             if (isModifiedGlobal(variable)) {
@@ -115,12 +278,22 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references of CommonJS modules.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
-    *iterateCjsReferences(traceMap) {
+    private *_iterateCjsReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
         for (const { node } of this.iterateGlobalReferences(requireCall)) {
-            const key = getStringIfConstant(node.arguments[0])
+            const key = getStringIfConstant(
+                (node as ESTree.CallExpression).arguments[0],
+            )
             if (key == null || !has(traceMap, key)) {
                 continue
             }
@@ -142,14 +315,22 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references of ES modules.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
-    *iterateEsmReferences(traceMap) {
-        const programNode = this.globalScope.block
+    public *_iterateEsmReferences<
+        CallInfo = never,
+        ConstructInfo = never,
+        ReadInfo = never,
+    >(
+        traceMap: TraceMap<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
+        const programNode = this.globalScope.block as ESTree.Program
 
         for (const node of programNode.body) {
-            if (!IMPORT_TYPE.test(node.type) || node.source == null) {
+            if (!isImportNodeAndHasSource(node)) {
                 continue
             }
             const moduleId = node.source.value
@@ -209,13 +390,23 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given variable.
-     * @param {Variable} variable The variable to iterate that references.
-     * @param {string[]} path The current path.
-     * @param {object} traceMap The trace map.
-     * @param {boolean} shouldReport = The flag to report those references.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param variable The variable to iterate that references.
+     * @param path The current path.
+     * @param traceMap The trace map.
+     * @param shouldReport = The flag to report those references.
+     * @returns The iterator to iterate references.
      */
-    *_iterateVariableReferences(variable, path, traceMap, shouldReport) {
+    private *_iterateVariableReferences<CallInfo, ConstructInfo, ReadInfo>(
+        variable: Scope.Variable | undefined,
+        path: string[],
+        traceMap: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>,
+        shouldReport: boolean,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
+        if (!variable) {
+            return
+        }
         if (this.variableStack.includes(variable)) {
             return
         }
@@ -240,18 +431,24 @@ export class ReferenceTracker {
     /**
      * Iterate the references for a given AST node.
      * @param rootNode The AST node to iterate references.
-     * @param {string[]} path The current path.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param path The current path.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
     //eslint-disable-next-line complexity
-    *_iteratePropertyReferences(rootNode, path, traceMap) {
+    private *_iteratePropertyReferences<CallInfo, ConstructInfo, ReadInfo>(
+        rootNode: ESTree.Node,
+        path: string[],
+        traceMap: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
         let node = rootNode
         while (isPassThrough(node)) {
-            node = node.parent
+            node = getParent(node)!
         }
 
-        const parent = node.parent
+        const parent = getParent(node)!
         if (parent.type === "MemberExpression") {
             if (parent.object === node) {
                 const key = getPropertyName(parent)
@@ -317,11 +514,17 @@ export class ReferenceTracker {
     /**
      * Iterate the references for a given Pattern node.
      * @param {Node} patternNode The Pattern node to iterate references.
-     * @param {string[]} path The current path.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param path The current path.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
-    *_iterateLhsReferences(patternNode, path, traceMap) {
+    private *_iterateLhsReferences<CallInfo, ConstructInfo, ReadInfo>(
+        patternNode: ESTree.Pattern,
+        path: string[],
+        traceMap: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
         if (patternNode.type === "Identifier") {
             const variable = findVariable(this.globalScope, patternNode)
             if (variable != null) {
@@ -336,7 +539,10 @@ export class ReferenceTracker {
         }
         if (patternNode.type === "ObjectPattern") {
             for (const property of patternNode.properties) {
-                const key = getPropertyName(property)
+                const key =
+                    property.type === "Property"
+                        ? getPropertyName(property)
+                        : null
 
                 if (key == null || !has(traceMap, key)) {
                     continue
@@ -352,11 +558,13 @@ export class ReferenceTracker {
                         info: nextTraceMap[READ],
                     }
                 }
-                yield* this._iterateLhsReferences(
-                    property.value,
-                    nextPath,
-                    nextTraceMap,
-                )
+                if (property.type === "Property") {
+                    yield* this._iterateLhsReferences(
+                        property.value,
+                        nextPath,
+                        nextTraceMap,
+                    )
+                }
             }
             return
         }
@@ -367,12 +575,22 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given ModuleSpecifier node.
-     * @param {Node} specifierNode The ModuleSpecifier node to iterate references.
-     * @param {string[]} path The current path.
-     * @param {object} traceMap The trace map.
-     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate references.
+     * @param specifierNode The ModuleSpecifier node to iterate references.
+     * @param path The current path.
+     * @param traceMap The trace map.
+     * @returns The iterator to iterate references.
      */
-    *_iterateImportReferences(specifierNode, path, traceMap) {
+    private *_iterateImportReferences<CallInfo, ConstructInfo, ReadInfo>(
+        specifierNode:
+            | ESTree.ExportSpecifier
+            | ESTree.ImportDefaultSpecifier
+            | ESTree.ImportNamespaceSpecifier
+            | ESTree.ImportSpecifier,
+        path: string[],
+        traceMap: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>,
+    ): IterableIterator<
+        TrackedReferencesInternal<CallInfo, ConstructInfo, ReadInfo>
+    > {
         const type = specifierNode.type
 
         if (type === "ImportSpecifier" || type === "ImportDefaultSpecifier") {
@@ -395,7 +613,7 @@ export class ReferenceTracker {
                 }
             }
             yield* this._iterateVariableReferences(
-                findVariable(this.globalScope, specifierNode.local),
+                findVariable(this.globalScope, specifierNode.local)!,
                 path,
                 nextTraceMap,
                 false,
@@ -406,7 +624,7 @@ export class ReferenceTracker {
 
         if (type === "ImportNamespaceSpecifier") {
             yield* this._iterateVariableReferences(
-                findVariable(this.globalScope, specifierNode.local),
+                findVariable(this.globalScope, specifierNode.local)!,
                 path,
                 traceMap,
                 false,
@@ -434,17 +652,12 @@ export class ReferenceTracker {
     }
 }
 
-ReferenceTracker.READ = READ
-ReferenceTracker.CALL = CALL
-ReferenceTracker.CONSTRUCT = CONSTRUCT
-ReferenceTracker.ESM = ESM
-
 /**
  * This is a predicate function for Array#filter.
  * @param {string} name A name part.
  * @param {number} index The index of the name.
  * @returns {boolean} `false` if it's default.
  */
-function exceptDefault(name, index) {
+function exceptDefault(name: string, index: number) {
     return !(index === 1 && name === "default")
 }

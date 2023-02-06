@@ -2,7 +2,7 @@ import assert from "assert"
 import { getProperty } from "dot-prop"
 import eslint from "eslint"
 import semver from "semver"
-import { hasSideEffect } from "../src/index.mjs"
+import { hasSideEffect } from "../src/index"
 
 describe("The 'hasSideEffect' function", () => {
     for (const { code, key = "body[0].expression", options, expected } of [
@@ -300,21 +300,25 @@ describe("The 'hasSideEffect' function", () => {
             expected: false,
         },
     ]) {
-        it(`should return ${expected} on the code \`${code}\` and the options \`${JSON.stringify(
+        it(`should return ${String(
+            expected,
+        )} on the code \`${code}\` and the options \`${JSON.stringify(
             options,
         )}\``, () => {
             const linter = new eslint.Linter()
 
             let actual = null
-            linter.defineRule("test", (context) => ({
-                Program(node) {
-                    actual = hasSideEffect(
-                        getProperty(node, key),
-                        context.getSourceCode(),
-                        options,
-                    )
-                },
-            }))
+            linter.defineRule("test", {
+                create: (context) => ({
+                    Program(node) {
+                        actual = hasSideEffect(
+                            getProperty(node, key)!,
+                            context.getSourceCode(),
+                            options,
+                        )
+                    },
+                }),
+            })
             const messages = linter.verify(code, {
                 env: { es6: true },
                 parserOptions: {
@@ -325,11 +329,7 @@ describe("The 'hasSideEffect' function", () => {
                 rules: { test: "error" },
             })
 
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             assert.strictEqual(actual, expected)
         })
     }

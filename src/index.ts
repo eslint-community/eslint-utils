@@ -1,20 +1,41 @@
-import { findVariable } from "./find-variable.mjs"
-import { getFunctionHeadLocation } from "./get-function-head-location.mjs"
-import { getFunctionNameWithKind } from "./get-function-name-with-kind.mjs"
-import { getInnermostScope } from "./get-innermost-scope.mjs"
-import { getPropertyName } from "./get-property-name.mjs"
-import { getStaticValue } from "./get-static-value.mjs"
-import { getStringIfConstant } from "./get-string-if-constant.mjs"
-import { hasSideEffect } from "./has-side-effect.mjs"
-import { isParenthesized } from "./is-parenthesized.mjs"
-import { PatternMatcher } from "./pattern-matcher.mjs"
+import { findVariable } from "./find-variable"
+import { getFunctionHeadLocation } from "./get-function-head-location"
+import { getFunctionNameWithKind } from "./get-function-name-with-kind"
+import { getInnermostScope } from "./get-innermost-scope"
+import { getPropertyName } from "./get-property-name"
+import type {
+    StaticValue,
+    StaticValueOptional,
+    StaticValueProvided,
+} from "./get-static-value"
+import { getStaticValue } from "./get-static-value"
+import { getStringIfConstant } from "./get-string-if-constant"
+import type { HasSideEffectOptions } from "./has-side-effect"
+import { hasSideEffect } from "./has-side-effect"
+import { isParenthesized } from "./is-parenthesized"
+import type { PatternMatherOptions } from "./pattern-matcher"
+import { PatternMatcher } from "./pattern-matcher"
+import type { ReferenceTrackerOptions } from "./reference-tracker"
 import {
     CALL,
     CONSTRUCT,
     ESM,
     READ,
     ReferenceTracker,
-} from "./reference-tracker.mjs"
+} from "./reference-tracker"
+import type {
+    ArrowToken,
+    ClosingBraceToken,
+    ClosingBracketToken,
+    ClosingParenToken,
+    ColonToken,
+    CommaToken,
+    OpeningBraceToken,
+    OpeningBracketToken,
+    OpeningParenToken,
+    PunctuatorToken,
+    SemicolonToken,
+} from "./token-predicate"
 import {
     isArrowToken,
     isClosingBraceToken,
@@ -38,7 +59,7 @@ import {
     isOpeningBracketToken,
     isOpeningParenToken,
     isSemicolonToken,
-} from "./token-predicate.mjs"
+} from "./token-predicate"
 
 export default {
     CALL,
@@ -78,6 +99,25 @@ export default {
     PatternMatcher,
     READ,
     ReferenceTracker,
+}
+export type {
+    StaticValue,
+    StaticValueOptional,
+    StaticValueProvided,
+    HasSideEffectOptions,
+    ReferenceTrackerOptions,
+    PunctuatorToken,
+    ArrowToken,
+    CommaToken,
+    SemicolonToken,
+    ColonToken,
+    OpeningParenToken,
+    ClosingParenToken,
+    OpeningBracketToken,
+    ClosingBracketToken,
+    OpeningBraceToken,
+    ClosingBraceToken,
+    PatternMatherOptions,
 }
 export {
     CALL,

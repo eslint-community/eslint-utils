@@ -1,14 +1,20 @@
-import { getPropertyName } from "./get-property-name.mjs"
+import type { SourceCode } from "eslint"
+import type * as ESTree from "estree"
+import { getParent } from "./get-parent"
+import { getPropertyName } from "./get-property-name"
 
 /**
  * Get the name and kind of the given function node.
- * @param {ASTNode} node - The function node to get.
- * @param {SourceCode} [sourceCode] The source code object to get the code of computed property keys.
- * @returns {string} The name and kind of the function node.
+ * @param node - The function node to get.
+ * @param sourceCode The source code object to get the code of computed property keys.
+ * @returns The name and kind of the function node.
  */
 // eslint-disable-next-line complexity
-export function getFunctionNameWithKind(node, sourceCode) {
-    const parent = node.parent
+export function getFunctionNameWithKind(
+    node: ESTree.Function,
+    sourceCode?: SourceCode,
+): string {
+    const parent = getParent(node)!
     const tokens = []
     const isObjectMethod = parent.type === "Property" && parent.value === node
     const isClassMethod =
@@ -68,7 +74,7 @@ export function getFunctionNameWithKind(node, sourceCode) {
                 }
             }
         }
-    } else if (node.id) {
+    } else if (node.type !== "ArrowFunctionExpression" && node.id) {
         tokens.push(`'${node.id.name}'`)
     } else if (
         parent.type === "VariableDeclarator" &&

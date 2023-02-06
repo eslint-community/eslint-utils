@@ -1,23 +1,34 @@
 import assert from "assert"
+import type { Scope } from "eslint"
 import eslint from "eslint"
-import { findVariable } from "../src/index.mjs"
+import type * as ESTree from "estree"
+import { findVariable } from "../src/index"
 
 describe("The 'findVariable' function", () => {
-    function getVariable(code, selector, withString = null) {
+    function getVariable(
+        code: string,
+        selector: string,
+        withString: string | null = null,
+    ) {
         const linter = new eslint.Linter()
-        let variable = null
+        let variable: any = null
 
-        linter.defineRule("test", (context) => ({
-            [selector](node) {
-                variable = findVariable(context.getScope(), withString || node)
-            },
-        }))
+        linter.defineRule("test", {
+            create: (context) => ({
+                [selector](node: ESTree.Identifier) {
+                    variable = findVariable(
+                        context.getScope(),
+                        withString ?? node,
+                    )
+                },
+            }),
+        })
         linter.verify(code, {
             parserOptions: { ecmaVersion: 2020 },
             rules: { test: "error" },
         })
 
-        return variable
+        return variable as Scope.Variable
     }
 
     describe("should return the variable of a given Identifier node", () => {

@@ -1,4 +1,7 @@
+import type { SourceCode } from "eslint"
+import type { VisitorKeys } from "eslint-visitor-keys"
 import { getKeys, KEYS } from "eslint-visitor-keys"
+import type * as ESTree from "estree"
 
 const typeConversionBinaryOps = Object.freeze(
     new Set([
@@ -26,30 +29,44 @@ const typeConversionUnaryOps = Object.freeze(new Set(["-", "+", "!", "~"]))
 
 /**
  * Check whether the given value is an ASTNode or not.
- * @param {any} x The value to check.
- * @returns {boolean} `true` if the value is an ASTNode.
+ * @param x The value to check.
+ * @returns `true` if the value is an ASTNode.
  */
-function isNode(x) {
+function isNode(x: any): x is ESTree.Node {
+    // eslint-disable-next-line @eslint-community/mysticatea/ts/no-unsafe-member-access
     return x !== null && typeof x === "object" && typeof x.type === "string"
 }
 
-const visitor = Object.freeze(
-    Object.assign(Object.create(null), {
-        $visit(node, options, visitorKeys) {
-            const { type } = node
+function freeze<T>(o: T): T {
+    return Object.freeze(o) as T
+}
 
-            if (typeof this[type] === "function") {
-                return this[type](node, options, visitorKeys)
+const visitor = freeze(
+    Object.assign(Object.create(null) as {}, {
+        $visit(
+            node: ESTree.Node,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ): boolean {
+            const type = node.type as keyof typeof visitor
+
+            if (this[type]) {
+                return this[type](node as never, options, visitorKeys)
             }
 
             return this.$visitChildren(node, options, visitorKeys)
         },
 
-        $visitChildren(node, options, visitorKeys) {
+        $visitChildren(
+            node: ESTree.Node,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ): boolean {
             const { type } = node
 
             for (const key of visitorKeys[type] || getKeys(node)) {
-                const value = node[key]
+                // eslint-disable-next-line @eslint-community/mysticatea/ts/no-unsafe-assignment, @eslint-community/mysticatea/ts/no-unsafe-member-access
+                const value = (node as any)[key]
 
                 if (Array.isArray(value)) {
                     for (const element of value) {
@@ -80,7 +97,11 @@ const visitor = Object.freeze(
         AwaitExpression() {
             return true
         },
-        BinaryExpression(node, options, visitorKeys) {
+        BinaryExpression(
+            node: ESTree.BinaryExpression,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (
                 options.considerImplicitTypeConversion &&
                 typeConversionBinaryOps.has(node.operator) &&
@@ -99,7 +120,11 @@ const visitor = Object.freeze(
         ImportExpression() {
             return true
         },
-        MemberExpression(node, options, visitorKeys) {
+        MemberExpression(
+            node: ESTree.MemberExpression,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (options.considerGetters) {
                 return true
             }
@@ -112,7 +137,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
-        MethodDefinition(node, options, visitorKeys) {
+        MethodDefinition(
+            node: ESTree.MethodDefinition,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (
                 options.considerImplicitTypeConversion &&
                 node.computed &&
@@ -125,7 +154,11 @@ const visitor = Object.freeze(
         NewExpression() {
             return true
         },
-        Property(node, options, visitorKeys) {
+        Property(
+            node: ESTree.Property,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (
                 options.considerImplicitTypeConversion &&
                 node.computed &&
@@ -135,7 +168,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
-        PropertyDefinition(node, options, visitorKeys) {
+        PropertyDefinition(
+            node: ESTree.PropertyDefinition,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (
                 options.considerImplicitTypeConversion &&
                 node.computed &&
@@ -145,7 +182,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
-        UnaryExpression(node, options, visitorKeys) {
+        UnaryExpression(
+            node: ESTree.UnaryExpression,
+            options: Required<HasSideEffectOptions>,
+            visitorKeys: VisitorKeys,
+        ) {
             if (node.operator === "delete") {
                 return true
             }
@@ -168,20 +209,37 @@ const visitor = Object.freeze(
 )
 
 /**
+ * Options for `hasSideEffect`, optionally.
+ */
+export interface HasSideEffectOptions {
+    /**
+     * If `true` then it considers member accesses as the node which has side effects. Default is `false`.
+     */
+    considerGetters?: boolean
+
+    /**
+     * If `true` then it considers implicit type conversion as the node which has side effects. Default is `false`.
+     */
+    considerImplicitTypeConversion?: boolean
+}
+
+/**
  * Check whether a given node has any side effect or not.
- * @param {Node} node The node to get.
- * @param {SourceCode} sourceCode The source code object.
- * @param {object} [options] The option object.
- * @param {boolean} [options.considerGetters=false] If `true` then it considers member accesses as the node which has side effects.
- * @param {boolean} [options.considerImplicitTypeConversion=false] If `true` then it considers implicit type conversion as the node which has side effects.
- * @param {object} [options.visitorKeys=KEYS] The keys to traverse nodes. Use `context.getSourceCode().visitorKeys`.
- * @returns {boolean} `true` if the node has a certain side effect.
+ * @param node The node to get.
+ * @param sourceCode The source code object.
+ * @param options The option object.
+ * @param options.considerGetters If `true` then it considers member accesses as the node which has side effects. Default is `false`.
+ * @param options.considerImplicitTypeConversion If `true` then it considers implicit type conversion as the node which has side effects. Default is `false`.
+ * @returns `true` if the node has a certain side effect.
  */
 export function hasSideEffect(
-    node,
-    sourceCode,
-    { considerGetters = false, considerImplicitTypeConversion = false } = {},
-) {
+    node: ESTree.Node,
+    sourceCode: SourceCode,
+    {
+        considerGetters = false,
+        considerImplicitTypeConversion = false,
+    }: HasSideEffectOptions = {},
+): boolean {
     return visitor.$visit(
         node,
         { considerGetters, considerImplicitTypeConversion },

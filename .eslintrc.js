@@ -4,18 +4,34 @@
 module.exports = {
     root: true,
     extends: ["plugin:@eslint-community/mysticatea/es2020"],
+    parserOptions: {
+        project: "./tsconfig.json",
+    },
     rules: {
         "@eslint-community/mysticatea/prettier": "off",
+        "@eslint-community/mysticatea/ts/naming-convention": "off",
+        "@eslint-community/mysticatea/ts/prefer-readonly-parameter-types":
+            "off",
+        "@eslint-community/mysticatea/node/no-missing-import": [
+            "error",
+            {
+                allowModules: ["estree", "unbuild"],
+            },
+        ],
+    },
+    settings: {
+        node: {
+            tryExtensions: [".js", ".json", ".mjs", ".node", ".ts", ".tsx"],
+        },
     },
     overrides: [
         {
-            files: ["src/**/*.mjs", "test/**/*.mjs"],
+            files: ["src/**/*.ts", "test/**/*.ts"],
             extends: ["plugin:@eslint-community/mysticatea/+modules"],
             rules: {
                 "init-declarations": "off",
-
-                "@eslint-community/mysticatea/node/no-unsupported-features/es-syntax":
-                    ["error", { ignores: ["modules"] }],
+                "no-duplicate-imports": "off",
+                "no-shadow": "off",
             },
         },
     ],

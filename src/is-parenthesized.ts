@@ -1,14 +1,17 @@
-import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
+import type { AST, SourceCode } from "eslint"
+import type * as ESTree from "estree"
+import { getParent } from "./get-parent"
+import { isClosingParenToken, isOpeningParenToken } from "./token-predicate"
 
 /**
  * Get the left parenthesis of the parent node syntax if it exists.
  * E.g., `if (a) {}` then the `(`.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
- * @returns {Token|null} The left parenthesis of the parent node syntax
+ * @param node The AST node to check.
+ * @param sourceCode The source code object to get tokens.
+ * @returns The left parenthesis of the parent node syntax
  */
-function getParentSyntaxParen(node, sourceCode) {
-    const parent = node.parent
+function getParentSyntaxParen(node: ESTree.Node, sourceCode: SourceCode) {
+    const parent = getParent(node)!
 
     switch (parent.type) {
         case "CallExpression":
@@ -62,42 +65,58 @@ function getParentSyntaxParen(node, sourceCode) {
 
 /**
  * Check whether a given node is parenthesized or not.
- * @param {number} times The number of parantheses.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
- * @returns {boolean} `true` if the node is parenthesized the given times.
- */
-/**
- * Check whether a given node is parenthesized or not.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
- * @returns {boolean} `true` if the node is parenthesized.
+ * @param times The number of parantheses.
+ * @param node The AST node to check.
+ * @param sourceCode The source code object to get tokens.
+ * @returns `true` if the node is parenthesized the given times.
  */
 export function isParenthesized(
-    timesOrNode,
-    nodeOrSourceCode,
-    optionalSourceCode,
-) {
-    let times, node, sourceCode, maybeLeftParen, maybeRightParen
+    times: number,
+    node: ESTree.Node,
+    sourceCode: SourceCode,
+): boolean
+/**
+ * Check whether a given node is parenthesized or not.
+ * @param node The AST node to check.
+ * @param sourceCode The source code object to get tokens.
+ * @returns `true` if the node is parenthesized.
+ */
+export function isParenthesized(
+    node: ESTree.Node,
+    sourceCode: SourceCode,
+): boolean
+export function isParenthesized(
+    timesOrNode: ESTree.Node | number,
+    nodeOrSourceCode: ESTree.Node | SourceCode,
+    optionalSourceCode?: SourceCode,
+): boolean {
+    let times: number | undefined = undefined,
+        node: ESTree.Node | undefined = undefined,
+        sourceCode: SourceCode | undefined = undefined,
+        maybeLeftParen: AST.Token | ESTree.Comment | ESTree.Node | null = null,
+        maybeRightParen: AST.Token | ESTree.Comment | ESTree.Node | null = null
     if (typeof timesOrNode === "number") {
         times = timesOrNode | 0
-        node = nodeOrSourceCode
-        sourceCode = optionalSourceCode
+        node = nodeOrSourceCode as ESTree.Node
+        sourceCode = optionalSourceCode!
         if (!(times >= 1)) {
             throw new TypeError("'times' should be a positive integer.")
         }
     } else {
         times = 1
         node = timesOrNode
-        sourceCode = nodeOrSourceCode
+        sourceCode = nodeOrSourceCode as SourceCode
     }
 
+    if (node == null) {
+        return false
+    }
+    const parent = getParent(node)
     if (
-        node == null ||
         // `Program` can't be parenthesized
-        node.parent == null ||
+        parent == null ||
         // `CatchClause.param` can't be parenthesized, example `try {} catch (error) {}`
-        (node.parent.type === "CatchClause" && node.parent.param === node)
+        (parent.type === "CatchClause" && parent.param === node)
     ) {
         return false
     }

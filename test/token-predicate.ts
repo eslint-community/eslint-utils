@@ -22,7 +22,7 @@ import {
     isOpeningBracketToken,
     isOpeningParenToken,
     isSemicolonToken,
-} from "../src/index.mjs"
+} from "../src/index"
 
 describe("The predicate functions for tokens", () => {
     for (const { positive, negative, patterns } of [
@@ -132,12 +132,12 @@ describe("The predicate functions for tokens", () => {
                 [{ type: "Line", value: ";" }, false],
             ],
         },
-    ]) {
+    ] as const) {
         const baseName = positive.name.slice(2)
 
         describe(`'is${baseName}'`, () => {
             for (const [token, expected] of patterns) {
-                it(`should return ${expected} if ${JSON.stringify(
+                it(`should return ${String(expected)} if ${JSON.stringify(
                     token,
                 )} was given.`, () => {
                     assert.strictEqual(positive(token), expected)
@@ -147,7 +147,7 @@ describe("The predicate functions for tokens", () => {
 
         describe(`'isNot${baseName}'`, () => {
             for (const [token, expected] of patterns) {
-                it(`should return ${!expected} if ${JSON.stringify(
+                it(`should return ${String(!expected)} if ${JSON.stringify(
                     token,
                 )} was given.`, () => {
                     assert.strictEqual(negative(token), !expected)

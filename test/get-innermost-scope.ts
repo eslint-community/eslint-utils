@@ -1,8 +1,15 @@
 import assert from "assert"
 import eslint from "eslint"
-import { getInnermostScope } from "../src/index.mjs"
+import type * as ESTree from "estree"
+import { getInnermostScope } from "../src/index"
 
 describe("The 'getInnermostScope' function", () => {
+    type TestCase = {
+        code: "let a = 0"
+        parserOptions: eslint.Linter.ParserOptions
+        selectNode: (node: ESTree.Program) => ESTree.Node
+        selectScope: (scope: eslint.Scope.Scope) => eslint.Scope.Scope
+    }
     let i = 0
     for (const { code, parserOptions, selectNode, selectScope } of [
         {
@@ -38,34 +45,42 @@ describe("The 'getInnermostScope' function", () => {
         {
             code: "a; { b; { c; } d; } e;",
             parserOptions: {},
-            selectNode: (node) => node.body[1].body[0],
+            selectNode: (node) =>
+                (node.body[1] as ESTree.BlockStatement).body[0],
             selectScope: (scope) => scope.childScopes[0],
         },
         {
             code: "a; { b; { c; } d; } e;",
             parserOptions: {},
-            selectNode: (node) => node.body[1].body[2],
+            selectNode: (node) =>
+                (node.body[1] as ESTree.BlockStatement).body[2],
             selectScope: (scope) => scope.childScopes[0],
         },
         {
             code: "a; { b; { c; } d; } e;",
             parserOptions: {},
-            selectNode: (node) => node.body[1].body[1].body[0],
+            selectNode: (node) =>
+                (
+                    (node.body[1] as ESTree.BlockStatement)
+                        .body[1] as ESTree.BlockStatement
+                ).body[0],
             selectScope: (scope) => scope.childScopes[0].childScopes[0],
         },
-    ]) {
+    ] as TestCase[]) {
         it(`should return the innermost scope (${++i})`, () => {
             const linter = new eslint.Linter()
 
             let actualScope = null
             let expectedScope = null
-            linter.defineRule("test", (context) => ({
-                Program(node) {
-                    const scope = context.getScope()
-                    actualScope = getInnermostScope(scope, selectNode(node))
-                    expectedScope = selectScope(scope)
-                },
-            }))
+            linter.defineRule("test", {
+                create: (context) => ({
+                    Program(node) {
+                        const scope = context.getScope()
+                        actualScope = getInnermostScope(scope, selectNode(node))
+                        expectedScope = selectScope(scope)
+                    },
+                }),
+            })
             linter.verify(code, {
                 parserOptions: { ecmaVersion: 2020, ...parserOptions },
                 rules: { test: "error" },

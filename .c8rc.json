@@ -1,4 +1,4 @@
 {
-    "include": ["src/**/*.mjs"],
+    "include": ["src/**/*.ts"],
     "reporter": ["lcov", "text-summary"]
 }

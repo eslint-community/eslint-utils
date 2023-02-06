@@ -1,6 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
-import { getStringIfConstant } from "../src/index.mjs"
+import type * as ESTree from "estree"
+import { getStringIfConstant } from "../src/index"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
@@ -25,11 +26,15 @@ describe("The 'getStringIfConstant' function", () => {
             const linter = new eslint.Linter()
 
             let actual = null
-            linter.defineRule("test", () => ({
-                "Program > ExpressionStatement > *"(node) {
-                    actual = getStringIfConstant(node)
-                },
-            }))
+            linter.defineRule("test", {
+                create: () => ({
+                    "Program > ExpressionStatement > *"(
+                        node: ESTree.Expression,
+                    ) {
+                        actual = getStringIfConstant(node)
+                    },
+                }),
+            })
             linter.verify(code, {
                 parserOptions: { ecmaVersion: 2020 },
                 rules: { test: "error" },
@@ -53,11 +58,18 @@ describe("The 'getStringIfConstant' function", () => {
                 const linter = new eslint.Linter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program > ExpressionStatement > *"(node) {
-                        actual = getStringIfConstant(node, context.getScope())
-                    },
-                }))
+                linter.defineRule("test", {
+                    create: (context) => ({
+                        "Program > ExpressionStatement > *"(
+                            node: ESTree.Expression,
+                        ) {
+                            actual = getStringIfConstant(
+                                node,
+                                context.getScope(),
+                            )
+                        },
+                    }),
+                })
                 linter.verify(code, {
                     parserOptions: { ecmaVersion: 2020 },
                     rules: { test: "error" },

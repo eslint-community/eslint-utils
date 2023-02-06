@@ -1,7 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
-import { getStaticValue } from "../src/index.mjs"
+import { getStaticValue } from "../src/index"
 
 describe("The 'getStaticValue' function", () => {
     for (const { code, expected, noScope = false } of [
@@ -114,7 +114,8 @@ describe("The 'getStaticValue' function", () => {
         { code: "Array.of(1, 2)", expected: { value: [1, 2] } },
         {
             code: "[0,1,2].at(-1)",
-            expected: Array.prototype.at ? { value: 2 } : null,
+            expected:
+                typeof Array.prototype.at === "function" ? { value: 2 } : null,
         },
         {
             code: "[0,1,2].concat([3,4], [5])",
@@ -401,14 +402,16 @@ const aMap = Object.freeze({
             const linter = new eslint.Linter()
 
             let actual = null
-            linter.defineRule("test", (context) => ({
-                ExpressionStatement(node) {
-                    actual = getStaticValue(
-                        node,
-                        noScope ? null : context.getScope(),
-                    )
-                },
-            }))
+            linter.defineRule("test", {
+                create: (context) => ({
+                    ExpressionStatement(node) {
+                        actual = getStaticValue(
+                            node,
+                            noScope ? null : context.getScope(),
+                        )
+                    },
+                }),
+            })
             const messages = linter.verify(code, {
                 env: { es6: true },
                 parserOptions: {
@@ -419,11 +422,7 @@ const aMap = Object.freeze({
                 rules: { test: "error" },
             })
 
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             if (actual == null) {
                 assert.strictEqual(actual, expected)
             } else {

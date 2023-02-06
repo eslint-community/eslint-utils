@@ -1,7 +1,8 @@
 import assert from "assert"
 import eslint from "eslint"
+import type * as ESTree from "estree"
 import semver from "semver"
-import { getFunctionHeadLocation } from "../src/index.mjs"
+import { getFunctionHeadLocation } from "../src/index"
 
 describe("The 'getFunctionHeadLocation' function", () => {
     const expectedResults = {
@@ -88,15 +89,17 @@ describe("The 'getFunctionHeadLocation' function", () => {
             : {}),
     }
 
-    for (const key of Object.keys(expectedResults)) {
+    for (const key of Object.keys(
+        expectedResults,
+    ) as (keyof typeof expectedResults)[]) {
         const expectedLoc = {
             start: {
                 line: 1,
-                column: expectedResults[key][0],
+                column: expectedResults[key]![0],
             },
             end: {
                 line: 1,
-                column: expectedResults[key][1],
+                column: expectedResults[key]![1],
             },
         }
 
@@ -106,14 +109,16 @@ describe("The 'getFunctionHeadLocation' function", () => {
             const linter = new eslint.Linter()
 
             let actualLoc = null
-            linter.defineRule("test", (context) => ({
-                ":function"(node) {
-                    actualLoc = getFunctionHeadLocation(
-                        node,
-                        context.getSourceCode(),
-                    )
-                },
-            }))
+            linter.defineRule("test", {
+                create: (context) => ({
+                    ":function"(node: ESTree.Function) {
+                        actualLoc = getFunctionHeadLocation(
+                            node,
+                            context.getSourceCode(),
+                        )
+                    },
+                }),
+            })
             const messages = linter.verify(
                 key,
                 {
@@ -125,14 +130,9 @@ describe("The 'getFunctionHeadLocation' function", () => {
                     },
                 },
                 "test.js",
-                true,
             )
 
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             assert.deepStrictEqual(actualLoc, expectedLoc)
         })
     }

@@ -1,7 +1,8 @@
 import assert from "assert"
 import eslint from "eslint"
+import type * as ESTree from "estree"
 import semver from "semver"
-import { getFunctionNameWithKind } from "../src/index.mjs"
+import { getFunctionNameWithKind } from "../src/index"
 
 describe("The 'getFunctionNameWithKind' function", () => {
     const expectedResults = {
@@ -128,19 +129,26 @@ describe("The 'getFunctionNameWithKind' function", () => {
             : {}),
     }
 
-    for (const key of Object.keys(expectedResults)) {
-        const expectedResult1 = expectedResults[key].replace(/\s+\[.+?\]/gu, "")
+    for (const key of Object.keys(
+        expectedResults,
+    ) as (keyof typeof expectedResults)[]) {
+        const expectedResult1 = expectedResults[key]!.replace(
+            /\s+\[.+?\]/gu,
+            "",
+        )
         const expectedResult2 = expectedResults[key]
 
         it(`should return "${expectedResult1}" for "${key}".`, () => {
             const linter = new eslint.Linter()
 
             let actualResult = null
-            linter.defineRule("test", () => ({
-                ":function"(node) {
-                    actualResult = getFunctionNameWithKind(node)
-                },
-            }))
+            linter.defineRule("test", {
+                create: () => ({
+                    ":function"(node: ESTree.Function) {
+                        actualResult = getFunctionNameWithKind(node)
+                    },
+                }),
+            })
             const messages = linter.verify(key, {
                 rules: { test: "error" },
                 parserOptions: {
@@ -151,26 +159,24 @@ describe("The 'getFunctionNameWithKind' function", () => {
                 },
             })
 
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             assert.strictEqual(actualResult, expectedResult1)
         })
 
-        it(`should return "${expectedResult2}" for "${key}" if sourceCode is present.`, () => {
+        it(`should return "${expectedResult2!}" for "${key}" if sourceCode is present.`, () => {
             const linter = new eslint.Linter()
 
             let actualResult = null
-            linter.defineRule("test", (context) => ({
-                ":function"(node) {
-                    actualResult = getFunctionNameWithKind(
-                        node,
-                        context.getSourceCode(),
-                    )
-                },
-            }))
+            linter.defineRule("test", {
+                create: (context) => ({
+                    ":function"(node: ESTree.Function) {
+                        actualResult = getFunctionNameWithKind(
+                            node,
+                            context.getSourceCode(),
+                        )
+                    },
+                }),
+            })
             const messages = linter.verify(key, {
                 rules: { test: "error" },
                 parserOptions: {
@@ -181,11 +187,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
                 },
             })
 
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             assert.strictEqual(actualResult, expectedResult2)
         })
     }

@@ -1,37 +1,51 @@
-/**
- * Negate the result of `this` calling.
- * @param {Token} token The token to check.
- * @returns {boolean} `true` if the result of `this(token)` is `false`.
- */
-function negate0(token) {
-    return !this(token) //eslint-disable-line no-invalid-this
+type CommentOrToken = { type: string; value: string }
+type Comment = CommentOrToken & { type: "Block" | "Line" | "Shebang" }
+
+export interface PunctuatorToken<Value extends string> {
+    type: "Punctuator"
+    value: Value
 }
+export type ArrowToken = PunctuatorToken<"=>">
+export type CommaToken = PunctuatorToken<",">
+export type SemicolonToken = PunctuatorToken<";">
+export type ColonToken = PunctuatorToken<":">
+export type OpeningParenToken = PunctuatorToken<"(">
+export type ClosingParenToken = PunctuatorToken<")">
+export type OpeningBracketToken = PunctuatorToken<"[">
+export type ClosingBracketToken = PunctuatorToken<"]">
+export type OpeningBraceToken = PunctuatorToken<"{">
+export type ClosingBraceToken = PunctuatorToken<"}">
 
 /**
  * Creates the negate function of the given function.
  * @param {function(Token):boolean} f - The function to negate.
  * @returns {function(Token):boolean} Negated function.
  */
-function negate(f) {
-    return negate0.bind(f)
+function negate(
+    f: (token: CommentOrToken) => boolean,
+): (token: CommentOrToken) => boolean {
+    return (t) => !f(t)
 }
 
 /**
  * Checks if the given token is a PunctuatorToken with the given value
- * @param {Token} token - The token to check.
- * @param {string} value - The value to check.
- * @returns {boolean} `true` if the token is a PunctuatorToken with the given value.
+ * @param token - The token to check.
+ * @param value - The value to check.
+ * @returns `true` if the token is a PunctuatorToken with the given value.
  */
-function isPunctuatorTokenWithValue(token, value) {
+function isPunctuatorTokenWithValue<V extends string>(
+    token: CommentOrToken,
+    value: V,
+): token is PunctuatorToken<V> {
     return token.type === "Punctuator" && token.value === value
 }
 
 /**
  * Checks if the given token is an arrow token or not.
- * @param {Token} token - The token to check.
- * @returns {boolean} `true` if the token is an arrow token.
+ * @param token - The token to check.
+ * @returns `true` if the token is an arrow token.
  */
-export function isArrowToken(token) {
+export function isArrowToken(token: CommentOrToken): token is ArrowToken {
     return isPunctuatorTokenWithValue(token, "=>")
 }
 
@@ -40,7 +54,7 @@ export function isArrowToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a comma token.
  */
-export function isCommaToken(token) {
+export function isCommaToken(token: CommentOrToken): token is CommaToken {
     return isPunctuatorTokenWithValue(token, ",")
 }
 
@@ -49,7 +63,9 @@ export function isCommaToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a semicolon token.
  */
-export function isSemicolonToken(token) {
+export function isSemicolonToken(
+    token: CommentOrToken,
+): token is SemicolonToken {
     return isPunctuatorTokenWithValue(token, ";")
 }
 
@@ -58,7 +74,7 @@ export function isSemicolonToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a colon token.
  */
-export function isColonToken(token) {
+export function isColonToken(token: CommentOrToken): token is ColonToken {
     return isPunctuatorTokenWithValue(token, ":")
 }
 
@@ -67,7 +83,9 @@ export function isColonToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is an opening parenthesis token.
  */
-export function isOpeningParenToken(token) {
+export function isOpeningParenToken(
+    token: CommentOrToken,
+): token is OpeningParenToken {
     return isPunctuatorTokenWithValue(token, "(")
 }
 
@@ -76,7 +94,9 @@ export function isOpeningParenToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a closing parenthesis token.
  */
-export function isClosingParenToken(token) {
+export function isClosingParenToken(
+    token: CommentOrToken,
+): token is ClosingParenToken {
     return isPunctuatorTokenWithValue(token, ")")
 }
 
@@ -85,7 +105,9 @@ export function isClosingParenToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is an opening square bracket token.
  */
-export function isOpeningBracketToken(token) {
+export function isOpeningBracketToken(
+    token: CommentOrToken,
+): token is OpeningBracketToken {
     return isPunctuatorTokenWithValue(token, "[")
 }
 
@@ -94,7 +116,9 @@ export function isOpeningBracketToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a closing square bracket token.
  */
-export function isClosingBracketToken(token) {
+export function isClosingBracketToken(
+    token: CommentOrToken,
+): token is ClosingBracketToken {
     return isPunctuatorTokenWithValue(token, "]")
 }
 
@@ -103,7 +127,9 @@ export function isClosingBracketToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is an opening brace token.
  */
-export function isOpeningBraceToken(token) {
+export function isOpeningBraceToken(
+    token: CommentOrToken,
+): token is OpeningBraceToken {
     return isPunctuatorTokenWithValue(token, "{")
 }
 
@@ -112,7 +138,9 @@ export function isOpeningBraceToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a closing brace token.
  */
-export function isClosingBraceToken(token) {
+export function isClosingBraceToken(
+    token: CommentOrToken,
+): token is ClosingBraceToken {
     return isPunctuatorTokenWithValue(token, "}")
 }
 
@@ -121,7 +149,7 @@ export function isClosingBraceToken(token) {
  * @param {Token} token - The token to check.
  * @returns {boolean} `true` if the token is a comment token.
  */
-export function isCommentToken(token) {
+export function isCommentToken(token: CommentOrToken): token is Comment {
     return ["Block", "Line", "Shebang"].includes(token.type)
 }
 

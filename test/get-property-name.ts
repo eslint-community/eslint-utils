@@ -1,7 +1,8 @@
 import assert from "assert"
 import eslint from "eslint"
+import type * as ESTree from "estree"
 import semver from "semver"
-import { getPropertyName } from "../src/index.mjs"
+import { getPropertyName } from "../src/index"
 
 describe("The 'getPropertyName' function", () => {
     for (const { code, expected } of [
@@ -59,13 +60,19 @@ describe("The 'getPropertyName' function", () => {
             const linter = new eslint.Linter()
 
             let actual = null
-            linter.defineRule("test", () => ({
-                "Property,PropertyDefinition,MethodDefinition,MemberExpression"(
-                    node,
-                ) {
-                    actual = getPropertyName(node)
-                },
-            }))
+            linter.defineRule("test", {
+                create: () => ({
+                    "Property,PropertyDefinition,MethodDefinition,MemberExpression"(
+                        node:
+                            | ESTree.MemberExpression
+                            | ESTree.MethodDefinition
+                            | ESTree.Property
+                            | ESTree.PropertyDefinition,
+                    ) {
+                        actual = getPropertyName(node)
+                    },
+                }),
+            })
             const messages = linter.verify(code, {
                 parserOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
@@ -74,11 +81,7 @@ describe("The 'getPropertyName' function", () => {
                 },
                 rules: { test: "error" },
             })
-            assert.strictEqual(
-                messages.length,
-                0,
-                messages[0] && messages[0].message,
-            )
+            assert.strictEqual(messages.length, 0, messages[0]?.message)
             assert.strictEqual(actual, expected)
         })
     }

@@ -1,5 +1,5 @@
 import assert from "assert"
-import { PatternMatcher } from "../src/index.mjs"
+import { PatternMatcher } from "../src/index"
 
 const NAMED_CAPTURE_GROUP_SUPPORTED = (() => {
     try {
@@ -17,12 +17,16 @@ const NAMED_CAPTURE_GROUP_SUPPORTED = (() => {
  * @param {string} input The input.
  * @returns {RegExpExecArray} The created object.
  */
-function newRegExpExecArray(subStrings, index, input) {
+function newRegExpExecArray(
+    subStrings: string[],
+    index: number,
+    input: string,
+): RegExpExecArray {
     Object.assign(subStrings, { index, input })
     if (NAMED_CAPTURE_GROUP_SUPPORTED) {
-        subStrings.groups = undefined
+        ;(subStrings as RegExpExecArray).groups = undefined
     }
-    return subStrings
+    return subStrings as RegExpExecArray
 }
 
 describe("The 'PatternMatcher' class:", () => {
@@ -43,7 +47,7 @@ describe("The 'PatternMatcher' class:", () => {
                 },
             ]) {
                 assert.throws(
-                    () => new PatternMatcher(value),
+                    () => new PatternMatcher(value as never),
                     /^TypeError: 'pattern' should be a RegExp instance\.$/u,
                 )
             }
@@ -237,7 +241,9 @@ describe("The 'PatternMatcher' class:", () => {
             { str: "-foofoofooabcfoo-", expected: true },
             { str: String.raw`-foo\foofooabcfoo-`, expected: true },
         ]) {
-            it(`should return ${expected} in ${JSON.stringify(str)}.`, () => {
+            it(`should return ${String(expected)} in ${JSON.stringify(
+                str,
+            )}.`, () => {
                 const matcher = new PatternMatcher(/foo/gu)
                 const actual = matcher.test(str)
                 assert.deepStrictEqual(actual, expected)
@@ -287,7 +293,7 @@ describe("The 'PatternMatcher' class:", () => {
             it(`should return ${expected} in ${JSON.stringify(
                 str,
             )} and ${JSON.stringify(replacer)}.`, () => {
-                const matcher = new PatternMatcher(pattern || /[a-c]/gu)
+                const matcher = new PatternMatcher(pattern ?? /[a-c]/gu)
                 const actual = str.replace(matcher, replacer)
                 assert.deepStrictEqual(actual, expected)
             })
@@ -295,7 +301,7 @@ describe("The 'PatternMatcher' class:", () => {
 
         it("should pass the correct arguments to replacers.", () => {
             const matcher = new PatternMatcher(/(\w)(\d)/gu)
-            const actualArgs = []
+            const actualArgs: (number | string)[][] = []
             const actual = "abc1d2efg".replace(matcher, (...args) => {
                 actualArgs.push(args)
                 return "x"

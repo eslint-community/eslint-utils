@@ -1,8 +1,23 @@
-/* globals globalThis, global, self, window */
+/* globals globalThis, global */
+/* eslint
+     @eslint-community/mysticatea/eslint-comments/no-use:0,
+     @eslint-community/mysticatea/ts/no-unsafe-assignment:0,
+     @eslint-community/mysticatea/ts/no-unsafe-argument:0,
+     @eslint-community/mysticatea/ts/no-unsafe-return:0,
+     @eslint-community/mysticatea/ts/no-unsafe-member-access:0,
+     @eslint-community/mysticatea/ts/no-unsafe-call:0,
+   ---
+   The logic within this source makes heavy use of any.
+*/
+import type { Scope } from "eslint"
+import type * as ESTree from "estree"
+import { findVariable } from "./find-variable"
 
-import { findVariable } from "./find-variable.mjs"
+type AnyFunction = (...any: any[]) => any
+declare const self: typeof globalThis
+declare const window: typeof globalThis
 
-const globalObject =
+const globalObject: Record<string, any> =
     typeof globalThis !== "undefined"
         ? globalThis
         : typeof self !== "undefined"
@@ -63,7 +78,7 @@ const builtinNames = Object.freeze(
         "WeakSet",
     ]),
 )
-const callAllowed = new Set(
+const callAllowed = new Set<AnyFunction>(
     [
         Array.isArray,
         Array.of,
@@ -95,14 +110,14 @@ const callAllowed = new Set(
         escape,
         isFinite,
         isNaN,
-        isPrototypeOf,
+        globalObject.isPrototypeOf,
         Map,
         Map.prototype.entries,
         Map.prototype.get,
         Map.prototype.has,
         Map.prototype.keys,
         Map.prototype.values,
-        ...Object.getOwnPropertyNames(Math)
+        ...(Object.getOwnPropertyNames(Math) as (keyof Math)[])
             .filter((k) => k !== "random")
             .map((k) => Math[k])
             .filter((f) => typeof f === "function"),
@@ -162,7 +177,7 @@ const callAllowed = new Set(
         Symbol.for,
         Symbol.keyFor,
         unescape,
-    ].filter((f) => typeof f === "function"),
+    ].filter((f): f is AnyFunction => typeof f === "function"),
 )
 const callPassThrough = new Set([
     Object.freeze,
@@ -170,8 +185,7 @@ const callPassThrough = new Set([
     Object.seal,
 ])
 
-/** @type {ReadonlyArray<readonly [Function, ReadonlySet<string>]>} */
-const getterAllowed = [
+const getterAllowed: readonly (readonly [Function, ReadonlySet<string>])[] = [
     [Map, new Set(["size"])],
     [
         RegExp,
@@ -192,10 +206,10 @@ const getterAllowed = [
 
 /**
  * Get the property descriptor.
- * @param {object} object The object to get.
- * @param {string|number|symbol} name The property name to get.
+ * @param object The object to get.
+ * @param name The property name to get.
  */
-function getPropertyDescriptor(object, name) {
+function getPropertyDescriptor(object: any, name: number | string | symbol) {
     let x = object
     while ((typeof x === "object" || typeof x === "function") && x !== null) {
         const d = Object.getOwnPropertyDescriptor(x, name)
@@ -209,21 +223,24 @@ function getPropertyDescriptor(object, name) {
 
 /**
  * Check if a property is getter or not.
- * @param {object} object The object to check.
- * @param {string|number|symbol} name The property name to check.
+ * @param object The object to check.
+ * @param name The property name to check.
  */
-function isGetter(object, name) {
+function isGetter(object: any, name: number | string | symbol) {
     const d = getPropertyDescriptor(object, name)
-    return d != null && d.get != null
+    return d?.get != null
 }
 
 /**
  * Get the element values of a given node list.
- * @param {Node[]} nodeList The node list to get values.
- * @param {Scope|undefined} initialScope The initial scope to find variables.
+ * @param nodeList The node list to get values.
+ * @param initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
-function getElementValues(nodeList, initialScope) {
+function getElementValues(
+    nodeList: (ESTree.Node | null)[],
+    initialScope: Scope.Scope | null,
+): any[] | null {
     const valueList = []
 
     for (let i = 0; i < nodeList.length; ++i) {
@@ -236,7 +253,7 @@ function getElementValues(nodeList, initialScope) {
             if (argument == null) {
                 return null
             }
-            valueList.push(...argument.value)
+            valueList.push(...(argument.value as any[]))
         } else {
             const element = getStaticValueR(elementNode, initialScope)
             if (element == null) {
@@ -254,7 +271,7 @@ function getElementValues(nodeList, initialScope) {
  * @param {import("eslint").Scope.Variable} variable
  * @returns {boolean}
  */
-function isEffectivelyConst(variable) {
+function isEffectivelyConst(variable: Scope.Variable): boolean {
     const refs = variable.references
 
     const inits = refs.filter((r) => r.init).length
@@ -267,12 +284,18 @@ function isEffectivelyConst(variable) {
 }
 
 const operations = Object.freeze({
-    ArrayExpression(node, initialScope) {
+    ArrayExpression(
+        node: ESTree.ArrayExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const elements = getElementValues(node.elements, initialScope)
         return elements != null ? { value: elements } : null
     },
 
-    AssignmentExpression(node, initialScope) {
+    AssignmentExpression(
+        node: ESTree.AssignmentExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         if (node.operator === "=") {
             return getStaticValueR(node.right, initialScope)
         }
@@ -280,7 +303,10 @@ const operations = Object.freeze({
     },
 
     //eslint-disable-next-line complexity
-    BinaryExpression(node, initialScope) {
+    BinaryExpression(
+        node: ESTree.BinaryExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         if (node.operator === "in" || node.operator === "instanceof") {
             // Not supported.
             return null
@@ -313,6 +339,7 @@ const operations = Object.freeze({
                 case ">>>":
                     return { value: left.value >>> right.value }
                 case "+":
+                    // eslint-disable-next-line @eslint-community/mysticatea/ts/restrict-plus-operands
                     return { value: left.value + right.value }
                 case "-":
                     return { value: left.value - right.value }
@@ -338,7 +365,10 @@ const operations = Object.freeze({
         return null
     },
 
-    CallExpression(node, initialScope) {
+    CallExpression(
+        node: ESTree.SimpleCallExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const calleeNode = node.callee
         const args = getElementValues(node.arguments, initialScope)
 
@@ -391,7 +421,10 @@ const operations = Object.freeze({
         return null
     },
 
-    ConditionalExpression(node, initialScope) {
+    ConditionalExpression(
+        node: ESTree.ConditionalExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const test = getStaticValueR(node.test, initialScope)
         if (test != null) {
             return test.value
@@ -401,11 +434,17 @@ const operations = Object.freeze({
         return null
     },
 
-    ExpressionStatement(node, initialScope) {
+    ExpressionStatement(
+        node: ESTree.ExpressionStatement,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         return getStaticValueR(node.expression, initialScope)
     },
 
-    Identifier(node, initialScope) {
+    Identifier(
+        node: ESTree.Identifier,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         if (initialScope != null) {
             const variable = findVariable(initialScope, node)
 
@@ -423,6 +462,7 @@ const operations = Object.freeze({
             if (variable != null && variable.defs.length === 1) {
                 const def = variable.defs[0]
                 if (
+                    def.type === "Variable" &&
                     def.parent &&
                     def.type === "Variable" &&
                     (def.parent.kind === "const" ||
@@ -430,28 +470,38 @@ const operations = Object.freeze({
                     // TODO(mysticatea): don't support destructuring here.
                     def.node.id.type === "Identifier"
                 ) {
-                    return getStaticValueR(def.node.init, initialScope)
+                    return getStaticValueR(def.node.init!, initialScope)
                 }
             }
         }
         return null
     },
 
-    Literal(node) {
+    Literal(
+        node: ESTree.Literal,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         //istanbul ignore if : this is implementation-specific behavior.
-        if ((node.regex != null || node.bigint != null) && node.value == null) {
+        if (
+            (("regex" in node && node.regex != null) ||
+                ("bigint" in node && node.bigint != null)) &&
+            node.value == null
+        ) {
             // It was a RegExp/BigInt literal, but Node.js didn't support it.
             return null
         }
         return { value: node.value }
     },
 
-    LogicalExpression(node, initialScope) {
+    LogicalExpression(
+        node: ESTree.LogicalExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const left = getStaticValueR(node.left, initialScope)
         if (left != null) {
             if (
-                (node.operator === "||" && Boolean(left.value) === true) ||
-                (node.operator === "&&" && Boolean(left.value) === false) ||
+                (node.operator === "||" && Boolean(left.value)) ||
+                (node.operator === "&&" && !left.value) ||
                 (node.operator === "??" && left.value != null)
             ) {
                 return left
@@ -466,7 +516,10 @@ const operations = Object.freeze({
         return null
     },
 
-    MemberExpression(node, initialScope) {
+    MemberExpression(
+        node: ESTree.MemberExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         if (node.property.type === "PrivateIdentifier") {
             return null
         }
@@ -487,7 +540,7 @@ const operations = Object.freeze({
                         object.value instanceof classFn &&
                         allowed.has(property.value)
                     ) {
-                        return { value: object.value[property.value] }
+                        return { value: (object.value as any)[property.value] }
                     }
                 }
             }
@@ -495,7 +548,10 @@ const operations = Object.freeze({
         return null
     },
 
-    ChainExpression(node, initialScope) {
+    ChainExpression(
+        node: ESTree.ChainExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const expression = getStaticValueR(node.expression, initialScope)
         if (expression != null) {
             return { value: expression.value }
@@ -503,7 +559,10 @@ const operations = Object.freeze({
         return null
     },
 
-    NewExpression(node, initialScope) {
+    NewExpression(
+        node: ESTree.NewExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const callee = getStaticValueR(node.callee, initialScope)
         const args = getElementValues(node.arguments, initialScope)
 
@@ -517,8 +576,11 @@ const operations = Object.freeze({
         return null
     },
 
-    ObjectExpression(node, initialScope) {
-        const object = {}
+    ObjectExpression(
+        node: ESTree.ObjectExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
+        const object: Record<string, any> = {}
 
         for (const propertyNode of node.properties) {
             if (propertyNode.type === "Property") {
@@ -536,7 +598,8 @@ const operations = Object.freeze({
                 object[key.value] = value.value
             } else if (
                 propertyNode.type === "SpreadElement" ||
-                propertyNode.type === "ExperimentalSpreadProperty"
+                // Experimental node type
+                (propertyNode as any).type === "ExperimentalSpreadProperty"
             ) {
                 const argument = getStaticValueR(
                     propertyNode.argument,
@@ -554,12 +617,18 @@ const operations = Object.freeze({
         return { value: object }
     },
 
-    SequenceExpression(node, initialScope) {
+    SequenceExpression(
+        node: ESTree.SequenceExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const last = node.expressions[node.expressions.length - 1]
         return getStaticValueR(last, initialScope)
     },
 
-    TaggedTemplateExpression(node, initialScope) {
+    TaggedTemplateExpression(
+        node: ESTree.TaggedTemplateExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const tag = getStaticValueR(node.tag, initialScope)
         const expressions = getElementValues(
             node.quasi.expressions,
@@ -568,7 +637,9 @@ const operations = Object.freeze({
 
         if (tag != null && expressions != null) {
             const func = tag.value
-            const strings = node.quasi.quasis.map((q) => q.value.cooked)
+            const strings = node.quasi.quasis.map(
+                (q) => q.value.cooked,
+            ) as string[] & { raw: readonly string[] }
             strings.raw = node.quasi.quasis.map((q) => q.value.raw)
 
             if (func === String.raw) {
@@ -579,20 +650,26 @@ const operations = Object.freeze({
         return null
     },
 
-    TemplateLiteral(node, initialScope) {
+    TemplateLiteral(
+        node: ESTree.TemplateLiteral,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         const expressions = getElementValues(node.expressions, initialScope)
         if (expressions != null) {
             let value = node.quasis[0].value.cooked
             for (let i = 0; i < expressions.length; ++i) {
                 value += expressions[i]
-                value += node.quasis[i + 1].value.cooked
+                value! += node.quasis[i + 1].value.cooked
             }
             return { value }
         }
         return null
     },
 
-    UnaryExpression(node, initialScope) {
+    UnaryExpression(
+        node: ESTree.UnaryExpression,
+        initialScope: Scope.Scope | null,
+    ): StaticValue | null {
         if (node.operator === "delete") {
             // Not supported.
             return null
@@ -623,15 +700,29 @@ const operations = Object.freeze({
     },
 })
 
+type StaticValueR =
+    | {
+          optional: true
+          value: undefined
+      }
+    | {
+          optional?: false
+          value: any
+      }
+
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
- * @param {Scope|undefined} initialScope The scope to start finding variable.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param node The node to get.
+ * @param initialScope The scope to start finding variable.
+ * @returns The static value of the node, or `null`.
  */
-function getStaticValueR(node, initialScope) {
+function getStaticValueR(
+    node: ESTree.Node,
+    initialScope: Scope.Scope | null,
+): StaticValueR | null {
     if (node != null && Object.hasOwnProperty.call(operations, node.type)) {
-        return operations[node.type](node, initialScope)
+        const get = operations[node.type as keyof typeof operations]
+        return get(node as never, initialScope)
     }
     return null
 }
@@ -642,7 +733,10 @@ function getStaticValueR(node, initialScope) {
  * @param {Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
  * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the property name of the node, or `null`.
  */
-function getStaticPropertyNameValue(node, initialScope) {
+function getStaticPropertyNameValue(
+    node: ESTree.MemberExpression | ESTree.Property,
+    initialScope: Scope.Scope | null,
+) {
     const nameNode = node.type === "Property" ? node.key : node.property
 
     if (node.computed) {
@@ -654,7 +748,7 @@ function getStaticPropertyNameValue(node, initialScope) {
     }
 
     if (nameNode.type === "Literal") {
-        if (nameNode.bigint) {
+        if ("bigint" in nameNode && nameNode.bigint) {
             return { value: nameNode.bigint }
         }
         return { value: String(nameNode.value) }
@@ -663,13 +757,25 @@ function getStaticPropertyNameValue(node, initialScope) {
     return null
 }
 
+export type StaticValue = StaticValueOptional | StaticValueProvided
+export interface StaticValueProvided {
+    value: unknown
+}
+export interface StaticValueOptional {
+    optional?: true
+    value: undefined
+}
+
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param node The node to get.
+ * @param initialScope The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
+ * @returns The static value of the node, or `null`.
  */
-export function getStaticValue(node, initialScope = null) {
+export function getStaticValue(
+    node: ESTree.Node,
+    initialScope: Scope.Scope | null = null,
+): StaticValue | null {
     try {
         return getStaticValueR(node, initialScope)
     } catch (_error) {
