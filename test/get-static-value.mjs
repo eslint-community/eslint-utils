@@ -43,6 +43,8 @@ describe("The 'getStaticValue' function", () => {
         { code: "foo(7)", expected: null },
         { code: "obj.foo(7)", expected: null },
         { code: "Math.round(a)", expected: null },
+        { code: "Math.random()", expected: null },
+        { code: "Math['random']()", expected: null },
         { code: "true ? 1 : c", expected: { value: 1 } },
         { code: "false ? b : 2", expected: { value: 2 } },
         { code: "a ? 1 : 2", expected: null },
