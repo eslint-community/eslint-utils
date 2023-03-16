@@ -112,6 +112,24 @@ const callPassThrough = new Set([
     Object.seal,
 ])
 
+/** @type {ReadonlyArray<readonly [Function, ReadonlySet<string>]>} */
+const getterAllowed = [
+    [
+        RegExp,
+        new Set([
+            "dotAll",
+            "flags",
+            "global",
+            "hasIndices",
+            "ignoreCase",
+            "multiline",
+            "source",
+            "sticky",
+            "unicode",
+        ]),
+    ],
+]
+
 /**
  * Get the property descriptor.
  * @param {object} object The object to get.
@@ -380,8 +398,19 @@ const operations = Object.freeze({
             }
             const property = getStaticPropertyNameValue(node, initialScope)
 
-            if (property != null && !isGetter(object.value, property.value)) {
-                return { value: object.value[property.value] }
+            if (property != null) {
+                if (!isGetter(object.value, property.value)) {
+                    return { value: object.value[property.value] }
+                }
+
+                for (const [classFn, allowed] of getterAllowed) {
+                    if (
+                        object.value instanceof classFn &&
+                        allowed.has(property.value)
+                    ) {
+                        return { value: object.value[property.value] }
+                    }
+                }
             }
         }
         return null
