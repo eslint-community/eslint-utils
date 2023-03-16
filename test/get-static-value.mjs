@@ -37,6 +37,17 @@ describe("The 'getStaticValue' function", () => {
         { code: "1 ^ 15", expected: { value: 14 } },
         { code: "3 & 2", expected: { value: 2 } },
         { code: "a + 1", expected: null },
+        {
+            code: "(123.456).toExponential()",
+            expected: { value: "1.23456e+2" },
+        },
+        { code: "(123.456).toExponential(3)", expected: { value: "1.235e+2" } },
+        { code: "(123.456).toFixed()", expected: { value: "123" } },
+        { code: "(123.456).toFixed(1)", expected: { value: "123.5" } },
+        { code: "(123.456).toPrecision()", expected: { value: "123.456" } },
+        { code: "(123.456).toPrecision(2)", expected: { value: "1.2e+2" } },
+        { code: "(123.456).toString()", expected: { value: "123.456" } },
+        { code: "(123).toString(16)", expected: { value: "7b" } },
         { code: "String(7)", expected: { value: "7" } },
         { code: "Math.round(0.7)", expected: { value: 1 } },
         { code: "Math['round'](0.4)", expected: { value: 0 } },
@@ -82,6 +93,47 @@ describe("The 'getStaticValue' function", () => {
         { code: "Object.xxx", expected: { value: undefined } },
         { code: "new Array(2)", expected: null },
         { code: "new Array(len)", expected: null },
+        { code: "Array.of()", expected: { value: [] } },
+        { code: "Array.of(1)", expected: { value: [1] } },
+        { code: "Array.of(1, 2)", expected: { value: [1, 2] } },
+        { code: "[0,1,2].at(-1)", expected: { value: 2 } },
+        {
+            code: "[0,1,2].concat([3,4], [5])",
+            expected: { value: [0, 1, 2, 3, 4, 5] },
+        },
+        { code: "[0,1,2].every(Boolean)", expected: { value: false } },
+        { code: "[0,1,2].filter(Boolean)", expected: { value: [1, 2] } },
+        { code: "[0,1,2].find((i) => i === 2)", expected: null },
+        { code: "[0,1,2].findIndex((i) => i === 2)", expected: null },
+        {
+            code: "[-1, [0,1,2], [[4]]].flat()",
+            expected: { value: [-1, 0, 1, 2, [4]] },
+        },
+        { code: "[0,1,2].includes(4)", expected: { value: false } },
+        { code: "[0,1,2].indexOf(4)", expected: { value: -1 } },
+        { code: "[0,1,2].join()", expected: { value: "0,1,2" } },
+        { code: "[0,1,2].join('|')", expected: { value: "0|1|2" } },
+        { code: "[1,1,1].lastIndexOf(1)", expected: { value: 2 } },
+        { code: "[0,1,2].slice(1)", expected: { value: [1, 2] } },
+        { code: "[0,1,2].some(Boolean)", expected: { value: true } },
+        { code: "[0,1,2].toString()", expected: { value: "0,1,2" } },
+        { code: "String([0,1,2])", expected: { value: "0,1,2" } },
+        { code: "[...[0,1,,2].keys()]", expected: { value: [0, 1, 2, 3] } },
+        {
+            code: "[...[0,1,,2].values()]",
+            expected: { value: [0, 1, undefined, 2] },
+        },
+        {
+            code: "[...[0,1,,2].entries()]",
+            expected: {
+                value: [
+                    [0, 0],
+                    [1, 1],
+                    [2, undefined],
+                    [3, 2],
+                ],
+            },
+        },
         { code: "({})", expected: { value: {} } },
         {
             code: "({a: 1, b: 2, c: 3})",
@@ -103,6 +155,12 @@ describe("The 'getStaticValue' function", () => {
         { code: "String.raw`\\unicode`", expected: { value: "\\unicode" } },
         { code: "`he${a}o`", expected: null }, //eslint-disable-line no-template-curly-in-string
         { code: "x`hello`", expected: null },
+        { code: "'  foo  '.trim()", expected: { value: "foo" } },
+        { code: "'  foo  '.trim().toUpperCase()", expected: { value: "FOO" } },
+        { code: "'  foo  '.indexOf('f')", expected: { value: 2 } },
+        { code: "'  foo  '.charAt(4)", expected: { value: "o" } },
+        { code: "'  foo  '.charCodeAt(400)", expected: { value: NaN } },
+        { code: "'  foo  '.repeat(1e12)", expected: null },
         { code: "-1", expected: { value: -1 } },
         { code: "+'1'", expected: { value: 1 } },
         { code: "!0", expected: { value: true } },
@@ -240,6 +298,31 @@ const aMap = Object.freeze({
         {
             code: "({'a': 1, 1e+1: 2, 2n: 3})",
             expected: { value: { a: 1, 10: 2, 2: 3 } },
+        },
+        {
+            code: "new Set([1,2])",
+            expected: { value: new Set([1, 2]) },
+        },
+        {
+            code: "new Set([1,2]).has(2)",
+            expected: { value: true },
+        },
+        {
+            code: "new Map([[1,2], [4,6]])",
+            expected: {
+                value: new Map([
+                    [1, 2],
+                    [4, 6],
+                ]),
+            },
+        },
+        {
+            code: "const m = new Map([[1,2], [4,6]]); m.get(1)",
+            expected: { value: 2 },
+        },
+        {
+            code: "const m = new Map([[1,2], [4,6]]); m.has(2)",
+            expected: { value: false },
         },
         ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? [
