@@ -96,7 +96,10 @@ describe("The 'getStaticValue' function", () => {
         { code: "Array.of()", expected: { value: [] } },
         { code: "Array.of(1)", expected: { value: [1] } },
         { code: "Array.of(1, 2)", expected: { value: [1, 2] } },
-        { code: "[0,1,2].at(-1)", expected: { value: 2 } },
+        {
+            code: "[0,1,2].at(-1)",
+            expected: Array.prototype.at ? { value: 2 } : null,
+        },
         {
             code: "[0,1,2].concat([3,4], [5])",
             expected: { value: [0, 1, 2, 3, 4, 5] },
