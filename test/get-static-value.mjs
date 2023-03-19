@@ -70,6 +70,7 @@ describe("The 'getStaticValue' function", () => {
         { code: "let a = 2; a", expected: { value: 2 } },
         { code: "var a = 2; a", expected: { value: 2 } },
         { code: "let a = 2; a = 1; a", expected: null },
+        { code: "let a = 2; a++; a", expected: null },
         { code: "let a; a = 1; a", expected: null },
         { code: "const a = 2; a", expected: null, noScope: true },
         { code: "const a = { b: 7 }; a.b", expected: { value: 7 } },
