@@ -172,6 +172,7 @@ const callPassThrough = new Set([
 
 /** @type {ReadonlyArray<readonly [Function, ReadonlySet<string>]>} */
 const getterAllowed = [
+    [Map, new Set(["size"])],
     [
         RegExp,
         new Set([
@@ -186,6 +187,7 @@ const getterAllowed = [
             "unicode",
         ]),
     ],
+    [Set, new Set(["size"])],
 ]
 
 /**

@@ -324,6 +324,7 @@ const aMap = Object.freeze({
             code: "new Set([1,2]).has(2)",
             expected: { value: true },
         },
+        { code: "new Set([1,2]).size", expected: { value: 2 } },
         {
             code: "new Map([[1,2], [4,6]])",
             expected: {
@@ -341,6 +342,7 @@ const aMap = Object.freeze({
             code: "const m = new Map([[1,2], [4,6]]); m.has(2)",
             expected: { value: false },
         },
+        { code: "new Map([[1,2], [4,6]]).size", expected: { value: 2 } },
         ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? [
                   {
