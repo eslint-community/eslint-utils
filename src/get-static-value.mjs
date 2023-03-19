@@ -13,6 +13,8 @@ const globalObject =
         ? global
         : {}
 
+class DangerousCallError extends Error {}
+
 const builtinNames = Object.freeze(
     new Set([
         "Array",
@@ -169,6 +171,14 @@ const callPassThrough = new Set([
     Object.preventExtensions,
     Object.seal,
 ])
+/** @type {ReadonlyMap<Function, ReplaceFn<unknown, unknown>>} */
+const callReplacement = new Map([
+    checkArgs(String.prototype.match, checkSafeSearchValue),
+    checkArgs(String.prototype.matchAll, checkSafeSearchValue),
+    checkArgs(String.prototype.replace, checkSafeSearchValue),
+    checkArgs(String.prototype.replaceAll, checkSafeSearchValue),
+    checkArgs(String.prototype.split, checkSafeSearchValue),
+])
 
 /** @type {ReadonlyArray<readonly [Function, ReadonlySet<string>]>} */
 const getterAllowed = [
@@ -187,6 +197,81 @@ const getterAllowed = [
         ]),
     ],
 ]
+
+/**
+ * @typedef {(thisArg: T, args: unknown[], original: (this: T, ...args: unknown[]) => R) => R} ReplaceFn
+ * @template T
+ * @template R
+ */
+
+/**
+ * A helper function that creates an entry for the given function.
+ * @param {T} fn
+ * @param {(args: unknown[]) => void} checkFn
+ * @returns {[T, ReplaceFn<unknown, ReturnType<T>>]}
+ * @template {Function} T
+ */
+function checkArgs(fn, checkFn) {
+    return [
+        fn,
+        (thisArg, args) => {
+            checkFn(args)
+            return fn.apply(thisArg, args)
+        },
+    ]
+}
+
+/**
+ * Checks that the first argument is either a string or a safe regex.
+ * @param {unknown[]} args
+ */
+function checkSafeSearchValue(args) {
+    const searchValue = args[0]
+    if (typeof searchValue === "string") {
+        // strings are always safe search values
+        return
+    }
+    if (searchValue instanceof RegExp && isSafeRegex(searchValue)) {
+        // we verified that the regex is safe
+        return
+    }
+    // we were unable to verify that the search value is safe,
+    throw new DangerousCallError()
+}
+
+/**
+ * Returns whether the given regex will execute in O(n) (with a decently small
+ * constant factor) on any string.
+ * @param {RegExp} regex
+ * @returns {boolean}
+ */
+function isSafeRegex(regex) {
+    let pattern = regex.source
+
+    // replace all escape sequences with some arbitrary character
+    pattern = pattern.replace(/\\./gu, "a")
+    // replace all character classes with some arbitrary character
+    pattern = pattern.replace(/\[[^\]]*\]/gu, "a")
+
+    // in the following check, we have to account for neither escapes nor character classes
+    if (/[+*{}]/u.test(pattern)) {
+        // contains (potentially) unbound quantifiers, e.g. /a*/
+        // this can be exploited for up to exponential backtracking
+        return false
+    }
+
+    // collect the number of branches in the regex
+    // here, a branch is a non-constant quantifier of disjunction
+    const branches = (pattern.match(/\||[^(]\?/gu) || []).length
+
+    // with n branches, it is possible to cause 2^n backtracking steps
+    // E.g. /^(a|a)(a|a)(a|a)(a|a)$/ has 4 branches and takes around 16 steps to reject "aaaab"
+    if (branches > 10) {
+        return false
+    }
+
+    return true
+}
 
 /**
  * Get the property descriptor.
@@ -245,6 +330,34 @@ function getElementValues(nodeList, initialScope) {
     }
 
     return valueList
+}
+
+/**
+ * Calls the given function if it is one of the allowed functions.
+ * @param {Function} func The function to call.
+ * @param {unknown} thisArg The `this` arg of the function. Use `undefined` when calling a free function.
+ * @param {unknown[]} args
+ */
+function callFunction(func, thisArg, args) {
+    if (callAllowed.has(func)) {
+        return { value: func.apply(thisArg, args) }
+    }
+    if (callPassThrough.has(func)) {
+        return { value: args[0] }
+    }
+
+    const replacement = callReplacement.get(func)
+    if (replacement) {
+        try {
+            return { value: replacement(thisArg, args, func) }
+        } catch (error) {
+            if (!(error instanceof DangerousCallError)) {
+                throw error
+            }
+        }
+    }
+
+    return null
 }
 
 const operations = Object.freeze({
@@ -344,12 +457,11 @@ const operations = Object.freeze({
                     if (property != null) {
                         const receiver = object.value
                         const methodName = property.value
-                        if (callAllowed.has(receiver[methodName])) {
-                            return { value: receiver[methodName](...args) }
-                        }
-                        if (callPassThrough.has(receiver[methodName])) {
-                            return { value: args[0] }
-                        }
+                        return callFunction(
+                            receiver[methodName],
+                            receiver,
+                            args,
+                        )
                     }
                 }
             } else {
@@ -359,12 +471,7 @@ const operations = Object.freeze({
                         return { value: undefined, optional: true }
                     }
                     const func = callee.value
-                    if (callAllowed.has(func)) {
-                        return { value: func(...args) }
-                    }
-                    if (callPassThrough.has(func)) {
-                        return { value: args[0] }
-                    }
+                    return callFunction(func, undefined, args)
                 }
             }
         }
