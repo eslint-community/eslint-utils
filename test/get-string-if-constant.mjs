@@ -43,8 +43,10 @@ describe("The 'getStringIfConstant' function", () => {
         for (const { code, expected } of [
             { code: "id", expected: null },
             { code: "const id = 'abc'; id", expected: "abc" },
-            { code: "let id = 'abc'; id", expected: null },
-            { code: "var id = 'abc'; id", expected: null },
+            { code: "let id = 'abc'; id", expected: "abc" },
+            { code: "var id = 'abc'; id", expected: "abc" },
+            { code: "let id = 'abc'; id = 'foo'; id", expected: null },
+            { code: "var id = 'abc'; id = 'foo'; id", expected: null },
             { code: "const id = otherId; id", expected: null },
         ]) {
             it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
