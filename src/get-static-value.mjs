@@ -254,6 +254,7 @@ function isSafeRegex(regex) {
     pattern = pattern.replace(/\[[^\]]*\]/gu, "a")
 
     // in the following check, we have to account for neither escapes nor character classes
+
     if (/[+*{}]/u.test(pattern)) {
         // contains (potentially) unbound quantifiers, e.g. /a*/
         // this can be exploited for up to exponential backtracking
@@ -261,7 +262,7 @@ function isSafeRegex(regex) {
     }
 
     // collect the number of branches in the regex
-    // here, a branch is a non-constant quantifier of disjunction
+    // here, a branch is a non-constant quantifier or disjunction
     const branches = (pattern.match(/\||[^(]\?/gu) || []).length
 
     // with n branches, it is possible to cause 2^n backtracking steps
