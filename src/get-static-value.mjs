@@ -248,17 +248,11 @@ function getElementValues(nodeList, initialScope) {
 }
 
 /**
- * Returns whether the given variable definition is either `const` or new written to.
+ * Returns whether the given variable is never written to after initialization.
  * @param {import("eslint").Scope.Variable} variable
- * @param {import("eslint").Scope.Definition & { type: "Variable" }} def
  * @returns {boolean}
  */
-function isEffectivelyConst(variable, def) {
-    if (def.parent.kind === "const") {
-        return true
-    }
-
-    // let and var are effectively const if they are never re-assigned
+function isEffectivelyConst(variable) {
     const refs = variable.references
 
     const inits = refs.filter((r) => r.init).length
@@ -429,7 +423,8 @@ const operations = Object.freeze({
                 if (
                     def.parent &&
                     def.type === "Variable" &&
-                    isEffectivelyConst(variable, def) &&
+                    (def.parent.kind === "const" ||
+                        isEffectivelyConst(variable)) &&
                     // TODO(mysticatea): don't support destructuring here.
                     def.node.id.type === "Identifier"
                 ) {
