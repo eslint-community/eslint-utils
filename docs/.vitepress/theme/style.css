@@ -1,12 +1,12 @@
 :root {
-    --color-primary-200: #DEDEFF;
-    --color-primary-300: #CCCCFA;
-    --color-primary-400: #B7B7FF;
-    --color-primary-500: #A0A0F5;
-    --color-primary-600: #8080F2;
-    --color-primary-700: #6358D4;
-    --color-primary-800: #4B32C3;
-    --color-primary-900: #341BAB;
+    --color-primary-200: #dedeff;
+    --color-primary-300: #ccccfa;
+    --color-primary-400: #b7b7ff;
+    --color-primary-500: #a0a0f5;
+    --color-primary-600: #8080f2;
+    --color-primary-700: #6358d4;
+    --color-primary-800: #4b32c3;
+    --color-primary-900: #341bab;
     --vp-c-brand: var(--color-primary-800);
     --vp-c-brand-light: var(--color-primary-600);
     --vp-c-brand-lighter: var(--color-primary-500);
