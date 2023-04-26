@@ -35,7 +35,7 @@
         "coverage": "opener ./coverage/lcov-report/index.html",
         "docs:build": "vitepress build docs",
         "docs:watch": "vitepress dev docs",
-        "format": "npm run -s format:prettier -- --write",
+        "format": "npm run -s format:prettier -- --write && npm run lint -- --fix",
         "format:prettier": "prettier .",
         "format:check": "npm run -s format:prettier -- --check",
         "lint": "eslint .",
