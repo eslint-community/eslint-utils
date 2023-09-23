@@ -228,6 +228,7 @@ describe("The 'isParenthesized' function", () => {
                         create: (context) => ({
                             Program(node) {
                                 actual = isParenthesized(
+                                    // eslint-disable-next-line @eslint-community/mysticatea/ts/no-confusing-void-expression -- Its return type is not void.
                                     getProperty(node, key)!,
                                     context.getSourceCode(),
                                 )
@@ -304,6 +305,7 @@ describe("The 'isParenthesized' function", () => {
                             Program(node) {
                                 actual = isParenthesized(
                                     2,
+                                    // eslint-disable-next-line @eslint-community/mysticatea/ts/no-confusing-void-expression -- Its return type is not void.
                                     getProperty(node, key)!,
                                     context.getSourceCode(),
                                 )

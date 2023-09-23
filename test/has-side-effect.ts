@@ -312,6 +312,7 @@ describe("The 'hasSideEffect' function", () => {
                 create: (context) => ({
                     Program(node) {
                         actual = hasSideEffect(
+                            // eslint-disable-next-line @eslint-community/mysticatea/ts/no-confusing-void-expression -- Its return type is not void.
                             getProperty(node, key)!,
                             context.getSourceCode(),
                             options,
