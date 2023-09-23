@@ -102,7 +102,7 @@ function replaceF(
     return chunks.join("")
 }
 
-export interface PatternMatherOptions {
+export type PatternMatherOptions = {
     escaped?: boolean
 }
 /**

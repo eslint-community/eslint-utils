@@ -71,7 +71,7 @@ function isPassThrough(node: ESTree.Node) {
     }
 }
 
-export interface ReferenceTrackerOptions {
+export type ReferenceTrackerOptions = {
     /**
      * The variable names for Global Object. Default is ["global","globalThis","self","window"]
      */
@@ -89,7 +89,7 @@ export type TraceMap<
     ReadInfo = never,
 > = Record<string, TraceMapObject<CallInfo, ConstructInfo, ReadInfo>>
 
-export interface TraceMapObject<CallInfo, ConstructInfo, ReadInfo> {
+export type TraceMapObject<CallInfo, ConstructInfo, ReadInfo> = {
     [i: string]: TraceMapObject<CallInfo, ConstructInfo, ReadInfo>
     [CALL]?: CallInfo
     [CONSTRUCT]?: ConstructInfo

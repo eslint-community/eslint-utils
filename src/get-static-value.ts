@@ -758,10 +758,10 @@ function getStaticPropertyNameValue(
 }
 
 export type StaticValue = StaticValueOptional | StaticValueProvided
-export interface StaticValueProvided {
+export type StaticValueProvided = {
     value: unknown
 }
-export interface StaticValueOptional {
+export type StaticValueOptional = {
     optional?: true
     value: undefined
 }

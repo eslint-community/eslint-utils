@@ -211,7 +211,7 @@ const visitor = freeze(
 /**
  * Options for `hasSideEffect`, optionally.
  */
-export interface HasSideEffectOptions {
+export type HasSideEffectOptions = {
     /**
      * If `true` then it considers member accesses as the node which has side effects. Default is `false`.
      */

@@ -14,9 +14,7 @@ module.exports = {
             "off",
         "@eslint-community/mysticatea/node/no-missing-import": [
             "error",
-            {
-                allowModules: ["estree", "unbuild"],
-            },
+            { allowModules: ["estree", "unbuild"] },
         ],
     },
     settings: {
