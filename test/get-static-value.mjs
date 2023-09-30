@@ -203,7 +203,16 @@ describe("The 'getStaticValue' function", () => {
         { code: "'abcdef'.match(/a+/g)", expected: null },
         { code: "'abab'.split('a')", expected: { value: ["", "b", "b"] } },
         { code: "'abab'.split(/a/)", expected: { value: ["", "b", "b"] } },
+        {
+            code: "'abab'.split(/(?:a|a)/)",
+            expected: { value: ["", "b", "b"] },
+        },
         { code: "'abab'.split(/a+/)", expected: null },
+        { code: "'abab'.split(/(?:a|a)+/)", expected: null },
+        {
+            code: "'abab'.split(/(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)(?:a|a)b/)",
+            expected: null,
+        },
         { code: "-1", expected: { value: -1 } },
         { code: "+'1'", expected: { value: 1 } },
         { code: "!0", expected: { value: true } },
