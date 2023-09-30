@@ -200,6 +200,7 @@ describe("The 'getStaticValue' function", () => {
             code: "'abcdef'.match(/a/gu)",
             expected: { value: "abcdef".match(/a/gu) },
         },
+        { code: "'abcdef'.match('[')", expected: null },
         { code: "'abcdef'.match(/a+/g)", expected: null },
         { code: "'abab'.split('a')", expected: { value: ["", "b", "b"] } },
         { code: "'abab'.split(/a/)", expected: { value: ["", "b", "b"] } },
