@@ -67,7 +67,11 @@ describe("The 'getStaticValue' function", () => {
         { code: "var undefined; undefined", expected: null },
         { code: "const undefined = 1; undefined", expected: { value: 1 } },
         { code: "const a = 2; a", expected: { value: 2 } },
-        { code: "let a = 2; a", expected: null },
+        { code: "let a = 2; a", expected: { value: 2 } },
+        { code: "var a = 2; a", expected: { value: 2 } },
+        { code: "let a = 2; a = 1; a", expected: null },
+        { code: "let a = 2; a++; a", expected: null },
+        { code: "let a; a = 1; a", expected: null },
         { code: "const a = 2; a", expected: null, noScope: true },
         { code: "const a = { b: 7 }; a.b", expected: { value: 7 } },
         { code: "null", expected: { value: null } },
@@ -158,7 +162,14 @@ describe("The 'getStaticValue' function", () => {
             code: "const obj = {b: 2}; ({a: 1, ...obj})",
             expected: { value: { a: 1, b: 2 } },
         },
-        { code: "var obj = {b: 2}; ({a: 1, ...obj})", expected: null },
+        {
+            code: "var obj = {b: 2}; ({a: 1, ...obj})",
+            expected: { value: { a: 1, b: 2 } },
+        },
+        {
+            code: "var obj = {b: 2}; obj = {}; ({a: 1, ...obj})",
+            expected: null,
+        },
         { code: "({ get a() {} })", expected: null },
         { code: "({ a })", expected: null },
         { code: "({ a: b })", expected: null },
@@ -339,6 +350,7 @@ const aMap = Object.freeze({
             code: "new Set([1,2]).has(2)",
             expected: { value: true },
         },
+        { code: "new Set([1,2]).size", expected: { value: 2 } },
         {
             code: "new Map([[1,2], [4,6]])",
             expected: {
@@ -356,6 +368,7 @@ const aMap = Object.freeze({
             code: "const m = new Map([[1,2], [4,6]]); m.has(2)",
             expected: { value: false },
         },
+        { code: "new Map([[1,2], [4,6]]).size", expected: { value: 2 } },
         ...(semver.gte(eslint.Linter.version, "8.0.0")
             ? [
                   {

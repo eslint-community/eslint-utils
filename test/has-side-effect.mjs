@@ -1,11 +1,11 @@
 import assert from "assert"
-import dp from "dot-prop"
+import { getProperty } from "dot-prop"
 import eslint from "eslint"
 import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
 
 describe("The 'hasSideEffect' function", () => {
-    for (const { code, key = "body.0.expression", options, expected } of [
+    for (const { code, key = "body[0].expression", options, expected } of [
         {
             code: "777",
             options: undefined,
@@ -23,7 +23,7 @@ describe("The 'hasSideEffect' function", () => {
         },
         {
             code: "async function f() { await g }",
-            key: "body.0.body.body.0.expression",
+            key: "body[0].body.body[0].expression",
             options: undefined,
             expected: true,
         },
@@ -268,7 +268,7 @@ describe("The 'hasSideEffect' function", () => {
         },
         {
             code: "function* g() { yield 1 }",
-            key: "body.0.body.body.0.expression",
+            key: "body[0].body.body[0].expression",
             options: undefined,
             expected: true,
         },
@@ -309,7 +309,7 @@ describe("The 'hasSideEffect' function", () => {
             linter.defineRule("test", (context) => ({
                 Program(node) {
                     actual = hasSideEffect(
-                        dp.get(node, key),
+                        getProperty(node, key),
                         context.getSourceCode(),
                         options,
                     )

@@ -182,6 +182,7 @@ const callReplacement = new Map([
 
 /** @type {ReadonlyArray<readonly [Function, ReadonlySet<string>]>} */
 const getterAllowed = [
+    [Map, new Set(["size"])],
     [
         RegExp,
         new Set([
@@ -196,6 +197,7 @@ const getterAllowed = [
             "unicode",
         ]),
     ],
+    [Set, new Set(["size"])],
 ]
 
 /**
@@ -361,6 +363,23 @@ function callFunction(func, thisArg, args) {
     return null
 }
 
+/**
+ * Returns whether the given variable is never written to after initialization.
+ * @param {import("eslint").Scope.Variable} variable
+ * @returns {boolean}
+ */
+function isEffectivelyConst(variable) {
+    const refs = variable.references
+
+    const inits = refs.filter((r) => r.init).length
+    const reads = refs.filter((r) => r.isReadOnly()).length
+    if (inits === 1 && reads + inits === refs.length) {
+        // there is only one init and all other references only read
+        return true
+    }
+    return false
+}
+
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
         const elements = getElementValues(node.elements, initialScope)
@@ -513,7 +532,9 @@ const operations = Object.freeze({
                 const def = variable.defs[0]
                 if (
                     def.parent &&
-                    def.parent.kind === "const" &&
+                    def.type === "Variable" &&
+                    (def.parent.kind === "const" ||
+                        isEffectivelyConst(variable)) &&
                     // TODO(mysticatea): don't support destructuring here.
                     def.node.id.type === "Identifier"
                 ) {

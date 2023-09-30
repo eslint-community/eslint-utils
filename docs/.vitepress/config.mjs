@@ -1,7 +1,11 @@
-const { defineConfig } = require("vitepress")
-const path = require("path")
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+import { defineConfig } from "vitepress"
 
-module.exports = defineConfig({
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+export default defineConfig({
     title: "eslint-utils",
     base: "/eslint-utils/",
     description: "Utilities for ESLint plugins and custom rules.",
@@ -11,6 +15,12 @@ module.exports = defineConfig({
 
     lastUpdated: true,
     themeConfig: {
+        search: {
+            provider: "local",
+            options: {
+                detailedView: true,
+            },
+        },
         editLink: {
             pattern:
                 "https://github.com/eslint-community/eslint-utils/edit/main/docs/:path",
