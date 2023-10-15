@@ -1,6 +1,7 @@
 /* globals globalThis, global, self, window */
 
 import { findVariable } from "./find-variable.mjs"
+import { isSafeRegex } from "./safe-regex.mjs"
 
 const globalObject =
     typeof globalThis !== "undefined"
@@ -239,41 +240,6 @@ function checkSafeSearchValue(args) {
     }
     // we were unable to verify that the search value is safe,
     throw new DangerousCallError()
-}
-
-/**
- * Returns whether the given regex will execute in O(n) (with a decently small
- * constant factor) on any string.
- * @param {RegExp} regex
- * @returns {boolean}
- */
-function isSafeRegex(regex) {
-    let pattern = regex.source
-
-    // replace all escape sequences with some arbitrary character
-    pattern = pattern.replace(/\\./gu, "a")
-    // replace all character classes with some arbitrary character
-    pattern = pattern.replace(/\[[^\]]*\]/gu, "a")
-
-    // in the following check, we have to account for neither escapes nor character classes
-
-    if (/[+*{}]/u.test(pattern)) {
-        // contains (potentially) unbound quantifiers, e.g. /a*/
-        // this can be exploited for up to exponential backtracking
-        return false
-    }
-
-    // collect the number of branches in the regex
-    // here, a branch is a non-constant quantifier or disjunction
-    const branches = (pattern.match(/\||[^(]\?/gu) || []).length
-
-    // with n branches, it is possible to cause 2^n backtracking steps
-    // E.g. /^(a|a)(a|a)(a|a)(a|a)$/ has 4 branches and takes around 16 steps to reject "aaaab"
-    if (branches > 10) {
-        return false
-    }
-
-    return true
 }
 
 /**

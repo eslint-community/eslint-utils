@@ -46,6 +46,7 @@
         "watch": "warun \"{src,test}/**/*.mjs\" -- npm run -s test:mocha"
     },
     "dependencies": {
+        "@eslint-community/regexpp": "^4.9.1",
         "eslint-visitor-keys": "^3.4.3"
     },
     "devDependencies": {
