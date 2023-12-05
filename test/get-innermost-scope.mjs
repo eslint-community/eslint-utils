@@ -1,6 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import { getInnermostScope } from "../src/index.mjs"
+import { getScope } from "./test-lib/get-scope.mjs"
 
 describe("The 'getInnermostScope' function", () => {
     let i = 0
@@ -61,7 +62,7 @@ describe("The 'getInnermostScope' function", () => {
             let expectedScope = null
             linter.defineRule("test", (context) => ({
                 Program(node) {
-                    const scope = context.getScope()
+                    const scope = getScope(context, node)
                     actualScope = getInnermostScope(scope, selectNode(node))
                     expectedScope = selectScope(scope)
                 },

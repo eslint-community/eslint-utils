@@ -1,6 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import { findVariable } from "../src/index.mjs"
+import { getScope } from "./test-lib/get-scope.mjs"
 
 describe("The 'findVariable' function", () => {
     function getVariable(code, selector, withString = null) {
@@ -9,7 +10,10 @@ describe("The 'findVariable' function", () => {
 
         linter.defineRule("test", (context) => ({
             [selector](node) {
-                variable = findVariable(context.getScope(), withString || node)
+                variable = findVariable(
+                    getScope(context, node),
+                    withString || node,
+                )
             },
         }))
         linter.verify(code, {

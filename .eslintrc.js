@@ -6,6 +6,15 @@ module.exports = {
     extends: ["plugin:@eslint-community/mysticatea/es2020"],
     rules: {
         "@eslint-community/mysticatea/prettier": "off",
+        "no-restricted-properties": [
+            "error",
+            {
+                object: "context",
+                property: "getScope",
+                message:
+                    "If you are using it in a test case, use test/test-lib/get-scope.mjs instead. Other than that, the API should also be compatible with ESLint v9.",
+            },
+        ],
     },
     overrides: [
         {

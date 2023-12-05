@@ -1,6 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import { getStringIfConstant } from "../src/index.mjs"
+import { getScope } from "./test-lib/get-scope.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
@@ -55,7 +56,10 @@ describe("The 'getStringIfConstant' function", () => {
                 let actual = null
                 linter.defineRule("test", (context) => ({
                     "Program > ExpressionStatement > *"(node) {
-                        actual = getStringIfConstant(node, context.getScope())
+                        actual = getStringIfConstant(
+                            node,
+                            getScope(context, node),
+                        )
                     },
                 }))
                 linter.verify(code, {

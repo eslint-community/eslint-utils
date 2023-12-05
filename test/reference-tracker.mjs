@@ -2,6 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
+import { getScope } from "./test-lib/get-scope.mjs"
 
 const config = {
     parserOptions: {
@@ -520,8 +521,10 @@ describe("The 'ReferenceTracker' class:", () => {
 
                 let actual = null
                 linter.defineRule("test", (context) => ({
-                    "Program:exit"() {
-                        const tracker = new ReferenceTracker(context.getScope())
+                    "Program:exit"(node) {
+                        const tracker = new ReferenceTracker(
+                            getScope(context, node),
+                        )
                         actual = Array.from(
                             tracker.iterateGlobalReferences(traceMap),
                         ).map((x) =>
@@ -684,8 +687,10 @@ describe("The 'ReferenceTracker' class:", () => {
 
                 let actual = null
                 linter.defineRule("test", (context) => ({
-                    "Program:exit"() {
-                        const tracker = new ReferenceTracker(context.getScope())
+                    "Program:exit"(node) {
+                        const tracker = new ReferenceTracker(
+                            getScope(context, node),
+                        )
                         actual = Array.from(
                             tracker.iterateCjsReferences(traceMap),
                         ).map((x) =>
@@ -966,8 +971,10 @@ describe("The 'ReferenceTracker' class:", () => {
 
                 let actual = null
                 linter.defineRule("test", (context) => ({
-                    "Program:exit"() {
-                        const tracker = new ReferenceTracker(context.getScope())
+                    "Program:exit"(node) {
+                        const tracker = new ReferenceTracker(
+                            getScope(context, node),
+                        )
                         actual = Array.from(
                             tracker.iterateEsmReferences(traceMap),
                         ).map((x) =>

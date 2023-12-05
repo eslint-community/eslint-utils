@@ -30,6 +30,8 @@ module.exports = {
         return {
             Identifier(node) {
                 const variable = findVariable(context.getScope(), node)
+                // When using ESLint>=8.37.0, write as follows:
+                // const variable = findVariable(context.sourceCode.getScope(node), node)
             },
         }
     },
@@ -67,6 +69,8 @@ module.exports = {
         return {
             "Program"(node) {
                 const globalScope = context.getScope()
+                // When using ESLint>=8.37.0, write as follows:
+                // const globalScope = context.sourceCode.getScope(node)
                 const maybeNodejsScope = getInnermostScope(globalScope, node)
             },
         }
@@ -129,6 +133,8 @@ module.exports = {
         return {
             "Program:exit"() {
                 const tracker = new ReferenceTracker(context.getScope())
+                // When using ESLint>=8.37.0, write as follows:
+                // const tracker = new ReferenceTracker(context.sourceCode.getScope(context.sourceCode.ast))
                 const traceMap = {
                     // Find `console.log`, `console.info`, `console.warn`, and `console.error`.
                     console: {
@@ -197,6 +203,8 @@ module.exports = {
         return {
             "Program:exit"() {
                 const tracker = new ReferenceTracker(context.getScope())
+                // When using ESLint>=8.37.0, write as follows:
+                // const tracker = new ReferenceTracker(context.sourceCode.getScope(context.sourceCode.ast))
                 const traceMap = {
                     // Find `Buffer()` and `new Buffer()` of `buffer` module.
                     buffer: {
@@ -266,6 +274,8 @@ module.exports = {
         return {
             "Program:exit"() {
                 const tracker = new ReferenceTracker(context.getScope())
+                // When using ESLint>=8.37.0, write as follows:
+                // const tracker = new ReferenceTracker(context.sourceCode.getScope(context.sourceCode.ast))
                 const traceMap = {
                     // Find `Buffer()` and `new Buffer()` of `buffer` module.
                     buffer: {
