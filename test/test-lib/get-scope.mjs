@@ -1,5 +1,5 @@
 export function getScope(context, node) {
-    const sourceCode = context.sourceCode ?? context.getSourceCode()
+    const sourceCode = context.sourceCode || context.getSourceCode()
     if (sourceCode.getScope) {
         return sourceCode.getScope(node)
     }
