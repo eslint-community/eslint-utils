@@ -341,9 +341,9 @@ module.exports = {
     create(context) {
         return {
             MemberExpression(node) {
-                const name = getPropertyName(node, context.getScope())
-                // When using ESLint>=8.37.0, write as follows:
-                // const name = getPropertyName(node, context.sourceCode.getScope(node))
+                const name = getPropertyName(node, context.sourceCode.getScope(node))
+                // When using ESLint<8.37.0, write as follows:
+                // const name = getPropertyName(node, context.getScope())
             },
         }
     },
@@ -399,9 +399,9 @@ module.exports = {
     create(context) {
         return {
             ExpressionStatement(node) {
-                const evaluated = getStaticValue(node, context.getScope())
-                // When using ESLint>=8.37.0, write as follows:
-                // const evaluated = getStaticValue(node, context.sourceCode.getScope(node))
+                const evaluated = getStaticValue(node, context.sourceCode.getScope(node))
+                // When using ESLint<8.37.0, write as follows:
+                // const evaluated = getStaticValue(node, context.getScope())
                 if (evaluated) {
                     const staticValue = evaluated.value
                     // ...
