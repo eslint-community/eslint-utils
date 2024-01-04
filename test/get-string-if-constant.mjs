@@ -49,7 +49,7 @@ describe("The 'getStringIfConstant' function", () => {
             { code: "let id = 'abc'; id = 'foo'; id", expected: null },
             { code: "var id = 'abc'; id = 'foo'; id", expected: null },
             { code: "const id = otherId; id", expected: null },
-            { code: "Symbol.prototype", expected: null},
+            { code: "Symbol.prototype", expected: null },
         ]) {
             it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
                 const linter = new eslint.Linter()
@@ -64,7 +64,7 @@ describe("The 'getStringIfConstant' function", () => {
                     },
                 }))
                 linter.verify(code, {
-                    globals: {Symbol: 'readonly'},
+                    globals: { Symbol: "readonly" },
                     parserOptions: { ecmaVersion: 2020 },
                     rules: { test: "error" },
                 })
