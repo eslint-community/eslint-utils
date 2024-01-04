@@ -23,7 +23,9 @@ export function getStringIfConstant(node, initialScope = null) {
         // `String(Symbol.prototype)` throw errors
         try {
             return String(evaluated.value)
-        } catch {}
+        } catch {
+            // No op
+        }
     }
 
     return null
