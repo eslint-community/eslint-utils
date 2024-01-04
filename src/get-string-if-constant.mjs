@@ -20,7 +20,7 @@ export function getStringIfConstant(node, initialScope = null) {
     const evaluated = getStaticValue(node, initialScope)
 
     if (evaluated) {
-        // `String(Symbol.prototype)` throw errors
+        // `String(Symbol.prototype)` throws error
         try {
             return String(evaluated.value)
         } catch {
