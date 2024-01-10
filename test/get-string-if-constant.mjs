@@ -1,7 +1,6 @@
 import assert from "assert"
-import eslint from "eslint"
 import { getStringIfConstant } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
@@ -23,17 +22,29 @@ describe("The 'getStringIfConstant' function", () => {
         { code: "/(?<a>\\w+)\\k<a>/gu", expected: "/(?<a>\\w+)\\k<a>/gu" },
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actual = null
-            linter.defineRule("test", () => ({
-                "Program > ExpressionStatement > *"(node) {
-                    actual = getStringIfConstant(node)
-                },
-            }))
             linter.verify(code, {
-                parserOptions: { ecmaVersion: 2020 },
-                rules: { test: "error" },
+                languageOptions: { ecmaVersion: 2020 },
+                rules: { "test/test": "error" },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(_context) {
+                                    return {
+                                        "Program > ExpressionStatement > *"(
+                                            node,
+                                        ) {
+                                            actual = getStringIfConstant(node)
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
             })
 
             assert.strictEqual(actual, expected)
@@ -51,20 +62,32 @@ describe("The 'getStringIfConstant' function", () => {
             { code: "const id = otherId; id", expected: null },
         ]) {
             it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program > ExpressionStatement > *"(node) {
-                        actual = getStringIfConstant(
-                            node,
-                            getScope(context, node),
-                        )
-                    },
-                }))
                 linter.verify(code, {
-                    parserOptions: { ecmaVersion: 2020 },
-                    rules: { test: "error" },
+                    languageOptions: { ecmaVersion: 2020 },
+                    rules: { "test/test": "error" },
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program > ExpressionStatement > *"(
+                                                node,
+                                            ) {
+                                                actual = getStringIfConstant(
+                                                    node,
+                                                    getScope(context, node),
+                                                )
+                                            },
+                                        }
+                                    },
+                                },
+                            },
+                        },
+                    },
                 })
 
                 assert.strictEqual(actual, expected)
