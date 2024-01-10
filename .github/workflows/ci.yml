@@ -48,17 +48,17 @@ jobs:
             matrix.os }})
         strategy:
             matrix:
-                eslint: [8]
+                eslint: [8, 9]
                 node: [12.22.0, 12, 14.17.0, 14, 16, 18, 20, 22]
                 os: [ubuntu-latest]
                 include:
                     # On other platforms
                     - os: windows-latest
-                      eslint: 8
-                      node: 20
+                      eslint: 9
+                      node: 22
                     - os: macos-latest
-                      eslint: 8
-                      node: 20
+                      eslint: 9
+                      node: 22
                     # On old ESLint versions
                     - eslint: 7
                       node: 20
