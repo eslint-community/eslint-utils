@@ -2,6 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getFunctionHeadLocation } from "../src/index.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getFunctionHeadLocation' function", () => {
     const expectedResults = {
@@ -103,25 +104,36 @@ describe("The 'getFunctionHeadLocation' function", () => {
         it(`should return "${JSON.stringify(
             expectedLoc,
         )}" for "${key}".`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actualLoc = null
-            linter.defineRule("test", (context) => ({
-                ":function"(node) {
-                    actualLoc = getFunctionHeadLocation(
-                        node,
-                        context.getSourceCode(),
-                    )
-                },
-            }))
             const messages = linter.verify(
                 key,
                 {
-                    rules: { test: "error" },
-                    parserOptions: {
+                    rules: { "test/test": "error" },
+                    languageOptions: {
                         ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                             ? 2022
                             : 2020,
+                    },
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            ":function"(node) {
+                                                actualLoc =
+                                                    getFunctionHeadLocation(
+                                                        node,
+                                                        context.getSourceCode(),
+                                                    )
+                                            },
+                                        }
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 "test.js",

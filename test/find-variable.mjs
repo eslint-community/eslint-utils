@@ -1,24 +1,33 @@
 import assert from "assert"
-import eslint from "eslint"
 import { findVariable } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'findVariable' function", () => {
     function getVariable(code, selector, withString = null) {
-        const linter = new eslint.Linter()
+        const linter = newCompatLinter()
         let variable = null
 
-        linter.defineRule("test", (context) => ({
-            [selector](node) {
-                variable = findVariable(
-                    getScope(context, node),
-                    withString || node,
-                )
-            },
-        }))
         linter.verify(code, {
-            parserOptions: { ecmaVersion: 2020 },
-            rules: { test: "error" },
+            languageOptions: { ecmaVersion: 2020 },
+            rules: { "test/test": "error" },
+            plugins: {
+                test: {
+                    rules: {
+                        test: {
+                            create(context) {
+                                return {
+                                    [selector](node) {
+                                        variable = findVariable(
+                                            getScope(context, node),
+                                            withString || node,
+                                        )
+                                    },
+                                }
+                            },
+                        },
+                    },
+                },
+            },
         })
 
         return variable

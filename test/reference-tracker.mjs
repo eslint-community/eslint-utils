@@ -2,15 +2,15 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 const config = {
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0") ? 2022 : 2020,
         sourceType: "module",
+        globals: { Reflect: false },
     },
-    globals: { Reflect: false },
-    rules: { test: "error" },
+    rules: { "test/test": "error" },
 }
 
 describe("The 'ReferenceTracker' class:", () => {
@@ -517,29 +517,48 @@ describe("The 'ReferenceTracker' class:", () => {
                 : []),
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateGlobalReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateGlobalReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })
@@ -683,29 +702,48 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateCjsReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateCjsReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })
@@ -967,29 +1005,48 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateEsmReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateEsmReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })

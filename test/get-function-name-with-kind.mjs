@@ -2,6 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getFunctionNameWithKind } from "../src/index.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getFunctionNameWithKind' function", () => {
     const expectedResults = {
@@ -133,21 +134,32 @@ describe("The 'getFunctionNameWithKind' function", () => {
         const expectedResult2 = expectedResults[key]
 
         it(`should return "${expectedResult1}" for "${key}".`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actualResult = null
-            linter.defineRule("test", () => ({
-                ":function"(node) {
-                    actualResult = getFunctionNameWithKind(node)
-                },
-            }))
             const messages = linter.verify(key, {
-                rules: { test: "error" },
-                parserOptions: {
+                rules: { "test/test": "error" },
+                languageOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                     sourceType: "module",
+                },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(_context) {
+                                    return {
+                                        ":function"(node) {
+                                            actualResult =
+                                                getFunctionNameWithKind(node)
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
                 },
             })
 
@@ -160,24 +172,35 @@ describe("The 'getFunctionNameWithKind' function", () => {
         })
 
         it(`should return "${expectedResult2}" for "${key}" if sourceCode is present.`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actualResult = null
-            linter.defineRule("test", (context) => ({
-                ":function"(node) {
-                    actualResult = getFunctionNameWithKind(
-                        node,
-                        context.getSourceCode(),
-                    )
-                },
-            }))
             const messages = linter.verify(key, {
-                rules: { test: "error" },
-                parserOptions: {
+                rules: { "test/test": "error" },
+                languageOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                     sourceType: "module",
+                },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(context) {
+                                    return {
+                                        ":function"(node) {
+                                            actualResult =
+                                                getFunctionNameWithKind(
+                                                    node,
+                                                    context.getSourceCode(),
+                                                )
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
                 },
             })
 

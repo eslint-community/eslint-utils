@@ -12,7 +12,7 @@ module.exports = {
                 object: "context",
                 property: "getScope",
                 message:
-                    "If you are using it in a test case, use test/test-lib/get-scope.mjs instead. Other than that, the API should also be compatible with ESLint v9.",
+                    "If you are using it in a test case, use test/test-lib/eslint-compat.mjs#getScope instead. Other than that, the API should also be compatible with ESLint v9.",
             },
         ],
     },
