@@ -4,6 +4,9 @@
 module.exports = {
     root: true,
     extends: ["plugin:@eslint-community/mysticatea/es2020"],
+    parserOptions: {
+        project: "./tsconfig.json",
+    },
     rules: {
         "@eslint-community/mysticatea/prettier": "off",
         "no-restricted-properties": [
@@ -18,7 +21,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: ["src/**/*.mjs", "test/**/*.mjs"],
+            files: ["src/**/*.mjs", "test/**/*.mjs", "rollup.config.mjs"],
             extends: ["plugin:@eslint-community/mysticatea/+modules"],
             rules: {
                 "init-declarations": "off",

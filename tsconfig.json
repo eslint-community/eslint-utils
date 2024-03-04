@@ -1,0 +1,43 @@
+{
+    "files": ["rollup.config.mjs"],
+    "include": ["src/**/*"],
+    "compilerOptions": {
+        "lib": ["es2022"],
+        "target": "es2022",
+
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+
+        "strict": true,
+
+        "skipLibCheck": false, // See https://github.com/voxpelli/tsconfig/issues/1
+
+        /* Clean up generated declarations */
+        "removeComments": true,
+        "stripInternal": true,
+
+        /* Make it a JS-targeted config */
+        "allowJs": true,
+        "checkJs": true,
+        "noEmit": true,
+
+        /* New checks being tried out */
+        // "exactOptionalPropertyTypes": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+
+        /* Additional non-type checks */
+        "forceConsistentCasingInFileNames": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+
+        /* To make strict checking somewhat less strict during a transition stage, add one or more of: */
+        /*
+        "noImplicitThis": false,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        */
+    }
+}
