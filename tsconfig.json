@@ -10,7 +10,7 @@
 
         "strict": true,
 
-        "skipLibCheck": false, // See https://github.com/voxpelli/tsconfig/issues/1
+        "skipLibCheck": true,
 
         /* Clean up generated declarations */
         "removeComments": true,
@@ -21,8 +21,7 @@
         "checkJs": true,
         "noEmit": true,
 
-        /* New checks being tried out */
-        // "exactOptionalPropertyTypes": true,
+        /* Extra strictness */
         "noFallthroughCasesInSwitch": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
@@ -33,11 +32,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
 
-        /* To make strict checking somewhat less strict during a transition stage, add one or more of: */
-        /*
-        "noImplicitThis": false,
+        /* TODO: Remove to ensure full strictness */
         "noImplicitAny": false,
-        "strictNullChecks": false,
-        */
     }
 }

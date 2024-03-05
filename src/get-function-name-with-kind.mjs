@@ -2,8 +2,8 @@ import { getPropertyName } from "./get-property-name.mjs"
 
 /**
  * Get the name and kind of the given function node.
- * @param {ASTNode} node - The function node to get.
- * @param {SourceCode} [sourceCode] The source code object to get the code of computed property keys.
+ * @param {import('eslint').Rule.Node} node - The function node to get.
+ * @param {import('eslint').SourceCode} [sourceCode] The source code object to get the code of computed property keys.
  * @returns {string} The name and kind of the function node.
  */
 // eslint-disable-next-line complexity
@@ -25,10 +25,10 @@ export function getFunctionNameWithKind(node, sourceCode) {
             tokens.push("private")
         }
     }
-    if (node.async) {
+    if ('async' in node) {
         tokens.push("async")
     }
-    if (node.generator) {
+    if ('generator' in node) {
         tokens.push("generator")
     }
 
@@ -68,8 +68,8 @@ export function getFunctionNameWithKind(node, sourceCode) {
                 }
             }
         }
-    } else if (node.id) {
-        tokens.push(`'${node.id.name}'`)
+    } else if ('id' in node && node.id) {
+        tokens.push(`'${'name' in node.id ? node.id.name : undefined}'`)
     } else if (
         parent.type === "VariableDeclarator" &&
         parent.id &&

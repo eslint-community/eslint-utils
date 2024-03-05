@@ -1,11 +1,11 @@
 /**
  * Get the innermost scope which contains a given location.
- * @param {Scope} initialScope The initial scope to search.
- * @param {Node} node The location to search.
- * @returns {Scope} The innermost scope.
+ * @param {import('eslint').Scope.Scope} initialScope The initial scope to search.
+ * @param {import('estree').Node | import('estree').Expression} node The location to search.
+ * @returns {import('eslint').Scope.Scope} The innermost scope.
  */
 export function getInnermostScope(initialScope, node) {
-    const location = node.range[0]
+    const location = node.range ? node.range[0] : undefined
 
     let scope = initialScope
     let found = false
@@ -14,7 +14,7 @@ export function getInnermostScope(initialScope, node) {
         for (const childScope of scope.childScopes) {
             const range = childScope.block.range
 
-            if (range[0] <= location && location < range[1]) {
+            if (range && location && range[0] <= location && location < range[1]) {
                 scope = childScope
                 found = true
                 break

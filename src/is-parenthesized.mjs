@@ -3,9 +3,9 @@ import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
 /**
  * Get the left parenthesis of the parent node syntax if it exists.
  * E.g., `if (a) {}` then the `(`.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
- * @returns {Token|null} The left parenthesis of the parent node syntax
+ * @param {import('eslint').Rule.Node} node The AST node to check.
+ * @param {import('eslint').SourceCode} sourceCode The source code object to get tokens.
+ * @returns {import('eslint').AST.Token|null} The left parenthesis of the parent node syntax
  */
 function getParentSyntaxParen(node, sourceCode) {
     const parent = node.parent
@@ -62,39 +62,61 @@ function getParentSyntaxParen(node, sourceCode) {
 
 /**
  * Check whether a given node is parenthesized or not.
- * @param {number} times The number of parantheses.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
+ * @overload
+ * @param {number} timesOrNode The number of parantheses.
+ * @param {import('eslint').Rule.Node} nodeOrSourceCode The AST node to check.
+ * @param {import('eslint').SourceCode} optionalSourceCode The source code object to get tokens.
  * @returns {boolean} `true` if the node is parenthesized the given times.
  */
 /**
  * Check whether a given node is parenthesized or not.
- * @param {Node} node The AST node to check.
- * @param {SourceCode} sourceCode The source code object to get tokens.
+ * @overload
+ * @param {import('eslint').Rule.Node} timesOrNode The AST node to check.
+ * @param {import('eslint').SourceCode} nodeOrSourceCode The source code object to get tokens.
  * @returns {boolean} `true` if the node is parenthesized.
+ */
+/**
+ * Check whether a given node is parenthesized or not.
+ * @param {import('eslint').Rule.Node|number} timesOrNode The number of parantheses.
+ * @param {import('eslint').SourceCode|import('eslint').Rule.Node} nodeOrSourceCode The AST node to check.
+ * @param {import('eslint').SourceCode} [optionalSourceCode] The source code object to get tokens.
+ * @returns {boolean} `true` if the node is parenthesized the given times.
  */
 export function isParenthesized(
     timesOrNode,
     nodeOrSourceCode,
     optionalSourceCode,
 ) {
-    let times, node, sourceCode, maybeLeftParen, maybeRightParen
     if (typeof timesOrNode === "number") {
-        times = timesOrNode | 0
-        node = nodeOrSourceCode
-        sourceCode = optionalSourceCode
-        if (!(times >= 1)) {
+        if (!(timesOrNode >= 1)) {
             throw new TypeError("'times' should be a positive integer.")
         }
-    } else {
-        times = 1
-        node = timesOrNode
-        sourceCode = nodeOrSourceCode
+        // @ts-ignore
+        return internalIsParenthesized(timesOrNode | 0, nodeOrSourceCode, optionalSourceCode)
     }
+
+    // @ts-ignore
+    return internalIsParenthesized(1, timesOrNode, nodeOrSourceCode)
+}
+
+/**
+ * Check whether a given node is parenthesized or not.
+ * @param {number} times The number of parantheses.
+ * @param {import('eslint').Rule.Node} node The AST node to check.
+ * @param {import('eslint').SourceCode} sourceCode The source code object to get tokens.
+ * @returns {boolean} `true` if the node is parenthesized the given times.
+ */
+function internalIsParenthesized(
+    times,
+    node,
+    sourceCode,
+) {
+    let maybeLeftParen, maybeRightParen
 
     if (
         node == null ||
         // `Program` can't be parenthesized
+        !('parent' in node) ||
         node.parent == null ||
         // `CatchClause.param` can't be parenthesized, example `try {} catch (error) {}`
         (node.parent.type === "CatchClause" && node.parent.param === node)
@@ -113,6 +135,7 @@ export function isParenthesized(
         isClosingParenToken(maybeRightParen) &&
         // Avoid false positive such as `if (a) {}`
         maybeLeftParen !== getParentSyntaxParen(node, sourceCode) &&
+        // eslint-disable-next-line no-param-reassign
         --times > 0
     )
 

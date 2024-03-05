@@ -34,7 +34,7 @@ function replaceS(matcher, str, replacement) {
     let index = 0
 
     /** @type {RegExpExecArray} */
-    let match = null
+    let match
 
     /**
      * @param {string} key The placeholder.
@@ -51,11 +51,8 @@ function replaceS(matcher, str, replacement) {
             case "$'":
                 return str.slice(match.index + match[0].length)
             default: {
-                const i = key.slice(1)
-                if (i in match) {
-                    return match[i]
-                }
-                return key
+                const i = parseInt(key.slice(1), 10)
+                return match[i] || key
             }
         }
     }
@@ -74,7 +71,7 @@ function replaceS(matcher, str, replacement) {
  * Replace a given string by a given matcher.
  * @param {PatternMatcher} matcher The pattern matcher.
  * @param {string} str The string to be replaced.
- * @param {(...strs[])=>string} replace The function to replace each matched part.
+ * @param {(...strs: string[])=>string} replace The function to replace each matched part.
  * @returns {string} The replaced string.
  */
 function replaceF(matcher, str, replace) {
@@ -83,7 +80,7 @@ function replaceF(matcher, str, replace) {
 
     for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(String(replace(...match, match.index, match.input)))
+        chunks.push(String(replace(...match, String(match.index), match.input)))
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -98,7 +95,7 @@ export class PatternMatcher {
     /**
      * Initialize this matcher.
      * @param {RegExp} pattern The pattern to match.
-     * @param {{escaped:boolean}} options The options.
+     * @param {{escaped?:boolean}} [options] The options.
      */
     constructor(pattern, { escaped = false } = {}) {
         if (!(pattern instanceof RegExp)) {
@@ -120,9 +117,13 @@ export class PatternMatcher {
      * @returns {IterableIterator<RegExpExecArray>} The iterator which iterate the matched information.
      */
     *execAll(str) {
-        const { pattern, escaped } = internal.get(this)
+        const { pattern, escaped } = internal.get(this) || {}
         let match = null
         let lastIndex = 0
+
+        if (!pattern) {
+            return
+        }
 
         pattern.lastIndex = 0
         while ((match = pattern.exec(str)) != null) {
