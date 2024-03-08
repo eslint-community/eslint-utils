@@ -2,7 +2,7 @@ import { getStringIfConstant } from "./get-string-if-constant.mjs"
 
 /**
  * Get the property name from a MemberExpression node or a Property node.
- * @param {import('estree').Node | import('estree').Expression} node The node to get.
+ * @param {import('./types.mjs').Node} node The node to get.
  * @param {import('eslint').Scope.Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
  * @returns {string|null} The property name of the node.
  */

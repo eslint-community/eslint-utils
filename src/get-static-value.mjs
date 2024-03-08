@@ -2,8 +2,6 @@
 
 import { findVariable } from "./find-variable.mjs"
 
-/** @typedef {import('estree').Node | import('estree').Expression} Node */
-
 /** @type {Record<string, unknown>} */
 const globalObject =
     typeof globalThis !== "undefined"
@@ -228,7 +226,7 @@ function isGetter(object, name) {
 
 /**
  * Get the element values of a given node list.
- * @param {(Node|null)[]} nodeList The node list to get values.
+ * @param {(import('./types.mjs').Node|null)[]} nodeList The node list to get values.
  * @param {import('eslint').Scope.Scope|undefined} initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
@@ -277,12 +275,12 @@ function isEffectivelyConst(variable) {
 
 /**
  * @callback VisitorCallback
- * @param {Node} node 
+ * @param {import('./types.mjs').Node} node 
  * @param {import('eslint').Scope.Scope|undefined} initialScope 
  * @returns {StaticValue | null}
  */
 
-/** @type {Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>> } */
+/** @type {Readonly<Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>>> } */
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
         if (node.type !== 'ArrayExpression') {
@@ -706,7 +704,7 @@ const operations = Object.freeze({
 
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node | null | undefined} node The node to get.
+ * @param {import('./types.mjs').Node | null | undefined} node The node to get.
  * @param {import('eslint').Scope.Scope|undefined} initialScope The scope to start finding variable.
  * @returns {StaticValue|null} The static value of the node, or `null`.
  */
@@ -720,7 +718,7 @@ function getStaticValueR(node, initialScope) {
 
 /**
  * Get the static value of property name from a MemberExpression node or a Property node.
- * @param {Node} node The node to get.
+ * @param {import('./types.mjs').Node} node The node to get.
  * @param {import('eslint').Scope.Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
  * @returns {StaticValue|null} The static value of the property name of the node, or `null`.
  */
@@ -747,7 +745,7 @@ function getStaticPropertyNameValue(node, initialScope) {
 
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
+ * @param {import('./types.mjs').Node} node The node to get.
  * @param {import('eslint').Scope.Scope|null} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
  * @returns {{ value: unknown, optional?: never }|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
  */

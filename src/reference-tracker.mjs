@@ -11,15 +11,12 @@ export const ESM = Symbol("esm")
 
 const requireCall = { require: { [CALL]: true } }
 
-/** @typedef {import('eslint').Rule.Node | import('estree').Node | import('estree').Expression} Node */
 /** @typedef {READ | CALL | CONSTRUCT} ReferenceType */
-
-/** @typedef {Partial<Record<READ | CALL | CONSTRUCT, boolean>>} TraceMapLeaf */
-/** @typedef {{ [key: string]: TraceMap } & TraceMapLeaf} TraceMap */
+/** @typedef {{ [key: string]: TraceMap } & Partial<Record<ReferenceType, boolean>>} TraceMap */
 
 /**
  * @typedef Reference
- * @property {Node} node
+ * @property {import('./types.mjs').RichNode} node
  * @property {string[]} path
  * @property {ReferenceType} type
  * @property {unknown} info
@@ -41,7 +38,7 @@ function isModifiedGlobal(variable) {
 /**
  * Check if the value of a given node is passed through to the parent syntax as-is.
  * For example, `a` and `b` in (`a || b` and `c ? a : b`) are passed through.
- * @param {Node} node A node to check.
+ * @param {import('./types.mjs').RichNode} node A node to check.
  * @returns {boolean} `true` if the node is passed through.
  */
 function isPassThrough(node) {
@@ -268,7 +265,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given AST node.
-     * @param {Node} rootNode The AST node to iterate references.
+     * @param {import('./types.mjs').RichNode} rootNode The AST node to iterate references.
      * @param {string[]} path The current path.
      * @param {TraceMap} traceMap The trace map.
      * @returns {IterableIterator<Reference>} The iterator to iterate references.
@@ -349,7 +346,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given Pattern node.
-     * @param {Node} patternNode The Pattern node to iterate references.
+     * @param {import('./types.mjs').RichNode} patternNode The Pattern node to iterate references.
      * @param {string[]} path The current path.
      * @param {TraceMap} traceMap The trace map.
      * @returns {IterableIterator<Reference>} The iterator to iterate references.
@@ -405,7 +402,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given ModuleSpecifier node.
-     * @param {Node} specifierNode The ModuleSpecifier node to iterate references.
+     * @param {import('./types.mjs').RichNode} specifierNode The ModuleSpecifier node to iterate references.
      * @param {string[]} path The current path.
      * @param {TraceMap} traceMap The trace map.
      * @returns {IterableIterator<Reference>} The iterator to iterate references.

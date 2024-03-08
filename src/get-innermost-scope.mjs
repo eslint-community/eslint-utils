@@ -1,7 +1,7 @@
 /**
  * Get the innermost scope which contains a given location.
  * @param {import('eslint').Scope.Scope} initialScope The initial scope to search.
- * @param {import('estree').Node | import('estree').Expression} node The location to search.
+ * @param {import('./types.mjs').Node} node The location to search.
  * @returns {import('eslint').Scope.Scope} The innermost scope.
  */
 export function getInnermostScope(initialScope, node) {

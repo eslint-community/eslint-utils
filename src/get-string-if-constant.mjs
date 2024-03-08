@@ -2,7 +2,7 @@ import { getStaticValue } from "./get-static-value.mjs"
 
 /**
  * Get the value of a given node if it's a literal or a template literal.
- * @param {import('estree').Node | import('estree').Expression} node The node to get.
+ * @param {import('./types.mjs').Node} node The node to get.
  * @param {import('eslint').Scope.Scope|null} [initialScope] The scope to start finding variable. Optional. If the node is an Identifier node and this scope was given, this checks the variable of the identifier, and returns the value of it if the variable is a constant.
  * @returns {string|null} The value of the node, or `null`.
  */

@@ -47,7 +47,7 @@ function isNode(x) {
 
 /**
  * @callback VisitorCallback
- * @param {import('estree').Node | import('estree').Expression | import('estree').Comment | import('estree').MaybeNamedClassDeclaration | import('estree').MaybeNamedFunctionDeclaration} node 
+ * @param {import('./types.mjs').Node | import('estree').Comment | import('estree').MaybeNamedClassDeclaration | import('estree').MaybeNamedFunctionDeclaration} node 
  * @param {VisitOptions} options 
  * @param {import('eslint').SourceCode.VisitorKeys | typeof KEYS} visitorKeys 
  * @returns {boolean}
