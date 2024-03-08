@@ -26,10 +26,10 @@ export function getFunctionNameWithKind(node, sourceCode) {
             tokens.push("private")
         }
     }
-    if ('async' in node && node.async) {
+    if ("async" in node && node.async) {
         tokens.push("async")
     }
-    if ('generator' in node && node.generator) {
+    if ("generator" in node && node.generator) {
         tokens.push("generator")
     }
 
@@ -69,8 +69,8 @@ export function getFunctionNameWithKind(node, sourceCode) {
                 }
             }
         }
-    } else if ('id' in node && node.id) {
-        tokens.push(`'${'name' in node.id ? node.id.name : undefined}'`)
+    } else if ("id" in node && node.id) {
+        tokens.push(`'${"name" in node.id ? node.id.name : undefined}'`)
     } else if (
         parent.type === "VariableDeclarator" &&
         parent.id &&

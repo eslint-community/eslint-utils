@@ -6,14 +6,14 @@ import { findVariable } from "./find-variable.mjs"
 const globalObject =
     typeof globalThis !== "undefined"
         ? globalThis
-        // @ts-ignore
-        : typeof self !== "undefined"
-        // @ts-ignore
-        ? self
-        // @ts-ignore
-        : typeof window !== "undefined"
-        // @ts-ignore
-        ? window
+        : // @ts-ignore
+        typeof self !== "undefined"
+        ? // @ts-ignore
+          self
+        : // @ts-ignore
+        typeof window !== "undefined"
+        ? // @ts-ignore
+          window
         : typeof global !== "undefined"
         ? global
         : {}
@@ -275,15 +275,15 @@ function isEffectivelyConst(variable) {
 
 /**
  * @callback VisitorCallback
- * @param {import('./types.mjs').Node} node 
- * @param {import('eslint').Scope.Scope|undefined} initialScope 
+ * @param {import('./types.mjs').Node} node
+ * @param {import('eslint').Scope.Scope|undefined} initialScope
  * @returns {StaticValue | null}
  */
 
 /** @type {Readonly<Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>>> } */
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
-        if (node.type !== 'ArrayExpression') {
+        if (node.type !== "ArrayExpression") {
             return null
         }
         const elements = getElementValues(node.elements, initialScope)
@@ -291,7 +291,7 @@ const operations = Object.freeze({
     },
 
     AssignmentExpression(node, initialScope) {
-        if (node.type !== 'AssignmentExpression') {
+        if (node.type !== "AssignmentExpression") {
             return null
         }
         if (node.operator === "=") {
@@ -302,7 +302,7 @@ const operations = Object.freeze({
 
     //eslint-disable-next-line complexity
     BinaryExpression(node, initialScope) {
-        if (node.type !== 'BinaryExpression') {
+        if (node.type !== "BinaryExpression") {
             return null
         }
         if (node.operator === "in" || node.operator === "instanceof") {
@@ -364,7 +364,7 @@ const operations = Object.freeze({
 
     // eslint-disable-next-line complexity
     CallExpression(node, initialScope) {
-        if (node.type !== 'CallExpression') {
+        if (node.type !== "CallExpression") {
             return null
         }
         const calleeNode = node.callee
@@ -420,7 +420,7 @@ const operations = Object.freeze({
     },
 
     ConditionalExpression(node, initialScope) {
-        if (node.type !== 'ConditionalExpression') {
+        if (node.type !== "ConditionalExpression") {
             return null
         }
         const test = getStaticValueR(node.test, initialScope)
@@ -433,14 +433,14 @@ const operations = Object.freeze({
     },
 
     ExpressionStatement(node, initialScope) {
-        if (node.type !== 'ExpressionStatement') {
+        if (node.type !== "ExpressionStatement") {
             return null
         }
         return getStaticValueR(node.expression, initialScope)
     },
 
     Identifier(node, initialScope) {
-        if (node.type !== 'Identifier') {
+        if (node.type !== "Identifier") {
             return null
         }
         if (initialScope != null) {
@@ -475,15 +475,13 @@ const operations = Object.freeze({
     },
 
     Literal(node) {
-        if (node.type !== 'Literal') {
+        if (node.type !== "Literal") {
             return null
         }
         //istanbul ignore if : this is implementation-specific behavior.
         if (
-            (
-                ('regex' in node && node.regex != null) ||
-                ('bigint' in node && node.bigint != null)
-            ) &&
+            (("regex" in node && node.regex != null) ||
+                ("bigint" in node && node.bigint != null)) &&
             node.value == null
         ) {
             // It was a RegExp/BigInt literal, but Node.js didn't support it.
@@ -493,7 +491,7 @@ const operations = Object.freeze({
     },
 
     LogicalExpression(node, initialScope) {
-        if (node.type !== 'LogicalExpression') {
+        if (node.type !== "LogicalExpression") {
             return null
         }
         const left = getStaticValueR(node.left, initialScope)
@@ -516,7 +514,7 @@ const operations = Object.freeze({
     },
 
     MemberExpression(node, initialScope) {
-        if (node.type !== 'MemberExpression') {
+        if (node.type !== "MemberExpression") {
             return null
         }
         if (node.property.type === "PrivateIdentifier") {
@@ -549,7 +547,7 @@ const operations = Object.freeze({
     },
 
     ChainExpression(node, initialScope) {
-        if (node.type !== 'ChainExpression') {
+        if (node.type !== "ChainExpression") {
             return null
         }
         const expression = getStaticValueR(node.expression, initialScope)
@@ -560,7 +558,7 @@ const operations = Object.freeze({
     },
 
     NewExpression(node, initialScope) {
-        if (node.type !== 'NewExpression') {
+        if (node.type !== "NewExpression") {
             return null
         }
         const callee = getStaticValueR(node.callee, initialScope)
@@ -577,7 +575,7 @@ const operations = Object.freeze({
     },
 
     ObjectExpression(node, initialScope) {
-        if (node.type !== 'ObjectExpression') {
+        if (node.type !== "ObjectExpression") {
             return null
         }
         /** @type {Record<string|number|symbol, unknown>} */
@@ -619,7 +617,7 @@ const operations = Object.freeze({
     },
 
     SequenceExpression(node, initialScope) {
-        if (node.type !== 'SequenceExpression') {
+        if (node.type !== "SequenceExpression") {
             return null
         }
         const last = node.expressions[node.expressions.length - 1]
@@ -627,7 +625,7 @@ const operations = Object.freeze({
     },
 
     TaggedTemplateExpression(node, initialScope) {
-        if (node.type !== 'TaggedTemplateExpression') {
+        if (node.type !== "TaggedTemplateExpression") {
             return null
         }
         const tag = getStaticValueR(node.tag, initialScope)
@@ -651,7 +649,7 @@ const operations = Object.freeze({
     },
 
     TemplateLiteral(node, initialScope) {
-        if (node.type !== 'TemplateLiteral') {
+        if (node.type !== "TemplateLiteral") {
             return null
         }
         const expressions = getElementValues(node.expressions, initialScope)
@@ -659,7 +657,7 @@ const operations = Object.freeze({
             let value = node.quasis[0]?.value.cooked
             for (let i = 0; i < expressions.length; ++i) {
                 value += expressions[i]
-                value += node.quasis[i + 1]?.value.cooked || ''
+                value += node.quasis[i + 1]?.value.cooked || ""
             }
             return { value }
         }
@@ -667,7 +665,7 @@ const operations = Object.freeze({
     },
 
     UnaryExpression(node, initialScope) {
-        if (node.type !== 'UnaryExpression') {
+        if (node.type !== "UnaryExpression") {
             return null
         }
         if (node.operator === "delete") {
@@ -723,9 +721,14 @@ function getStaticValueR(node, initialScope) {
  * @returns {StaticValue|null} The static value of the property name of the node, or `null`.
  */
 function getStaticPropertyNameValue(node, initialScope) {
-    const nameNode = node.type === "Property" ? node.key : ('property' in node ? node.property : undefined)
+    const nameNode =
+        node.type === "Property"
+            ? node.key
+            : "property" in node
+            ? node.property
+            : undefined
 
-    if ('computed' in node && node.computed) {
+    if ("computed" in node && node.computed) {
         return getStaticValueR(nameNode, initialScope)
     }
 
@@ -734,7 +737,7 @@ function getStaticPropertyNameValue(node, initialScope) {
     }
 
     if (nameNode?.type === "Literal") {
-        if ('bigint' in nameNode && nameNode.bigint) {
+        if ("bigint" in nameNode && nameNode.bigint) {
             return { value: nameNode.bigint }
         }
         return { value: String(nameNode.value) }

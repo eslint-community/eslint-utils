@@ -14,7 +14,12 @@ export function getInnermostScope(initialScope, node) {
         for (const childScope of scope.childScopes) {
             const range = childScope.block.range
 
-            if (range && location !== undefined && range[0] <= location && location < range[1]) {
+            if (
+                range &&
+                location !== undefined &&
+                range[0] <= location &&
+                location < range[1]
+            ) {
                 scope = childScope
                 found = true
                 break

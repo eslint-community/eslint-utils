@@ -18,7 +18,7 @@ export function getPropertyName(node, initialScope) {
             if (node.property.type === "PrivateIdentifier") {
                 return null
             }
-            result = 'name' in node.property ? node.property.name : null
+            result = "name" in node.property ? node.property.name : null
             break
 
         case "Property":
@@ -33,7 +33,7 @@ export function getPropertyName(node, initialScope) {
             if (node.key.type === "PrivateIdentifier") {
                 return null
             }
-            result = 'name' in node.key ? node.key.name : null
+            result = "name" in node.key ? node.key.name : null
 
         // no default
     }

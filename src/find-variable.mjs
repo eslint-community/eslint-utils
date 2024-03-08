@@ -14,7 +14,7 @@ export function findVariable(initialScope, nameOrNode) {
     if (typeof nameOrNode === "string") {
         name = nameOrNode
     } else {
-        name = 'name' in nameOrNode ? nameOrNode.name : ''
+        name = "name" in nameOrNode ? nameOrNode.name : ""
         scope = getInnermostScope(scope, nameOrNode)
     }
 

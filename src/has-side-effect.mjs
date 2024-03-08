@@ -30,7 +30,12 @@ const typeConversionUnaryOps = Object.freeze(new Set(["-", "+", "!", "~"]))
  * @returns {x is { type: string }} `true` if the value is an ASTNode.
  */
 function isNode(x) {
-    return x !== null && typeof x === "object" && 'type' in x && typeof x.type === "string"
+    return (
+        x !== null &&
+        typeof x === "object" &&
+        "type" in x &&
+        typeof x.type === "string"
+    )
 }
 
 /**
@@ -47,9 +52,9 @@ function isNode(x) {
 
 /**
  * @callback VisitorCallback
- * @param {import('./types.mjs').Node | import('estree').Comment | import('estree').MaybeNamedClassDeclaration | import('estree').MaybeNamedFunctionDeclaration} node 
- * @param {VisitOptions} options 
- * @param {import('eslint').SourceCode.VisitorKeys | typeof KEYS} visitorKeys 
+ * @param {import('./types.mjs').Node | import('estree').Comment | import('estree').MaybeNamedClassDeclaration | import('estree').MaybeNamedFunctionDeclaration} node
+ * @param {VisitOptions} options
+ * @param {import('eslint').SourceCode.VisitorKeys | typeof KEYS} visitorKeys
  * @returns {boolean}
  */
 
@@ -69,7 +74,9 @@ const visitor = {
         const { type, ...remainder } = node
 
         for (const key of visitorKeys[type] || getKeys(node)) {
-            const value = /** @type {ValuesInObjectUnion<typeof remainder>} */ (remainder[/** @type {keyof typeof remainder} */ (key)])
+            const value = /** @type {ValuesInObjectUnion<typeof remainder>} */ (
+                remainder[/** @type {keyof typeof remainder} */ (key)]
+            )
 
             if (Array.isArray(value)) {
                 for (const element of value) {
@@ -101,7 +108,7 @@ const visitor = {
     },
     BinaryExpression(node, options, visitorKeys) {
         if (
-            node.type === 'BinaryExpression' &&
+            node.type === "BinaryExpression" &&
             options.considerImplicitTypeConversion &&
             typeConversionBinaryOps.has(node.operator) &&
             (node.left.type !== "Literal" || node.right.type !== "Literal")
@@ -124,7 +131,7 @@ const visitor = {
             return true
         }
         if (
-            node.type === 'MemberExpression' &&
+            node.type === "MemberExpression" &&
             options.considerImplicitTypeConversion &&
             node.computed &&
             node.property.type !== "Literal"
@@ -135,7 +142,7 @@ const visitor = {
     },
     MethodDefinition(node, options, visitorKeys) {
         if (
-            node.type === 'MethodDefinition' &&
+            node.type === "MethodDefinition" &&
             options.considerImplicitTypeConversion &&
             node.computed &&
             node.key.type !== "Literal"
@@ -149,7 +156,7 @@ const visitor = {
     },
     Property(node, options, visitorKeys) {
         if (
-            node.type === 'Property' &&
+            node.type === "Property" &&
             options.considerImplicitTypeConversion &&
             node.computed &&
             node.key.type !== "Literal"
@@ -160,7 +167,7 @@ const visitor = {
     },
     PropertyDefinition(node, options, visitorKeys) {
         if (
-            node.type === 'PropertyDefinition' &&
+            node.type === "PropertyDefinition" &&
             options.considerImplicitTypeConversion &&
             node.computed &&
             node.key.type !== "Literal"
@@ -170,7 +177,7 @@ const visitor = {
         return this.$visitChildren(node, options, visitorKeys)
     },
     UnaryExpression(node, options, visitorKeys) {
-        if (node.type === 'UnaryExpression') {
+        if (node.type === "UnaryExpression") {
             if (node.operator === "delete") {
                 return true
             }

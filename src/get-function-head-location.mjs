@@ -7,7 +7,7 @@ import { isArrowToken, isOpeningParenToken } from "./token-predicate.mjs"
  * @returns {import('eslint').AST.Token | null} `(` token.
  */
 function getOpeningParenOfParams(node, sourceCode) {
-    return 'id' in node && node.id
+    return "id" in node && node.id
         ? sourceCode.getTokenAfter(node.id, isOpeningParenToken)
         : sourceCode.getFirstToken(node, isOpeningParenToken)
 }
@@ -19,12 +19,12 @@ function getOpeningParenOfParams(node, sourceCode) {
  * @returns {import('eslint').AST.SourceLocation|null} The location of the function node for reporting.
  */
 export function getFunctionHeadLocation(node, sourceCode) {
-    const parent = 'parent' in node ? node.parent : undefined
+    const parent = "parent" in node ? node.parent : undefined
 
     /** @type {import('eslint').AST.SourceLocation["start"]|undefined} */
     let start,
-    /** @type {import('eslint').AST.SourceLocation["end"]|undefined} */
-     end
+        /** @type {import('eslint').AST.SourceLocation["end"]|undefined} */
+        end
 
     if (node.type === "ArrowFunctionExpression") {
         const arrowToken = sourceCode.getTokenBefore(node.body, isArrowToken)
@@ -45,8 +45,8 @@ export function getFunctionHeadLocation(node, sourceCode) {
 
     return start && end
         ? {
-            start: { ...start },
-            end: { ...end },
-        }
+              start: { ...start },
+              end: { ...end },
+          }
         : null
 }

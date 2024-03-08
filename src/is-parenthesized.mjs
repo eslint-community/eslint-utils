@@ -92,7 +92,11 @@ export function isParenthesized(
             throw new TypeError("'times' should be a positive integer.")
         }
         // @ts-ignore
-        return internalIsParenthesized(timesOrNode | 0, nodeOrSourceCode, optionalSourceCode)
+        return internalIsParenthesized(
+            timesOrNode | 0,
+            nodeOrSourceCode,
+            optionalSourceCode,
+        )
     }
 
     // @ts-ignore
@@ -106,11 +110,7 @@ export function isParenthesized(
  * @param {import('eslint').SourceCode} sourceCode The source code object to get tokens.
  * @returns {boolean} `true` if the node is parenthesized the given times.
  */
-function internalIsParenthesized(
-    times,
-    node,
-    sourceCode,
-) {
+function internalIsParenthesized(times, node, sourceCode) {
     /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
     let maybeLeftParen = node
     /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
@@ -119,7 +119,7 @@ function internalIsParenthesized(
     if (
         node == null ||
         // `Program` can't be parenthesized
-        !('parent' in node) ||
+        !("parent" in node) ||
         node.parent == null ||
         // `CatchClause.param` can't be parenthesized, example `try {} catch (error) {}`
         (node.parent.type === "CatchClause" && node.parent.param === node)

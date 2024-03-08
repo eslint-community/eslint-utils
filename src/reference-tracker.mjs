@@ -44,7 +44,7 @@ function isModifiedGlobal(variable) {
  * @returns {boolean} `true` if the node is passed through.
  */
 function isPassThrough(node) {
-    const parent = 'parent' in node ? node.parent : undefined
+    const parent = "parent" in node ? node.parent : undefined
 
     switch (parent?.type) {
         case "ConditionalExpression":
@@ -136,7 +136,10 @@ export class ReferenceTracker {
      */
     *iterateCjsReferences(traceMap) {
         for (const { node } of this.iterateGlobalReferences(requireCall)) {
-            const key = 'arguments' in node && node.arguments[0] ? getStringIfConstant(node.arguments[0]) : null
+            const key =
+                "arguments" in node && node.arguments[0]
+                    ? getStringIfConstant(node.arguments[0])
+                    : null
             if (key == null || !Object.hasOwn(traceMap, key)) {
                 continue
             }
@@ -169,17 +172,27 @@ export class ReferenceTracker {
     *iterateEsmReferences(traceMap) {
         const programNode = this.globalScope.block
 
-        if (!('body' in programNode) || !(Symbol.iterator in programNode.body)) {
+        if (
+            !("body" in programNode) ||
+            !(Symbol.iterator in programNode.body)
+        ) {
             return
         }
 
         for (const node of programNode.body) {
-            if (!IMPORT_TYPE.test(node.type) || !('source' in node) || node.source == null) {
+            if (
+                !IMPORT_TYPE.test(node.type) ||
+                !("source" in node) ||
+                node.source == null
+            ) {
                 continue
             }
             const moduleId = node.source.value
 
-            if (typeof moduleId !== 'string' || !Object.hasOwn(traceMap, moduleId)) {
+            if (
+                typeof moduleId !== "string" ||
+                !Object.hasOwn(traceMap, moduleId)
+            ) {
                 continue
             }
             const nextTraceMap = traceMap[moduleId]
@@ -276,11 +289,11 @@ export class ReferenceTracker {
     *_iteratePropertyReferences(rootNode, path, traceMap) {
         let node = rootNode
 
-        while (isPassThrough(node) && 'parent' in node) {
+        while (isPassThrough(node) && "parent" in node) {
             node = node.parent
         }
 
-        const parent = 'parent' in node ? node.parent : undefined
+        const parent = "parent" in node ? node.parent : undefined
         if (parent?.type === "MemberExpression") {
             if (parent.object === node) {
                 const key = getPropertyName(parent)
@@ -368,7 +381,10 @@ export class ReferenceTracker {
         }
         if (patternNode.type === "ObjectPattern") {
             for (const property of patternNode.properties) {
-                const key = property.type === 'Property' ? getPropertyName(property) : null
+                const key =
+                    property.type === "Property"
+                        ? getPropertyName(property)
+                        : null
 
                 if (key == null || !Object.hasOwn(traceMap, key)) {
                     continue
@@ -387,7 +403,7 @@ export class ReferenceTracker {
                         info: nextTraceMap[READ],
                     }
                 }
-                if ('value' in property) {
+                if ("value" in property) {
                     yield* this._iterateLhsReferences(
                         property.value,
                         nextPath,

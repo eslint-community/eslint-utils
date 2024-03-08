@@ -9,10 +9,10 @@ import { getStaticValue } from "./get-static-value.mjs"
 export function getStringIfConstant(node, initialScope = null) {
     // Handle the literals that the platform doesn't support natively.
     if (node && node.type === "Literal" && node.value === null) {
-        if ('regex' in node && node.regex) {
+        if ("regex" in node && node.regex) {
             return `/${node.regex.pattern}/${node.regex.flags}`
         }
-        if ('bigint' in node && node.bigint) {
+        if ("bigint" in node && node.bigint) {
             return node.bigint
         }
     }
