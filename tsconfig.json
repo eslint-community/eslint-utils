@@ -30,9 +30,6 @@
         /* Additional non-type checks */
         "forceConsistentCasingInFileNames": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true,
-
-        /* TODO: Remove to ensure full strictness */
-        "noImplicitAny": false,
+        "noUnusedParameters": true
     }
 }

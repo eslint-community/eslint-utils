@@ -4,7 +4,7 @@ import { findVariable } from "./find-variable.mjs"
 
 /** @typedef {import('estree').Node | import('estree').Expression} Node */
 
-/** @type {typeof globalThis} */
+/** @type {Record<string, unknown>} */
 const globalObject =
     typeof globalThis !== "undefined"
         ? globalThis
@@ -112,6 +112,7 @@ const callAllowed = new Set(
         Map.prototype.values,
         ...Object.getOwnPropertyNames(Math)
             .filter((k) => k !== "random")
+            // @ts-ignore
             .map((k) => Math[k])
             .filter((f) => typeof f === "function"),
         Number,
@@ -227,7 +228,7 @@ function isGetter(object, name) {
 
 /**
  * Get the element values of a given node list.
- * @param {Node[]} nodeList The node list to get values.
+ * @param {(Node|null)[]} nodeList The node list to get values.
  * @param {import('eslint').Scope.Scope|undefined} initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
@@ -274,13 +275,27 @@ function isEffectivelyConst(variable) {
     return false
 }
 
+/**
+ * @callback VisitorCallback
+ * @param {Node} node 
+ * @param {import('eslint').Scope.Scope|undefined} initialScope 
+ * @returns {StaticValue | null}
+ */
+
+/** @type {Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>> } */
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
+        if (node.type !== 'ArrayExpression') {
+            return null
+        }
         const elements = getElementValues(node.elements, initialScope)
         return elements != null ? { value: elements } : null
     },
 
     AssignmentExpression(node, initialScope) {
+        if (node.type !== 'AssignmentExpression') {
+            return null
+        }
         if (node.operator === "=") {
             return getStaticValueR(node.right, initialScope)
         }
@@ -289,6 +304,9 @@ const operations = Object.freeze({
 
     //eslint-disable-next-line complexity
     BinaryExpression(node, initialScope) {
+        if (node.type !== 'BinaryExpression') {
+            return null
+        }
         if (node.operator === "in" || node.operator === "instanceof") {
             // Not supported.
             return null
@@ -346,7 +364,11 @@ const operations = Object.freeze({
         return null
     },
 
+    // eslint-disable-next-line complexity
     CallExpression(node, initialScope) {
+        if (node.type !== 'CallExpression') {
+            return null
+        }
         const calleeNode = node.callee
         const args = getElementValues(node.arguments, initialScope)
 
@@ -400,6 +422,9 @@ const operations = Object.freeze({
     },
 
     ConditionalExpression(node, initialScope) {
+        if (node.type !== 'ConditionalExpression') {
+            return null
+        }
         const test = getStaticValueR(node.test, initialScope)
         if (test != null) {
             return test.value
@@ -410,10 +435,16 @@ const operations = Object.freeze({
     },
 
     ExpressionStatement(node, initialScope) {
+        if (node.type !== 'ExpressionStatement') {
+            return null
+        }
         return getStaticValueR(node.expression, initialScope)
     },
 
     Identifier(node, initialScope) {
+        if (node.type !== 'Identifier') {
+            return null
+        }
         if (initialScope != null) {
             const variable = findVariable(initialScope, node)
 
@@ -446,8 +477,17 @@ const operations = Object.freeze({
     },
 
     Literal(node) {
+        if (node.type !== 'Literal') {
+            return null
+        }
         //istanbul ignore if : this is implementation-specific behavior.
-        if ((node.regex != null || node.bigint != null) && node.value == null) {
+        if (
+            (
+                ('regex' in node && node.regex != null) ||
+                ('bigint' in node && node.bigint != null)
+            ) &&
+            node.value == null
+        ) {
             // It was a RegExp/BigInt literal, but Node.js didn't support it.
             return null
         }
@@ -455,6 +495,9 @@ const operations = Object.freeze({
     },
 
     LogicalExpression(node, initialScope) {
+        if (node.type !== 'LogicalExpression') {
+            return null
+        }
         const left = getStaticValueR(node.left, initialScope)
         if (left != null) {
             if (
@@ -475,6 +518,9 @@ const operations = Object.freeze({
     },
 
     MemberExpression(node, initialScope) {
+        if (node.type !== 'MemberExpression') {
+            return null
+        }
         if (node.property.type === "PrivateIdentifier") {
             return null
         }
@@ -495,6 +541,7 @@ const operations = Object.freeze({
                         object.value instanceof classFn &&
                         allowed.has(property.value)
                     ) {
+                        // @ts-ignore
                         return { value: object.value[property.value] }
                     }
                 }
@@ -504,6 +551,9 @@ const operations = Object.freeze({
     },
 
     ChainExpression(node, initialScope) {
+        if (node.type !== 'ChainExpression') {
+            return null
+        }
         const expression = getStaticValueR(node.expression, initialScope)
         if (expression != null) {
             return { value: expression.value }
@@ -512,6 +562,9 @@ const operations = Object.freeze({
     },
 
     NewExpression(node, initialScope) {
+        if (node.type !== 'NewExpression') {
+            return null
+        }
         const callee = getStaticValueR(node.callee, initialScope)
         const args = getElementValues(node.arguments, initialScope)
 
@@ -526,6 +579,10 @@ const operations = Object.freeze({
     },
 
     ObjectExpression(node, initialScope) {
+        if (node.type !== 'ObjectExpression') {
+            return null
+        }
+        /** @type {Record<string|number|symbol, unknown>} */
         const object = {}
 
         for (const propertyNode of node.properties) {
@@ -544,6 +601,7 @@ const operations = Object.freeze({
                 object[key.value] = value.value
             } else if (
                 propertyNode.type === "SpreadElement" ||
+                // @ts-ignore
                 propertyNode.type === "ExperimentalSpreadProperty"
             ) {
                 const argument = getStaticValueR(
@@ -563,11 +621,17 @@ const operations = Object.freeze({
     },
 
     SequenceExpression(node, initialScope) {
+        if (node.type !== 'SequenceExpression') {
+            return null
+        }
         const last = node.expressions[node.expressions.length - 1]
         return getStaticValueR(last, initialScope)
     },
 
     TaggedTemplateExpression(node, initialScope) {
+        if (node.type !== 'TaggedTemplateExpression') {
+            return null
+        }
         const tag = getStaticValueR(node.tag, initialScope)
         const expressions = getElementValues(
             node.quasi.expressions,
@@ -576,6 +640,7 @@ const operations = Object.freeze({
 
         if (tag != null && expressions != null) {
             const func = tag.value
+            /** @type {(string|null|undefined)[] & { raw?: string[] }} */
             const strings = node.quasi.quasis.map((q) => q.value.cooked)
             strings.raw = node.quasi.quasis.map((q) => q.value.raw)
 
@@ -588,12 +653,15 @@ const operations = Object.freeze({
     },
 
     TemplateLiteral(node, initialScope) {
+        if (node.type !== 'TemplateLiteral') {
+            return null
+        }
         const expressions = getElementValues(node.expressions, initialScope)
         if (expressions != null) {
-            let value = node.quasis[0].value.cooked
+            let value = node.quasis[0]?.value.cooked
             for (let i = 0; i < expressions.length; ++i) {
                 value += expressions[i]
-                value += node.quasis[i + 1].value.cooked
+                value += node.quasis[i + 1]?.value.cooked || ''
             }
             return { value }
         }
@@ -601,6 +669,9 @@ const operations = Object.freeze({
     },
 
     UnaryExpression(node, initialScope) {
+        if (node.type !== 'UnaryExpression') {
+            return null
+        }
         if (node.operator === "delete") {
             // Not supported.
             return null
