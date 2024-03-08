@@ -27,11 +27,17 @@ const typeConversionUnaryOps = Object.freeze(new Set(["-", "+", "!", "~"]))
 /**
  * Check whether the given value is an ASTNode or not.
  * @param {unknown} x The value to check.
- * @returns {x is import('eslint').Rule.Node} `true` if the value is an ASTNode.
+ * @returns {x is { type: string }} `true` if the value is an ASTNode.
  */
 function isNode(x) {
     return x !== null && typeof x === "object" && 'type' in x && typeof x.type === "string"
 }
+
+/**
+ * @see https://github.com/sindresorhus/type-fest/blob/906e7e77204c65f7512f9f54b3205f25c5c0c8e5/source/keys-of-union.d.ts#L38-L40
+ * @template T
+ * @typedef {T extends unknown ? T[keyof T] : never} ValuesInObjectUnion
+ */
 
 /**
  * @typedef VisitOptions
@@ -41,13 +47,13 @@ function isNode(x) {
 
 /**
  * @callback VisitorCallback
- * @param {import('eslint').Rule.Node} node 
+ * @param {import('estree').Node | import('estree').Expression | import('estree').Comment | import('estree').MaybeNamedClassDeclaration | import('estree').MaybeNamedFunctionDeclaration} node 
  * @param {VisitOptions} options 
  * @param {import('eslint').SourceCode.VisitorKeys | typeof KEYS} visitorKeys 
  * @returns {boolean}
  */
 
-/** @type {Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>> & Record<'$visit' | '$visitChildren', VisitorCallback>} */
+/** @type {Partial<Record<import('eslint').Rule.NodeTypes | import('estree').Comment["type"], VisitorCallback>> & Record<'$visit' | '$visitChildren', VisitorCallback>} */
 const visitor = {
     $visit(node, options, visitorKeys) {
         const match = this[node.type]
@@ -60,10 +66,10 @@ const visitor = {
     },
 
     $visitChildren(node, options, visitorKeys) {
-        const { type } = node
+        const { type, ...remainder } = node
 
         for (const key of visitorKeys[type] || getKeys(node)) {
-            const value = node[/** @type {keyof typeof node} */ (key)]
+            const value = /** @type {ValuesInObjectUnion<typeof remainder>} */ (remainder[/** @type {keyof typeof remainder} */ (key)])
 
             if (Array.isArray(value)) {
                 for (const element of value) {
