@@ -91,9 +91,9 @@ export function isParenthesized(
         if (!(timesOrNode >= 1)) {
             throw new TypeError("'times' should be a positive integer.")
         }
-        // @ts-ignore
         return internalIsParenthesized(
             timesOrNode | 0,
+            // @ts-ignore
             nodeOrSourceCode,
             optionalSourceCode,
         )
