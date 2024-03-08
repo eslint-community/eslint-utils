@@ -2,7 +2,7 @@ import { getPropertyName } from "./get-property-name.mjs"
 
 /**
  * Get the name and kind of the given function node.
- * @param {import('eslint').Rule.Node} node - The function node to get.
+ * @param {Extract<import('eslint').Rule.Node, { type: 'FunctionDeclaration' | 'FunctionExpression' | 'ArrowFunctionExpression'}>} node - The function node to get.
  * @param {import('eslint').SourceCode} [sourceCode] The source code object to get the code of computed property keys.
  * @returns {string} The name and kind of the function node.
  */
