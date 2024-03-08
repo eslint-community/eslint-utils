@@ -749,7 +749,7 @@ function getStaticPropertyNameValue(node, initialScope) {
  * Get the value of a given node if it's a static value.
  * @param {Node} node The node to get.
  * @param {import('eslint').Scope.Scope|null} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
- * @returns {StaticValue|null} The static value of the node, or `null`.
+ * @returns {{ value: unknown, optional?: never }|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
  */
 export function getStaticValue(node, initialScope = null) {
     try {

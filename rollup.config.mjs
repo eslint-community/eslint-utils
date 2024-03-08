@@ -8,6 +8,7 @@ import { URL } from 'node:url';
 
 import { dts } from "rollup-plugin-dts";
 
+/** @type {{ dependencies: Record<string, string> }} */
 const packageInfo = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 export default [
@@ -28,6 +29,7 @@ export default [
             file: `index.d.ts`,
             format: "cjs",
         }],
+        // type-coverage:ignore-next-line
         plugins: [dts()],
     },
 ]

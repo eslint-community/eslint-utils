@@ -9,6 +9,7 @@ import { getPropertyName } from "./get-property-name.mjs"
 // eslint-disable-next-line complexity
 export function getFunctionNameWithKind(node, sourceCode) {
     const parent = node.parent
+    /** @type {string[]} */
     const tokens = []
     const isObjectMethod = parent.type === "Property" && parent.value === node
     const isClassMethod =

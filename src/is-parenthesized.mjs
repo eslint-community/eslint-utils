@@ -111,7 +111,10 @@ function internalIsParenthesized(
     node,
     sourceCode,
 ) {
-    let maybeLeftParen, maybeRightParen
+    /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
+    let maybeLeftParen = node;
+    /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
+    let maybeRightParen = node;
 
     if (
         node == null ||
@@ -124,7 +127,6 @@ function internalIsParenthesized(
         return false
     }
 
-    maybeLeftParen = maybeRightParen = node
     do {
         maybeLeftParen = sourceCode.getTokenBefore(maybeLeftParen)
         maybeRightParen = sourceCode.getTokenAfter(maybeRightParen)

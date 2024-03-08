@@ -22,7 +22,7 @@ const requireCall = { require: { [CALL]: true } }
  * @property {Node} node
  * @property {string[]} path
  * @property {ReferenceType} type
- * @property {any} info
+ * @property {unknown} info
  */
 
 /**

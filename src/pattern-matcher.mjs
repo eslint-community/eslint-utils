@@ -30,6 +30,7 @@ function isEscaped(str, index) {
  * @returns {string} The replaced string.
  */
 function replaceS(matcher, str, replacement) {
+    /** @type {string[]} */
     const chunks = []
     let index = 0
 
@@ -75,6 +76,7 @@ function replaceS(matcher, str, replacement) {
  * @returns {string} The replaced string.
  */
 function replaceF(matcher, str, replace) {
+    /** @type {string[]} */
     const chunks = []
     let index = 0
 
@@ -118,6 +120,7 @@ export class PatternMatcher {
      */
     *execAll(str) {
         const { pattern, escaped } = internal.get(this) || {}
+        /** @type {RegExpExecArray|null} */
         let match = null
         let lastIndex = 0
 
