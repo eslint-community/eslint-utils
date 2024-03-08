@@ -112,9 +112,9 @@ function internalIsParenthesized(
     sourceCode,
 ) {
     /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
-    let maybeLeftParen = node;
+    let maybeLeftParen = node
     /** @type {import('eslint').Rule.Node | import('eslint').AST.Token | null} */
-    let maybeRightParen = node;
+    let maybeRightParen = node
 
     if (
         node == null ||

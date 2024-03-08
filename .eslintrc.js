@@ -8,6 +8,8 @@ module.exports = {
         project: "./tsconfig.json",
     },
     rules: {
+        'semi': ['error', 'never'],
+        'semi-spacing': ['error', { 'before': false, 'after': true }],
         "@eslint-community/mysticatea/prettier": "off",
         "no-restricted-properties": [
             "error",

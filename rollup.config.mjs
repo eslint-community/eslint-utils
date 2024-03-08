@@ -3,13 +3,13 @@
  * See LICENSE file in root directory for full license.
  */
 
-import { readFileSync } from 'node:fs';
-import { URL } from 'node:url';
+import { readFileSync } from 'node:fs'
+import { URL } from 'node:url'
 
-import { dts } from "rollup-plugin-dts";
+import { dts } from "rollup-plugin-dts"
 
 /** @type {{ dependencies: Record<string, string> }} */
-const packageInfo = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const packageInfo = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 export default [
     {
