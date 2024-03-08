@@ -7,8 +7,8 @@ import { isArrowToken, isOpeningParenToken } from "./token-predicate.mjs"
  * @returns {import('eslint').AST.Token | null} `(` token.
  */
 function getOpeningParenOfParams(node, sourceCode) {
-    return 'id' in node
-        ? (node.id ? sourceCode.getTokenAfter(node.id, isOpeningParenToken) : null)
+    return 'id' in node && node.id
+        ? sourceCode.getTokenAfter(node.id, isOpeningParenToken)
         : sourceCode.getFirstToken(node, isOpeningParenToken)
 }
 

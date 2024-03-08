@@ -72,7 +72,7 @@ function replaceS(matcher, str, replacement) {
  * Replace a given string by a given matcher.
  * @param {PatternMatcher} matcher The pattern matcher.
  * @param {string} str The string to be replaced.
- * @param {(...strs: string[])=>string} replace The function to replace each matched part.
+ * @param {(...strs: (string|number)[])=>string} replace The function to replace each matched part.
  * @returns {string} The replaced string.
  */
 function replaceF(matcher, str, replace) {
@@ -82,7 +82,7 @@ function replaceF(matcher, str, replace) {
 
     for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(String(replace(...match, String(match.index), match.input)))
+        chunks.push(String(replace(...match, match.index, match.input)))
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -152,7 +152,7 @@ export class PatternMatcher {
     /**
      * Replace a given string.
      * @param {string} str The string to be replaced.
-     * @param {(string|((...strs:string[])=>string))} replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
+     * @param {(string|((...strs:(string|number)[])=>string))} replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
      * @returns {string} The replaced string.
      */
     [Symbol.replace](str, replacer) {

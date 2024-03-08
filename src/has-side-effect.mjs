@@ -59,7 +59,7 @@ const visitor = {
         const match = this[node.type]
 
         if (typeof match === "function") {
-            return match(node, options, visitorKeys)
+            return match.call(this, node, options, visitorKeys)
         }
 
         return this.$visitChildren(node, options, visitorKeys)
