@@ -4,7 +4,12 @@
 module.exports = {
     root: true,
     extends: ["plugin:@eslint-community/mysticatea/es2020"],
+    parserOptions: {
+        project: "./tsconfig.json",
+    },
     rules: {
+        semi: ["error", "never"],
+        "semi-spacing": ["error", { before: false, after: true }],
         "@eslint-community/mysticatea/prettier": "off",
         "no-restricted-properties": [
             "error",
@@ -18,7 +23,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: ["src/**/*.mjs", "test/**/*.mjs"],
+            files: ["src/**/*.mjs", "test/**/*.mjs", "rollup.config.mjs"],
             extends: ["plugin:@eslint-community/mysticatea/+modules"],
             rules: {
                 "init-declarations": "off",

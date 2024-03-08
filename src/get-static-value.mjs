@@ -2,13 +2,18 @@
 
 import { findVariable } from "./find-variable.mjs"
 
+/** @type {Record<string, unknown>} */
 const globalObject =
     typeof globalThis !== "undefined"
         ? globalThis
-        : typeof self !== "undefined"
-        ? self
-        : typeof window !== "undefined"
-        ? window
+        : // @ts-ignore
+        typeof self !== "undefined"
+        ? // @ts-ignore
+          self
+        : // @ts-ignore
+        typeof window !== "undefined"
+        ? // @ts-ignore
+          window
         : typeof global !== "undefined"
         ? global
         : {}
@@ -95,6 +100,7 @@ const callAllowed = new Set(
         escape,
         isFinite,
         isNaN,
+        // @ts-ignore
         isPrototypeOf,
         Map,
         Map.prototype.entries,
@@ -104,6 +110,7 @@ const callAllowed = new Set(
         Map.prototype.values,
         ...Object.getOwnPropertyNames(Math)
             .filter((k) => k !== "random")
+            // @ts-ignore
             .map((k) => Math[k])
             .filter((f) => typeof f === "function"),
         Number,
@@ -219,8 +226,8 @@ function isGetter(object, name) {
 
 /**
  * Get the element values of a given node list.
- * @param {Node[]} nodeList The node list to get values.
- * @param {Scope|undefined} initialScope The initial scope to find variables.
+ * @param {(import('./types.mjs').Node|null)[]} nodeList The node list to get values.
+ * @param {import('eslint').Scope.Scope|undefined} initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
 function getElementValues(nodeList, initialScope) {
@@ -266,13 +273,27 @@ function isEffectivelyConst(variable) {
     return false
 }
 
+/**
+ * @callback VisitorCallback
+ * @param {import('./types.mjs').Node} node
+ * @param {import('eslint').Scope.Scope|undefined} initialScope
+ * @returns {StaticValue | null}
+ */
+
+/** @type {Readonly<Partial<Record<import('eslint').Rule.NodeTypes, VisitorCallback>>> } */
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
+        if (node.type !== "ArrayExpression") {
+            return null
+        }
         const elements = getElementValues(node.elements, initialScope)
         return elements != null ? { value: elements } : null
     },
 
     AssignmentExpression(node, initialScope) {
+        if (node.type !== "AssignmentExpression") {
+            return null
+        }
         if (node.operator === "=") {
             return getStaticValueR(node.right, initialScope)
         }
@@ -281,6 +302,9 @@ const operations = Object.freeze({
 
     //eslint-disable-next-line complexity
     BinaryExpression(node, initialScope) {
+        if (node.type !== "BinaryExpression") {
+            return null
+        }
         if (node.operator === "in" || node.operator === "instanceof") {
             // Not supported.
             return null
@@ -338,7 +362,11 @@ const operations = Object.freeze({
         return null
     },
 
+    // eslint-disable-next-line complexity
     CallExpression(node, initialScope) {
+        if (node.type !== "CallExpression") {
+            return null
+        }
         const calleeNode = node.callee
         const args = getElementValues(node.arguments, initialScope)
 
@@ -392,6 +420,9 @@ const operations = Object.freeze({
     },
 
     ConditionalExpression(node, initialScope) {
+        if (node.type !== "ConditionalExpression") {
+            return null
+        }
         const test = getStaticValueR(node.test, initialScope)
         if (test != null) {
             return test.value
@@ -402,10 +433,16 @@ const operations = Object.freeze({
     },
 
     ExpressionStatement(node, initialScope) {
+        if (node.type !== "ExpressionStatement") {
+            return null
+        }
         return getStaticValueR(node.expression, initialScope)
     },
 
     Identifier(node, initialScope) {
+        if (node.type !== "Identifier") {
+            return null
+        }
         if (initialScope != null) {
             const variable = findVariable(initialScope, node)
 
@@ -423,7 +460,7 @@ const operations = Object.freeze({
             if (variable != null && variable.defs.length === 1) {
                 const def = variable.defs[0]
                 if (
-                    def.parent &&
+                    def?.parent &&
                     def.type === "Variable" &&
                     (def.parent.kind === "const" ||
                         isEffectivelyConst(variable)) &&
@@ -438,8 +475,15 @@ const operations = Object.freeze({
     },
 
     Literal(node) {
+        if (node.type !== "Literal") {
+            return null
+        }
         //istanbul ignore if : this is implementation-specific behavior.
-        if ((node.regex != null || node.bigint != null) && node.value == null) {
+        if (
+            (("regex" in node && node.regex != null) ||
+                ("bigint" in node && node.bigint != null)) &&
+            node.value == null
+        ) {
             // It was a RegExp/BigInt literal, but Node.js didn't support it.
             return null
         }
@@ -447,6 +491,9 @@ const operations = Object.freeze({
     },
 
     LogicalExpression(node, initialScope) {
+        if (node.type !== "LogicalExpression") {
+            return null
+        }
         const left = getStaticValueR(node.left, initialScope)
         if (left != null) {
             if (
@@ -467,6 +514,9 @@ const operations = Object.freeze({
     },
 
     MemberExpression(node, initialScope) {
+        if (node.type !== "MemberExpression") {
+            return null
+        }
         if (node.property.type === "PrivateIdentifier") {
             return null
         }
@@ -487,6 +537,7 @@ const operations = Object.freeze({
                         object.value instanceof classFn &&
                         allowed.has(property.value)
                     ) {
+                        // @ts-ignore
                         return { value: object.value[property.value] }
                     }
                 }
@@ -496,6 +547,9 @@ const operations = Object.freeze({
     },
 
     ChainExpression(node, initialScope) {
+        if (node.type !== "ChainExpression") {
+            return null
+        }
         const expression = getStaticValueR(node.expression, initialScope)
         if (expression != null) {
             return { value: expression.value }
@@ -504,6 +558,9 @@ const operations = Object.freeze({
     },
 
     NewExpression(node, initialScope) {
+        if (node.type !== "NewExpression") {
+            return null
+        }
         const callee = getStaticValueR(node.callee, initialScope)
         const args = getElementValues(node.arguments, initialScope)
 
@@ -518,6 +575,10 @@ const operations = Object.freeze({
     },
 
     ObjectExpression(node, initialScope) {
+        if (node.type !== "ObjectExpression") {
+            return null
+        }
+        /** @type {Record<string|number|symbol, unknown>} */
         const object = {}
 
         for (const propertyNode of node.properties) {
@@ -536,6 +597,7 @@ const operations = Object.freeze({
                 object[key.value] = value.value
             } else if (
                 propertyNode.type === "SpreadElement" ||
+                // @ts-ignore
                 propertyNode.type === "ExperimentalSpreadProperty"
             ) {
                 const argument = getStaticValueR(
@@ -555,11 +617,17 @@ const operations = Object.freeze({
     },
 
     SequenceExpression(node, initialScope) {
+        if (node.type !== "SequenceExpression") {
+            return null
+        }
         const last = node.expressions[node.expressions.length - 1]
         return getStaticValueR(last, initialScope)
     },
 
     TaggedTemplateExpression(node, initialScope) {
+        if (node.type !== "TaggedTemplateExpression") {
+            return null
+        }
         const tag = getStaticValueR(node.tag, initialScope)
         const expressions = getElementValues(
             node.quasi.expressions,
@@ -568,6 +636,7 @@ const operations = Object.freeze({
 
         if (tag != null && expressions != null) {
             const func = tag.value
+            /** @type {(string|null|undefined)[] & { raw?: string[] }} */
             const strings = node.quasi.quasis.map((q) => q.value.cooked)
             strings.raw = node.quasi.quasis.map((q) => q.value.raw)
 
@@ -580,12 +649,15 @@ const operations = Object.freeze({
     },
 
     TemplateLiteral(node, initialScope) {
+        if (node.type !== "TemplateLiteral") {
+            return null
+        }
         const expressions = getElementValues(node.expressions, initialScope)
         if (expressions != null) {
-            let value = node.quasis[0].value.cooked
+            let value = node.quasis[0]?.value.cooked
             for (let i = 0; i < expressions.length; ++i) {
                 value += expressions[i]
-                value += node.quasis[i + 1].value.cooked
+                value += node.quasis[i + 1]?.value.cooked || ""
             }
             return { value }
         }
@@ -593,6 +665,9 @@ const operations = Object.freeze({
     },
 
     UnaryExpression(node, initialScope) {
+        if (node.type !== "UnaryExpression") {
+            return null
+        }
         if (node.operator === "delete") {
             // Not supported.
             return null
@@ -623,38 +698,46 @@ const operations = Object.freeze({
     },
 })
 
+/** @typedef {{ value: any, optional?: never }|{value:undefined,optional?:true}} StaticValue */
+
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
- * @param {Scope|undefined} initialScope The scope to start finding variable.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param {import('./types.mjs').Node | null | undefined} node The node to get.
+ * @param {import('eslint').Scope.Scope|undefined} initialScope The scope to start finding variable.
+ * @returns {StaticValue|null} The static value of the node, or `null`.
  */
 function getStaticValueR(node, initialScope) {
-    if (node != null && Object.hasOwnProperty.call(operations, node.type)) {
-        return operations[node.type](node, initialScope)
+    if (node && Object.hasOwn(operations, node.type)) {
+        const cb = operations[node.type]
+        return cb ? cb(node, initialScope) : null
     }
     return null
 }
 
 /**
  * Get the static value of property name from a MemberExpression node or a Property node.
- * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the property name of the node, or `null`.
+ * @param {import('./types.mjs').Node} node The node to get.
+ * @param {import('eslint').Scope.Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
+ * @returns {StaticValue|null} The static value of the property name of the node, or `null`.
  */
 function getStaticPropertyNameValue(node, initialScope) {
-    const nameNode = node.type === "Property" ? node.key : node.property
+    const nameNode =
+        node.type === "Property"
+            ? node.key
+            : "property" in node
+            ? node.property
+            : undefined
 
-    if (node.computed) {
+    if ("computed" in node && node.computed) {
         return getStaticValueR(nameNode, initialScope)
     }
 
-    if (nameNode.type === "Identifier") {
+    if (nameNode?.type === "Identifier") {
         return { value: nameNode.name }
     }
 
-    if (nameNode.type === "Literal") {
-        if (nameNode.bigint) {
+    if (nameNode?.type === "Literal") {
+        if ("bigint" in nameNode && nameNode.bigint) {
             return { value: nameNode.bigint }
         }
         return { value: String(nameNode.value) }
@@ -665,13 +748,13 @@ function getStaticPropertyNameValue(node, initialScope) {
 
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param {import('./types.mjs').Node} node The node to get.
+ * @param {import('eslint').Scope.Scope|null} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
+ * @returns {{ value: unknown, optional?: never }|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
  */
 export function getStaticValue(node, initialScope = null) {
     try {
-        return getStaticValueR(node, initialScope)
+        return getStaticValueR(node, initialScope || undefined)
     } catch (_error) {
         return null
     }

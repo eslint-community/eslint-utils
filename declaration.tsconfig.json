@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig",
+    "files": [],
+    "exclude": ["tests/**/*.js"],
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "noEmit": false,
+        "outDir": "dist"
+    }
+}

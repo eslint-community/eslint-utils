@@ -2,46 +2,51 @@ import { isArrowToken, isOpeningParenToken } from "./token-predicate.mjs"
 
 /**
  * Get the `(` token of the given function node.
- * @param {Node} node - The function node to get.
- * @param {SourceCode} sourceCode - The source code object to get tokens.
- * @returns {Token} `(` token.
+ * @param {Extract<import('eslint').Rule.Node, { type: 'FunctionDeclaration' | 'FunctionExpression' | 'ArrowFunctionExpression'}>} node - The function node to get.
+ * @param {import('eslint').SourceCode} sourceCode - The source code object to get tokens.
+ * @returns {import('eslint').AST.Token | null} `(` token.
  */
 function getOpeningParenOfParams(node, sourceCode) {
-    return node.id
+    return "id" in node && node.id
         ? sourceCode.getTokenAfter(node.id, isOpeningParenToken)
         : sourceCode.getFirstToken(node, isOpeningParenToken)
 }
 
 /**
  * Get the location of the given function node for reporting.
- * @param {Node} node - The function node to get.
- * @param {SourceCode} sourceCode - The source code object to get tokens.
- * @returns {string} The location of the function node for reporting.
+ * @param {Extract<import('eslint').Rule.Node, { type: 'FunctionDeclaration' | 'FunctionExpression' | 'ArrowFunctionExpression'}>} node - The function node to get.
+ * @param {import('eslint').SourceCode} sourceCode - The source code object to get tokens.
+ * @returns {import('eslint').AST.SourceLocation|null} The location of the function node for reporting.
  */
 export function getFunctionHeadLocation(node, sourceCode) {
-    const parent = node.parent
-    let start = null
-    let end = null
+    const parent = "parent" in node ? node.parent : undefined
+
+    /** @type {import('eslint').AST.SourceLocation["start"]|undefined} */
+    let start,
+        /** @type {import('eslint').AST.SourceLocation["end"]|undefined} */
+        end
 
     if (node.type === "ArrowFunctionExpression") {
         const arrowToken = sourceCode.getTokenBefore(node.body, isArrowToken)
 
-        start = arrowToken.loc.start
-        end = arrowToken.loc.end
+        start = arrowToken?.loc.start
+        end = arrowToken?.loc.end
     } else if (
-        parent.type === "Property" ||
-        parent.type === "MethodDefinition" ||
-        parent.type === "PropertyDefinition"
+        parent?.type === "Property" ||
+        parent?.type === "MethodDefinition" ||
+        parent?.type === "PropertyDefinition"
     ) {
-        start = parent.loc.start
-        end = getOpeningParenOfParams(node, sourceCode).loc.start
+        start = parent.loc?.start
+        end = getOpeningParenOfParams(node, sourceCode)?.loc.start
     } else {
-        start = node.loc.start
-        end = getOpeningParenOfParams(node, sourceCode).loc.start
+        start = node.loc?.start
+        end = getOpeningParenOfParams(node, sourceCode)?.loc.start
     }
 
-    return {
-        start: { ...start },
-        end: { ...end },
-    }
+    return start && end
+        ? {
+              start: { ...start },
+              end: { ...end },
+          }
+        : null
 }

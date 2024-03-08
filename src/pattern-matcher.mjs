@@ -30,11 +30,12 @@ function isEscaped(str, index) {
  * @returns {string} The replaced string.
  */
 function replaceS(matcher, str, replacement) {
+    /** @type {string[]} */
     const chunks = []
     let index = 0
 
     /** @type {RegExpExecArray} */
-    let match = null
+    let match
 
     /**
      * @param {string} key The placeholder.
@@ -51,11 +52,8 @@ function replaceS(matcher, str, replacement) {
             case "$'":
                 return str.slice(match.index + match[0].length)
             default: {
-                const i = key.slice(1)
-                if (i in match) {
-                    return match[i]
-                }
-                return key
+                const i = parseInt(key.slice(1), 10)
+                return match[i] || key
             }
         }
     }
@@ -74,10 +72,11 @@ function replaceS(matcher, str, replacement) {
  * Replace a given string by a given matcher.
  * @param {PatternMatcher} matcher The pattern matcher.
  * @param {string} str The string to be replaced.
- * @param {(...strs[])=>string} replace The function to replace each matched part.
+ * @param {(...strs: (string|number)[])=>string} replace The function to replace each matched part.
  * @returns {string} The replaced string.
  */
 function replaceF(matcher, str, replace) {
+    /** @type {string[]} */
     const chunks = []
     let index = 0
 
@@ -98,7 +97,7 @@ export class PatternMatcher {
     /**
      * Initialize this matcher.
      * @param {RegExp} pattern The pattern to match.
-     * @param {{escaped:boolean}} options The options.
+     * @param {{escaped?:boolean}} [options] The options.
      */
     constructor(pattern, { escaped = false } = {}) {
         if (!(pattern instanceof RegExp)) {
@@ -120,9 +119,14 @@ export class PatternMatcher {
      * @returns {IterableIterator<RegExpExecArray>} The iterator which iterate the matched information.
      */
     *execAll(str) {
-        const { pattern, escaped } = internal.get(this)
+        const { pattern, escaped } = internal.get(this) || {}
+        /** @type {RegExpExecArray|null} */
         let match = null
         let lastIndex = 0
+
+        if (!pattern) {
+            return
+        }
 
         pattern.lastIndex = 0
         while ((match = pattern.exec(str)) != null) {
@@ -148,7 +152,7 @@ export class PatternMatcher {
     /**
      * Replace a given string.
      * @param {string} str The string to be replaced.
-     * @param {(string|((...strs:string[])=>string))} replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
+     * @param {(string|((...strs:(string|number)[])=>string))} replacer The string or function to replace. This is the same as the 2nd argument of `String.prototype.replace`.
      * @returns {string} The replaced string.
      */
     [Symbol.replace](str, replacer) {

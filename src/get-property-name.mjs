@@ -2,11 +2,14 @@ import { getStringIfConstant } from "./get-string-if-constant.mjs"
 
 /**
  * Get the property name from a MemberExpression node or a Property node.
- * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
+ * @param {Extract<import('./types.mjs').Node, { type: 'MemberExpression' | 'Property' | 'MethodDefinition' | 'PropertyDefinition'}>} node The node to get.
+ * @param {import('eslint').Scope.Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
  * @returns {string|null} The property name of the node.
  */
 export function getPropertyName(node, initialScope) {
+    /** @type {string|null} */
+    let result = null
+
     switch (node.type) {
         case "MemberExpression":
             if (node.computed) {
@@ -15,7 +18,8 @@ export function getPropertyName(node, initialScope) {
             if (node.property.type === "PrivateIdentifier") {
                 return null
             }
-            return node.property.name
+            result = "name" in node.property ? node.property.name : null
+            break
 
         case "Property":
         case "MethodDefinition":
@@ -29,10 +33,10 @@ export function getPropertyName(node, initialScope) {
             if (node.key.type === "PrivateIdentifier") {
                 return null
             }
-            return node.key.name
+            result = "name" in node.key ? node.key.name : null
 
         // no default
     }
 
-    return null
+    return result
 }

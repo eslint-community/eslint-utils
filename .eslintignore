@@ -7,3 +7,4 @@
 !.vitepress
 /docs/.vitepress/dist
 /docs/.vitepress/cache
+/dist
