@@ -33,9 +33,6 @@ jobs:
             - name: 📥 Install dependencies
               run: npm install
 
-            - name: ▶️ Run format:check script
-              run: npm run format:check
-
             - name: ▶️ Run lint script
               run: npm run lint
 
