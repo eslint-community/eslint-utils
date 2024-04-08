@@ -5,7 +5,7 @@ module.exports = {
     root: true,
     extends: ["plugin:@eslint-community/mysticatea/es2020"],
     parserOptions: {
-        project: "./tsconfig.json",
+        project: true,
     },
     rules: {
         semi: ["error", "never"],
