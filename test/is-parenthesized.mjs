@@ -1,7 +1,7 @@
 import assert from "assert"
 import { getProperty } from "dot-prop"
-import eslint from "eslint"
 import { isParenthesized } from "../src/index.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'isParenthesized' function", () => {
     for (const { code, expected } of [
@@ -219,21 +219,33 @@ describe("The 'isParenthesized' function", () => {
         describe(`on the code \`${code}\``, () => {
             for (const key of Object.keys(expected)) {
                 it(`should return ${expected[key]} at "${key}"`, () => {
-                    const linter = new eslint.Linter()
+                    const linter = newCompatLinter()
 
                     let actual = null
-                    linter.defineRule("test", (context) => ({
-                        Program(node) {
-                            actual = isParenthesized(
-                                getProperty(node, key),
-                                context.getSourceCode(),
-                            )
-                        },
-                    }))
                     const messages = linter.verify(code, {
-                        env: { es6: true },
-                        parserOptions: { ecmaVersion: 2020 },
-                        rules: { test: "error" },
+                        languageOptions: {
+                            ecmaVersion: 2020,
+                            sourceType: "script",
+                        },
+                        rules: { "test/test": "error" },
+                        plugins: {
+                            test: {
+                                rules: {
+                                    test: {
+                                        create(context) {
+                                            return {
+                                                Program(node) {
+                                                    actual = isParenthesized(
+                                                        getProperty(node, key),
+                                                        context.getSourceCode(),
+                                                    )
+                                                },
+                                            }
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     })
 
                     assert.strictEqual(
@@ -294,22 +306,31 @@ describe("The 'isParenthesized' function", () => {
         describe(`on the code \`${code}\` and 2 times`, () => {
             for (const key of Object.keys(expected)) {
                 it(`should return ${expected[key]} at "${key}"`, () => {
-                    const linter = new eslint.Linter()
+                    const linter = newCompatLinter()
 
                     let actual = null
-                    linter.defineRule("test", (context) => ({
-                        Program(node) {
-                            actual = isParenthesized(
-                                2,
-                                getProperty(node, key),
-                                context.getSourceCode(),
-                            )
-                        },
-                    }))
                     const messages = linter.verify(code, {
-                        env: { es6: true },
-                        parserOptions: { ecmaVersion: 2020 },
-                        rules: { test: "error" },
+                        languageOptions: { ecmaVersion: 2020 },
+                        rules: { "test/test": "error" },
+                        plugins: {
+                            test: {
+                                rules: {
+                                    test: {
+                                        create(context) {
+                                            return {
+                                                Program(node) {
+                                                    actual = isParenthesized(
+                                                        2,
+                                                        getProperty(node, key),
+                                                        context.getSourceCode(),
+                                                    )
+                                                },
+                                            }
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     })
 
                     assert.strictEqual(

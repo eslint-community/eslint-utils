@@ -2,6 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getPropertyName } from "../src/index.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getPropertyName' function", () => {
     for (const { code, expected } of [
@@ -56,23 +57,33 @@ describe("The 'getPropertyName' function", () => {
             : []),
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actual = null
-            linter.defineRule("test", () => ({
-                "Property,PropertyDefinition,MethodDefinition,MemberExpression"(
-                    node,
-                ) {
-                    actual = getPropertyName(node)
-                },
-            }))
             const messages = linter.verify(code, {
-                parserOptions: {
+                languageOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                 },
-                rules: { test: "error" },
+                rules: { "test/test": "error" },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(_context) {
+                                    return {
+                                        "Property,PropertyDefinition,MethodDefinition,MemberExpression"(
+                                            node,
+                                        ) {
+                                            actual = getPropertyName(node)
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
             })
             assert.strictEqual(
                 messages.length,
