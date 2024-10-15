@@ -28,7 +28,7 @@ jobs:
             - name: ⎔ Setup Node
               uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 20
 
             - name: 📥 Install dependencies
               run: npm install
@@ -49,16 +49,16 @@ jobs:
                     # On other platforms
                     - os: windows-latest
                       eslint: 8
-                      node: 18
+                      node: 20
                     - os: macos-latest
                       eslint: 8
-                      node: 18
+                      node: 20
                     # On old ESLint versions
                     - eslint: 7
-                      node: 18
+                      node: 20
                       os: ubuntu-latest
                     - eslint: 6
-                      node: 18
+                      node: 20
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 6.0.0
@@ -103,7 +103,7 @@ jobs:
             - name: ⎔ Setup node
               uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 20
 
             - name: 📥 Install dependencies
               run: npm install
