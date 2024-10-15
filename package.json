@@ -53,21 +53,21 @@
         "eslint-visitor-keys": "^3.4.3"
     },
     "devDependencies": {
-        "@eslint-community/eslint-plugin-mysticatea": "^15.5.1",
+        "@eslint-community/eslint-plugin-mysticatea": "^15.6.1",
         "c8": "^8.0.1",
         "dot-prop": "^7.2.0",
-        "eslint": "^8.50.0",
+        "eslint": "^8.57.1",
         "installed-check": "^8.0.1",
-        "knip": "^5.0.3",
+        "knip": "^5.33.3",
         "mocha": "^9.2.2",
-        "npm-run-all2": "^6.1.2",
+        "npm-run-all2": "^6.2.3",
         "opener": "^1.5.2",
         "prettier": "2.8.8",
         "rimraf": "^3.0.2",
-        "rollup": "^2.79.1",
+        "rollup": "^2.79.2",
         "rollup-plugin-sourcemaps": "^0.6.3",
-        "semver": "^7.5.4",
-        "vitepress": "^1.0.0-rc.20",
+        "semver": "^7.6.3",
+        "vitepress": "^1.4.1",
         "warun": "^1.0.0"
     },
     "peerDependencies": {
