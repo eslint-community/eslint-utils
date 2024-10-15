@@ -54,6 +54,7 @@
     },
     "devDependencies": {
         "@eslint-community/eslint-plugin-mysticatea": "^15.5.1",
+        "@types/eslint": "^8.56.12",
         "c8": "^8.0.1",
         "dot-prop": "^7.2.0",
         "eslint": "^8.50.0",

@@ -2,7 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope } from "./test-lib/eslint-compat.mjs"
 
 const config = {
     parserOptions: {

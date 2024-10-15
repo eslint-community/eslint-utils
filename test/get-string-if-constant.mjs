@@ -1,7 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import { getStringIfConstant } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
