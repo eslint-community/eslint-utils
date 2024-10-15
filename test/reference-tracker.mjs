@@ -4,7 +4,11 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import {
+    getScope,
+    getSourceCode,
+    newCompatLinter,
+} from "./test-lib/eslint-compat.mjs"
 
 const config = {
     languageOptions: {
@@ -1377,11 +1381,10 @@ describe("The 'ReferenceTracker' class:", () => {
                             rules: {
                                 test: {
                                     create(context) {
-                                        const sourceCode =
-                                            context.sourceCode ||
-                                            context.getSourceCode()
                                         const tracker = new ReferenceTracker(
-                                            sourceCode.scopeManager.globalScope,
+                                            getSourceCode(
+                                                context,
+                                            ).scopeManager.globalScope,
                                         )
                                         return {
                                             "CallExpression:exit"(node) {

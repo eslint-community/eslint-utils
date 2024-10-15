@@ -3,7 +3,7 @@ import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import { isParenthesized } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { getSourceCode, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'isParenthesized' function", () => {
     for (const { code, expected, parser } of [
@@ -307,7 +307,7 @@ describe("The 'isParenthesized' function", () => {
                                                 Program(node) {
                                                     actual = isParenthesized(
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        getSourceCode(context),
                                                     )
                                                 },
                                             }
@@ -392,7 +392,7 @@ describe("The 'isParenthesized' function", () => {
                                                     actual = isParenthesized(
                                                         2,
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        getSourceCode(context),
                                                     )
                                                 },
                                             }
