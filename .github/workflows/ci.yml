@@ -43,7 +43,7 @@ jobs:
         strategy:
             matrix:
                 eslint: [8]
-                node: [12.22.0, 12, 14.17.0, 14, 16, 18, 20]
+                node: [18.18.0, 18, 20.9.0, 20]
                 os: [ubuntu-latest]
                 include:
                     # On other platforms
@@ -62,7 +62,7 @@ jobs:
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 6.0.0
-                      node: 12.22.0
+                      node: 18.18.0
                       os: ubuntu-latest
         runs-on: ${{ matrix.os }}
         steps:
