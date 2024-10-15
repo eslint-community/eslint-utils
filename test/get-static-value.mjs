@@ -2,7 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getStaticValue } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStaticValue' function", () => {
     for (const { code, expected, noScope = false } of [

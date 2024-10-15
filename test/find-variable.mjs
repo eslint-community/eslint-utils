@@ -1,7 +1,7 @@
 import assert from "assert"
 import eslint from "eslint"
 import { findVariable } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'findVariable' function", () => {
     function getVariable(code, selector, withString = null) {
