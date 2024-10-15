@@ -54,14 +54,11 @@ jobs:
                       eslint: 8
                       node: 18
                     # On old ESLint versions
-                    - eslint: 7
-                      node: 18
-                      os: ubuntu-latest
-                    - eslint: 6
+                    - eslint: 8.57.0
                       node: 18
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
-                    - eslint: 6.0.0
+                    - eslint: 8.57.0
                       node: 12.22.0
                       os: ubuntu-latest
         runs-on: ${{ matrix.os }}
