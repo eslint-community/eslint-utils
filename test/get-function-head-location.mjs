@@ -2,7 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getFunctionHeadLocation } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { getSourceCode, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getFunctionHeadLocation' function", () => {
     const expectedResults = {
@@ -126,7 +126,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                                                 actualLoc =
                                                     getFunctionHeadLocation(
                                                         node,
-                                                        context.getSourceCode(),
+                                                        getSourceCode(context),
                                                     )
                                             },
                                         }
