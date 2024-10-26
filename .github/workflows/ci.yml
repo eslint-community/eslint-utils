@@ -49,7 +49,7 @@ jobs:
         strategy:
             matrix:
                 eslint: [9]
-                node: [18, 20, 22, 24]
+                node: [18.18.0, 18, 20.9.0, 20, 22, 24]
                 os: [ubuntu-latest]
                 include:
                     # On other platforms
@@ -59,23 +59,10 @@ jobs:
                     - os: macos-latest
                       eslint: 9
                       node: 24
-                    # On old Node versions & ESLint v8
-                    - eslint: 8
-                      node: 12.22.0
-                      os: ubuntu-latest
-                    - eslint: 8
-                      node: 12
-                      os: ubuntu-latest
-                    - eslint: 8
-                      node: 14.17.0
-                      os: ubuntu-latest
-                    - eslint: 8
-                      node: 14
-                      os: ubuntu-latest
-                    - eslint: 8
-                      node: 16
-                      os: ubuntu-latest
                     # On old ESLint versions
+                    - eslint: 8
+                      node: 24
+                      os: ubuntu-latest
                     - eslint: 7
                       node: 24
                       os: ubuntu-latest
@@ -84,7 +71,7 @@ jobs:
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 6.0.0
-                      node: 12.22.0
+                      node: 18.18.0
                       os: ubuntu-latest
         runs-on: ${{ matrix.os }}
         steps:
@@ -107,13 +94,7 @@ jobs:
               run: npm run build
 
             - name: ▶️ Run test script
-              run: |
-                  npm run test-coverage
-
-                  # Load src/index.mjs to check for syntax errors.
-                  # This is because for some reason the exit code does not become 1 in Node.js 12.
-                  # See https://github.com/eslint-community/eslint-utils/pull/253
-                  node src/index.mjs
+              run: npm run test-coverage
 
             - name: ⬆️ Upload coverage report
               uses: codecov/codecov-action@v5
