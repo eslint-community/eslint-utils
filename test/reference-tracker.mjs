@@ -1226,7 +1226,6 @@ describe("The 'ReferenceTracker' class:", () => {
                         },
                     },
                 })
-                linter.verify(code, config)
 
                 assert.deepStrictEqual(actual, expected)
             })
