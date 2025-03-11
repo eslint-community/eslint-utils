@@ -1052,4 +1052,165 @@ describe("The 'ReferenceTracker' class:", () => {
             })
         }
     })
+
+    describe("the 'iteratePropertyReferences' method", () => {
+        for (const { description, code, traceMap, expected } of [
+            {
+                description:
+                    "should iterate the property references of a target expression.",
+                code: [
+                    "const { abc } = target();",
+                    "abc();",
+                    "new abc();",
+                    "abc.xyz;",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        [READ]: 1,
+                        [CALL]: 2,
+                        [CONSTRUCT]: 3,
+                        xyz: { [READ]: 4 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "Property" },
+                        path: ["abc"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "xyz"],
+                        type: READ,
+                        info: 4,
+                    },
+                ],
+            },
+            {
+                description: "should track to the rename property.",
+                code: [
+                    "const { abc: x } = target();",
+                    "x.a;",
+                    "x.b();",
+                    "new x.c();",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [CALL]: 2 },
+                        c: { [CONSTRUCT]: 3 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc", "b"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc", "c"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                ],
+            },
+            {
+                description: "should track to the re-assign property.",
+                code: [
+                    "const foo = target();",
+                    "const bar = foo;",
+                    "const { abc: x } = bar;",
+                    "x.a;",
+                    "x.b();",
+                    "new x.c();",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [CALL]: 2 },
+                        c: { [CONSTRUCT]: 3 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc", "b"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc", "c"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                ],
+            },
+        ]) {
+            it(description, () => {
+                const linter = new eslint.Linter()
+
+                let actual = null
+                linter.defineRule("test", (context) => {
+                    const sourceCode =
+                        context.sourceCode || context.getSourceCode()
+                    const tracker = new ReferenceTracker(
+                        sourceCode.scopeManager.globalScope,
+                    )
+                    return {
+                        "CallExpression:exit"(node) {
+                            if (node.callee.name !== "target") {
+                                return
+                            }
+                            actual = Array.from(
+                                tracker.iteratePropertyReferences(
+                                    node,
+                                    traceMap,
+                                ),
+                            ).map((x) =>
+                                Object.assign(x, {
+                                    node: {
+                                        type: x.node.type,
+                                        ...(x.node.optional
+                                            ? { optional: x.node.optional }
+                                            : {}),
+                                    },
+                                }),
+                            )
+                        },
+                    }
+                })
+                linter.verify(code, config)
+
+                assert.deepStrictEqual(actual, expected)
+            })
+        }
+    })
 })

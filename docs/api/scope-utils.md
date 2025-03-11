@@ -315,3 +315,82 @@ module.exports = {
     },
 }
 ```
+
+## tracker.iteratePropertyReferences
+
+```js
+const it = tracker.iteratePropertyReferences(node, traceMap)
+```
+
+Iterate the property references of the given node that the given `traceMap` determined.
+This method starts to search from the given expression node.
+
+### Parameters
+
+| Name     | Type   | Description                                         |
+| :------- | :----- | :-------------------------------------------------- |
+| node     | object | The expression node.                                |
+| traceMap | object | The object which determines properties it iterates. |
+
+### Return value
+
+The Iterator which iterates the reference of properties.
+Every reference is the object that has the following properties.
+
+| Name  | Type     | Description                                                                                                                                                                                                                                                                              |
+| :---- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| node  | Node     | The node of the reference.                                                                                                                                                                                                                                                               |
+| path  | string[] | The path of the reference. For example, if it's the access of `x.length` then `["length"]`.                                                                                                                                                                                              |
+| type  | symbol   | The reference type. If this is `ReferenceTracker.READ` then it read the variable (or property). If this is `ReferenceTracker.CALL` then it called the variable (or property). If this is `ReferenceTracker.CONSTRUCT` then it called the variable (or property) with the `new` operator. |
+| entry | any      | The property value of any of `ReferenceTracker.READ`, `ReferenceTracker.CALL`, and `ReferenceTracker.CONSTRUCT`.                                                                                                                                                                         |
+
+### Examples
+
+```js
+const { ReferenceTracker } = require("@eslint-community/eslint-utils")
+
+module.exports = {
+    meta: {},
+    create(context) {
+        return {
+            "MetaProperty:exit"(node) {
+                if (
+                    node.meta.name !== "import" ||
+                    node.property.name !== "meta"
+                ) {
+                    return
+                }
+                const tracker = new ReferenceTracker(
+                    context.sourceCode.getScope(context.sourceCode.ast),
+                )
+
+                const traceMap = {
+                    // Find `import.meta.resolve()`.
+                    resolve: {
+                        [ReferenceTracker.CALL]: true,
+                    },
+                    // Find `import.meta.dirname`.
+                    dirname: {
+                        [ReferenceTracker.READ]: true,
+                    },
+                    // Find `import.meta.filename`.
+                    filename: {
+                        [ReferenceTracker.READ]: true,
+                    },
+                }
+
+                for (const { node, path } of tracker.iteratePropertyReferences(
+                    node,
+                    traceMap,
+                )) {
+                    context.report({
+                        node,
+                        message: "disallow {{name}}.",
+                        data: { name: "import.meta." + path.join(".") },
+                    })
+                }
+            },
+        }
+    },
+}
+```
