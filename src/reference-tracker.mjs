@@ -208,8 +208,8 @@ export class ReferenceTracker {
     }
 
     /**
-     * Iterate the property references for a given AST node.
-     * @param {import('estree').Expression} node The AST node to iterate property references.
+     * Iterate the property references for a given expression AST node.
+     * @param {object} node The expression AST node to iterate property references.
      * @param {object} traceMap The trace map.
      * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate property references.
      */
