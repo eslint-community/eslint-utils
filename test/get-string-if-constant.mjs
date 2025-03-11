@@ -70,6 +70,26 @@ describe("The 'getStringIfConstant' function", () => {
                     globals: { Symbol: "readonly" },
                     parserOptions: { ecmaVersion: 2020 },
                     rules: { test: "error" },
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program > ExpressionStatement > *"(
+                                                node,
+                                            ) {
+                                                actual = getStringIfConstant(
+                                                    node,
+                                                    getScope(context, node),
+                                                )
+                                            },
+                                        }
+                                    },
+                                },
+                            },
+                        },
+                    },
                 })
 
                 assert.strictEqual(actual, expected)
