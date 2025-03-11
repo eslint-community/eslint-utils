@@ -3,6 +3,7 @@ import { getProperty } from "dot-prop"
 import eslint from "eslint"
 import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'hasSideEffect' function", () => {
     for (const { code, key = "body[0].expression", options, expected } of [
@@ -303,26 +304,35 @@ describe("The 'hasSideEffect' function", () => {
         it(`should return ${expected} on the code \`${code}\` and the options \`${JSON.stringify(
             options,
         )}\``, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actual = null
-            linter.defineRule("test", (context) => ({
-                Program(node) {
-                    actual = hasSideEffect(
-                        getProperty(node, key),
-                        context.getSourceCode(),
-                        options,
-                    )
-                },
-            }))
             const messages = linter.verify(code, {
-                env: { es6: true },
-                parserOptions: {
+                languageOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                 },
-                rules: { test: "error" },
+                rules: { "test/test": "error" },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(context) {
+                                    return {
+                                        Program(node) {
+                                            actual = hasSideEffect(
+                                                getProperty(node, key),
+                                                context.getSourceCode(),
+                                                options,
+                                            )
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
             })
 
             assert.strictEqual(
