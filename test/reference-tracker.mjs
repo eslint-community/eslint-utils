@@ -1175,37 +1175,56 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => {
-                    const sourceCode =
-                        context.sourceCode || context.getSourceCode()
-                    const tracker = new ReferenceTracker(
-                        sourceCode.scopeManager.globalScope,
-                    )
-                    return {
-                        "CallExpression:exit"(node) {
-                            if (node.callee.name !== "target") {
-                                return
-                            }
-                            actual = Array.from(
-                                tracker.iteratePropertyReferences(
-                                    node,
-                                    traceMap,
-                                ),
-                            ).map((x) =>
-                                Object.assign(x, {
-                                    node: {
-                                        type: x.node.type,
-                                        ...(x.node.optional
-                                            ? { optional: x.node.optional }
-                                            : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        const sourceCode =
+                                            context.sourceCode ||
+                                            context.getSourceCode()
+                                        const tracker = new ReferenceTracker(
+                                            sourceCode.scopeManager.globalScope,
+                                        )
+                                        return {
+                                            "CallExpression:exit"(node) {
+                                                if (
+                                                    node.callee.name !==
+                                                    "target"
+                                                ) {
+                                                    return
+                                                }
+                                                actual = Array.from(
+                                                    tracker.iteratePropertyReferences(
+                                                        node,
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
                                     },
-                                }),
-                            )
+                                },
+                            },
                         },
-                    }
+                    },
                 })
                 linter.verify(code, config)
 
