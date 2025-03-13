@@ -67,8 +67,7 @@ describe("The 'getStringIfConstant' function", () => {
 
                 let actual = null
                 linter.verify(code, {
-                    globals: { Symbol: "readonly" },
-                    languageOptions: { ecmaVersion: 2020 },
+                    languageOptions: { ecmaVersion: 2020, globals: { Symbol: "readonly" }, },
                     rules: { "test/test": "error" },
                     plugins: {
                         test: {
