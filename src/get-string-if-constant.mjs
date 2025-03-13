@@ -18,5 +18,15 @@ export function getStringIfConstant(node, initialScope = null) {
     }
 
     const evaluated = getStaticValue(node, initialScope)
-    return evaluated && String(evaluated.value)
+
+    if (evaluated) {
+        // `String(Symbol.prototype)` throws error
+        try {
+            return String(evaluated.value)
+        } catch {
+            // No op
+        }
+    }
+
+    return null
 }

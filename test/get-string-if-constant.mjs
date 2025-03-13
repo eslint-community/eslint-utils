@@ -60,13 +60,17 @@ describe("The 'getStringIfConstant' function", () => {
             { code: "let id = 'abc'; id = 'foo'; id", expected: null },
             { code: "var id = 'abc'; id = 'foo'; id", expected: null },
             { code: "const id = otherId; id", expected: null },
+            { code: "Symbol.prototype", expected: null },
         ]) {
             it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
                 const linter = newCompatLinter()
 
                 let actual = null
                 linter.verify(code, {
-                    languageOptions: { ecmaVersion: 2020 },
+                    languageOptions: {
+                        ecmaVersion: 2020,
+                        globals: { Symbol: "readonly" },
+                    },
                     rules: { "test/test": "error" },
                     plugins: {
                         test: {
