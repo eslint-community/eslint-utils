@@ -17,6 +17,12 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
+permissions:
+    contents: write # to be able to publish a GitHub release
+    id-token: write # to enable use of OIDC for npm provenance
+    issues: write # to be able to comment on released issues
+    pull-requests: write # to be able to comment on released pull requests
+
 jobs:
     lint:
         name: ⬣ Lint
@@ -28,13 +34,10 @@ jobs:
             - name: ⎔ Setup Node
               uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 22
 
             - name: 📥 Install dependencies
               run: npm install
-
-            - name: ▶️ Run format:check script
-              run: npm run format:check
 
             - name: ▶️ Run lint script
               run: npm run lint
@@ -48,23 +51,39 @@ jobs:
             matrix.os }})
         strategy:
             matrix:
-                eslint: [8]
-                node: [12.22.0, 12, 14.17.0, 14, 16, 18, 20]
+                eslint: [9]
+                node: [18, 20, 22]
                 os: [ubuntu-latest]
                 include:
                     # On other platforms
                     - os: windows-latest
-                      eslint: 8
-                      node: 18
+                      eslint: 9
+                      node: 22
                     - os: macos-latest
-                      eslint: 8
-                      node: 18
+                      eslint: 9
+                      node: 22
+                    # On old Node versions & ESLint v8
+                    - eslint: 8
+                      node: 12.22.0
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 12
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 14.17.0
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 14
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 16
+                      os: ubuntu-latest
                     # On old ESLint versions
                     - eslint: 7
-                      node: 18
+                      node: 20
                       os: ubuntu-latest
                     - eslint: 6
-                      node: 18
+                      node: 20
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 6.0.0
@@ -106,7 +125,7 @@ jobs:
             - name: ⎔ Setup node
               uses: actions/setup-node@v4
               with:
-                  node-version: 18
+                  node-version: 22
 
             - name: 📥 Install dependencies
               run: npm install
@@ -129,4 +148,5 @@ jobs:
                       ]
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_CONFIG_PROVENANCE: true
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

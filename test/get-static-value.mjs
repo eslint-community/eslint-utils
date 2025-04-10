@@ -2,7 +2,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getStaticValue } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStaticValue' function", () => {
     for (const { code, expected, noScope = false } of [
@@ -399,25 +399,36 @@ const aMap = Object.freeze({
             : []),
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-            const linter = new eslint.Linter()
+            const linter = newCompatLinter()
 
             let actual = null
-            linter.defineRule("test", (context) => ({
-                ExpressionStatement(node) {
-                    actual = getStaticValue(
-                        node,
-                        noScope ? null : getScope(context, node),
-                    )
-                },
-            }))
             const messages = linter.verify(code, {
-                env: { es6: true },
-                parserOptions: {
+                languageOptions: {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
                 },
-                rules: { test: "error" },
+                rules: { "test/test": "error" },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(context) {
+                                    return {
+                                        ExpressionStatement(node) {
+                                            actual = getStaticValue(
+                                                node,
+                                                noScope
+                                                    ? null
+                                                    : getScope(context, node),
+                                            )
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
             })
 
             assert.strictEqual(

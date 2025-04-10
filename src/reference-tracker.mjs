@@ -249,6 +249,16 @@ export class ReferenceTracker {
     }
 
     /**
+     * Iterate the property references for a given expression AST node.
+     * @param {object} node The expression AST node to iterate property references.
+     * @param {object} traceMap The trace map.
+     * @returns {IterableIterator<{node:Node,path:string[],type:symbol,info:any}>} The iterator to iterate property references.
+     */
+    *iteratePropertyReferences(node, traceMap) {
+        yield* this._iteratePropertyReferences(node, [], traceMap)
+    }
+
+    /**
      * Iterate the references for a given variable.
      * @param {import('eslint').Scope.Variable} variable The variable to iterate that references.
      * @param {string[]} path The current path.

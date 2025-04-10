@@ -2,15 +2,15 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope } from "./test-lib/get-scope.mjs"
+import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 const config = {
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0") ? 2022 : 2020,
         sourceType: "module",
+        globals: { Reflect: false },
     },
-    globals: { Reflect: false },
-    rules: { test: "error" },
+    rules: { "test/test": "error" },
 }
 
 describe("The 'ReferenceTracker' class:", () => {
@@ -517,29 +517,48 @@ describe("The 'ReferenceTracker' class:", () => {
                 : []),
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateGlobalReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateGlobalReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })
@@ -683,29 +702,48 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateCjsReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateCjsReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })
@@ -967,29 +1005,227 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = new eslint.Linter()
+                const linter = newCompatLinter()
 
                 let actual = null
-                linter.defineRule("test", (context) => ({
-                    "Program:exit"(node) {
-                        const tracker = new ReferenceTracker(
-                            getScope(context, node),
-                        )
-                        actual = Array.from(
-                            tracker.iterateEsmReferences(traceMap),
-                        ).map((x) =>
-                            Object.assign(x, {
-                                node: {
-                                    type: x.node.type,
-                                    ...(x.node.optional
-                                        ? { optional: x.node.optional }
-                                        : {}),
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        return {
+                                            "Program:exit"(node) {
+                                                const tracker =
+                                                    new ReferenceTracker(
+                                                        getScope(context, node),
+                                                    )
+                                                actual = Array.from(
+                                                    tracker.iterateEsmReferences(
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
                                 },
-                            }),
-                        )
+                            },
+                        },
                     },
-                }))
-                linter.verify(code, config)
+                })
+
+                assert.deepStrictEqual(actual, expected)
+            })
+        }
+    })
+
+    describe("the 'iteratePropertyReferences' method", () => {
+        for (const { description, code, traceMap, expected } of [
+            {
+                description:
+                    "should iterate the property references of a target expression.",
+                code: [
+                    "const { abc } = target();",
+                    "abc();",
+                    "new abc();",
+                    "abc.xyz;",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        [READ]: 1,
+                        [CALL]: 2,
+                        [CONSTRUCT]: 3,
+                        xyz: { [READ]: 4 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "Property" },
+                        path: ["abc"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "xyz"],
+                        type: READ,
+                        info: 4,
+                    },
+                ],
+            },
+            {
+                description: "should track to the rename property.",
+                code: [
+                    "const { abc: x } = target();",
+                    "x.a;",
+                    "x.b();",
+                    "new x.c();",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [CALL]: 2 },
+                        c: { [CONSTRUCT]: 3 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc", "b"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc", "c"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                ],
+            },
+            {
+                description: "should track to the re-assign property.",
+                code: [
+                    "const foo = target();",
+                    "const bar = foo;",
+                    "const { abc: x } = bar;",
+                    "x.a;",
+                    "x.b();",
+                    "new x.c();",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [CALL]: 2 },
+                        c: { [CONSTRUCT]: 3 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "CallExpression" },
+                        path: ["abc", "b"],
+                        type: CALL,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "NewExpression" },
+                        path: ["abc", "c"],
+                        type: CONSTRUCT,
+                        info: 3,
+                    },
+                ],
+            },
+        ]) {
+            it(description, () => {
+                const linter = newCompatLinter()
+
+                let actual = null
+                linter.verify(code, {
+                    ...config,
+                    plugins: {
+                        test: {
+                            rules: {
+                                test: {
+                                    create(context) {
+                                        const sourceCode =
+                                            context.sourceCode ||
+                                            context.getSourceCode()
+                                        const tracker = new ReferenceTracker(
+                                            sourceCode.scopeManager.globalScope,
+                                        )
+                                        return {
+                                            "CallExpression:exit"(node) {
+                                                if (
+                                                    node.callee.name !==
+                                                    "target"
+                                                ) {
+                                                    return
+                                                }
+                                                actual = Array.from(
+                                                    tracker.iteratePropertyReferences(
+                                                        node,
+                                                        traceMap,
+                                                    ),
+                                                ).map((x) =>
+                                                    Object.assign(x, {
+                                                        node: {
+                                                            type: x.node.type,
+                                                            ...(x.node.optional
+                                                                ? {
+                                                                      optional:
+                                                                          x.node
+                                                                              .optional,
+                                                                  }
+                                                                : {}),
+                                                        },
+                                                    }),
+                                                )
+                                            },
+                                        }
+                                    },
+                                },
+                            },
+                        },
+                    },
+                })
 
                 assert.deepStrictEqual(actual, expected)
             })
