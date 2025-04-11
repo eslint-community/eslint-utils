@@ -1,3 +1,6 @@
+/** @typedef {import("eslint").Scope.Scope} Scope */
+/** @typedef {import("estree").Node} Node */
+
 /**
  * Get the innermost scope which contains a given location.
  * @param {Scope} initialScope The initial scope to search.
@@ -5,14 +8,16 @@
  * @returns {Scope} The innermost scope.
  */
 export function getInnermostScope(initialScope, node) {
-    const location = node.range[0]
+    const location = /** @type {[number, number]} */ (node.range)[0]
 
     let scope = initialScope
     let found = false
     do {
         found = false
         for (const childScope of scope.childScopes) {
-            const range = childScope.block.range
+            const range = /** @type {[number, number]} */ (
+                childScope.block.range
+            )
 
             if (range[0] <= location && location < range[1]) {
                 scope = childScope

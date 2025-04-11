@@ -33,14 +33,12 @@ function replaceS(matcher, str, replacement) {
     const chunks = []
     let index = 0
 
-    /** @type {RegExpExecArray} */
-    let match = null
-
     /**
      * @param {string} key The placeholder.
+     * @param {RegExpExecArray} match The matched information.
      * @returns {string} The replaced string.
      */
-    function replacer(key) {
+    function replacer(key, match) {
         switch (key) {
             case "$$":
                 return "$"
@@ -53,16 +51,18 @@ function replaceS(matcher, str, replacement) {
             default: {
                 const i = key.slice(1)
                 if (i in match) {
-                    return match[i]
+                    return match[/** @type {any} */ (i)]
                 }
                 return key
             }
         }
     }
 
-    for (match of matcher.execAll(str)) {
+    for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(replacement.replace(placeholder, replacer))
+        chunks.push(
+            replacement.replace(placeholder, (key) => replacer(key, match)),
+        )
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -74,7 +74,7 @@ function replaceS(matcher, str, replacement) {
  * Replace a given string by a given matcher.
  * @param {PatternMatcher} matcher The pattern matcher.
  * @param {string} str The string to be replaced.
- * @param {(...strs[])=>string} replace The function to replace each matched part.
+ * @param {(substring: string, ...args: any[]) => string} replace The function to replace each matched part.
  * @returns {string} The replaced string.
  */
 function replaceF(matcher, str, replace) {
@@ -83,7 +83,17 @@ function replaceF(matcher, str, replace) {
 
     for (const match of matcher.execAll(str)) {
         chunks.push(str.slice(index, match.index))
-        chunks.push(String(replace(...match, match.index, match.input)))
+        chunks.push(
+            String(
+                replace(
+                    .../** @type {[string, ...string[]]} */ (
+                        /** @type {string[]} */ (match)
+                    ),
+                    match.index,
+                    match.input,
+                ),
+            ),
+        )
         index = match.index + match[0].length
     }
     chunks.push(str.slice(index))
@@ -98,9 +108,10 @@ export class PatternMatcher {
     /**
      * Initialize this matcher.
      * @param {RegExp} pattern The pattern to match.
-     * @param {{escaped:boolean}} options The options.
+     * @param {{escaped?:boolean}} [options] The options.
      */
-    constructor(pattern, { escaped = false } = {}) {
+    constructor(pattern, options = {}) {
+        const { escaped = false } = options
         if (!(pattern instanceof RegExp)) {
             throw new TypeError("'pattern' should be a RegExp instance.")
         }
@@ -120,7 +131,8 @@ export class PatternMatcher {
      * @returns {IterableIterator<RegExpExecArray>} The iterator which iterate the matched information.
      */
     *execAll(str) {
-        const { pattern, escaped } = internal.get(this)
+        const { pattern, escaped } =
+            /** @type {{pattern:RegExp,escaped:boolean}} */ (internal.get(this))
         let match = null
         let lastIndex = 0
 

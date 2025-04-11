@@ -1,0 +1,34 @@
+{
+    "include": ["src/**/*"],
+    "compilerOptions": {
+        "lib": ["es2022"],
+        "target": "es2022",
+
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+
+        "strict": true,
+
+        "skipLibCheck": true,
+
+        /* Clean up generated declarations */
+        "removeComments": true,
+        "stripInternal": true,
+
+        /* Make it a JS-targeted config */
+        "allowJs": true,
+        "checkJs": true,
+        "noEmit": true,
+
+        // /* Extra strictness */
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        // "noUncheckedIndexedAccess": true,
+
+        // /* Additional non-type checks */
+        "forceConsistentCasingInFileNames": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    }
+}

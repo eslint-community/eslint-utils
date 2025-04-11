@@ -4,6 +4,11 @@
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": ["source.organizeImports", "source.fixAll"]
     },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": ["source.organizeImports", "source.fixAll"]
+    },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,

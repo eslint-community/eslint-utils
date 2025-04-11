@@ -1,14 +1,20 @@
 import { getPropertyName } from "./get-property-name.mjs"
+/** @typedef {import("eslint").Rule.Node} RuleNode */
+/** @typedef {import("eslint").SourceCode} SourceCode */
+/** @typedef {import("estree").Function} FunctionNode */
+/** @typedef {import("estree").FunctionDeclaration} FunctionDeclaration */
+/** @typedef {import("estree").FunctionExpression} FunctionExpression */
+/** @typedef {import("estree").Identifier} Identifier */
 
 /**
  * Get the name and kind of the given function node.
- * @param {ASTNode} node - The function node to get.
+ * @param {FunctionNode} node - The function node to get.
  * @param {SourceCode} [sourceCode] The source code object to get the code of computed property keys.
  * @returns {string} The name and kind of the function node.
  */
 // eslint-disable-next-line complexity
 export function getFunctionNameWithKind(node, sourceCode) {
-    const parent = node.parent
+    const parent = /** @type {RuleNode} */ (node).parent
     const tokens = []
     const isObjectMethod = parent.type === "Property" && parent.value === node
     const isClassMethod =
@@ -68,7 +74,7 @@ export function getFunctionNameWithKind(node, sourceCode) {
                 }
             }
         }
-    } else if (node.id) {
+    } else if (hasId(node)) {
         tokens.push(`'${node.id.name}'`)
     } else if (
         parent.type === "VariableDeclarator" &&
@@ -91,4 +97,15 @@ export function getFunctionNameWithKind(node, sourceCode) {
     }
 
     return tokens.join(" ")
+}
+
+/**
+ * @param {FunctionNode} node
+ * @returns {node is FunctionDeclaration | FunctionExpression & { id: Identifier }}
+ */
+function hasId(node) {
+    return Boolean(
+        /** @type {Partial<FunctionDeclaration | FunctionExpression>} */ (node)
+            .id,
+    )
 }
