@@ -120,10 +120,13 @@ export class ReferenceTracker {
             mode = "strict",
             globalObjectNames = ["global", "globalThis", "self", "window"],
         } = options
-        /** @type {Variable[]} */
+        /** @private @type {Variable[]} */
         this.variableStack = []
+        /** @private */
         this.globalScope = globalScope
+        /** @private */
         this.mode = mode
+        /** @private */
         this.globalObjectNames = globalObjectNames.slice(0)
     }
 
@@ -291,6 +294,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given variable.
+     * @private
      * @template T
      * @param {Variable} variable The variable to iterate that references.
      * @param {string[]} path The current path.
@@ -324,6 +328,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given AST node.
+     * @private
      * @template T
      * @param {Expression} rootNode The AST node to iterate references.
      * @param {string[]} path The current path.
@@ -402,6 +407,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given Pattern node.
+     * @private
      * @template T
      * @param {Pattern} patternNode The Pattern node to iterate references.
      * @param {string[]} path The current path.
@@ -456,6 +462,7 @@ export class ReferenceTracker {
 
     /**
      * Iterate the references for a given ModuleSpecifier node.
+     * @private
      * @template T
      * @param {ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier | ExportSpecifier} specifierNode The ModuleSpecifier node to iterate references.
      * @param {string[]} path The current path.
