@@ -1,14 +1,28 @@
 /* globals globalThis, global, self, window */
 
 import { findVariable } from "./find-variable.mjs"
+/** @typedef {import("./types.mjs").StaticValue} StaticValue */
+/** @typedef {import("eslint").Scope.Scope} Scope */
+/** @typedef {import("estree").Node} Node */
+/** @typedef {import("eslint").Rule.Node} RuleNode */
+/** @typedef {import("eslint").Rule.NodeTypes} NodeTypes */
+/** @typedef {import("estree").MemberExpression} MemberExpression */
+/** @typedef {import("estree").Property} Property */
+/** @typedef {import("estree").RegExpLiteral} RegExpLiteral */
+/** @typedef {import("estree").BigIntLiteral} BigIntLiteral */
+/** @typedef {import("estree").SimpleLiteral} SimpleLiteral */
 
 const globalObject =
     typeof globalThis !== "undefined"
         ? globalThis
-        : typeof self !== "undefined"
-        ? self
-        : typeof window !== "undefined"
-        ? window
+        : // @ts-ignore
+        typeof self !== "undefined"
+        ? // @ts-ignore
+          self
+        : // @ts-ignore
+        typeof window !== "undefined"
+        ? // @ts-ignore
+          window
         : typeof global !== "undefined"
         ? global
         : {}
@@ -95,6 +109,7 @@ const callAllowed = new Set(
         escape,
         isFinite,
         isNaN,
+        // @ts-ignore
         isPrototypeOf,
         Map,
         Map.prototype.entries,
@@ -102,7 +117,9 @@ const callAllowed = new Set(
         Map.prototype.has,
         Map.prototype.keys,
         Map.prototype.values,
-        ...Object.getOwnPropertyNames(Math)
+        .../** @type {(keyof typeof Math)[]} */ (
+            Object.getOwnPropertyNames(Math)
+        )
             .filter((k) => k !== "random")
             .map((k) => Math[k])
             .filter((f) => typeof f === "function"),
@@ -219,8 +236,8 @@ function isGetter(object, name) {
 
 /**
  * Get the element values of a given node list.
- * @param {Node[]} nodeList The node list to get values.
- * @param {Scope|undefined} initialScope The initial scope to find variables.
+ * @param {(Node|null)[]} nodeList The node list to get values.
+ * @param {Scope|undefined|null} initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
 function getElementValues(nodeList, initialScope) {
@@ -236,7 +253,7 @@ function getElementValues(nodeList, initialScope) {
             if (argument == null) {
                 return null
             }
-            valueList.push(...argument.value)
+            valueList.push(.../** @type {Iterable<any>} */ (argument.value))
         } else {
             const element = getStaticValueR(elementNode, initialScope)
             if (element == null) {
@@ -266,6 +283,19 @@ function isEffectivelyConst(variable) {
     return false
 }
 
+/**
+ * @template {NodeTypes} T
+ * @callback VisitorCallback
+ * @param {RuleNode & { type: T }} node
+ * @param {Scope|undefined|null} initialScope
+ * @returns {StaticValue | null}
+ */
+/**
+ * @typedef { { [K in NodeTypes]?: VisitorCallback<K> } } Operations
+ */
+/**
+ * @type {Operations}
+ */
 const operations = Object.freeze({
     ArrayExpression(node, initialScope) {
         const elements = getElementValues(node.elements, initialScope)
@@ -299,37 +329,101 @@ const operations = Object.freeze({
                 case "!==":
                     return { value: left.value !== right.value }
                 case "<":
-                    return { value: left.value < right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) <
+                            /** @type {any} */ (right.value),
+                    }
                 case "<=":
-                    return { value: left.value <= right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) <=
+                            /** @type {any} */ (right.value),
+                    }
                 case ">":
-                    return { value: left.value > right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) >
+                            /** @type {any} */ (right.value),
+                    }
                 case ">=":
-                    return { value: left.value >= right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) >=
+                            /** @type {any} */ (right.value),
+                    }
                 case "<<":
-                    return { value: left.value << right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) <<
+                            /** @type {any} */ (right.value),
+                    }
                 case ">>":
-                    return { value: left.value >> right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) >>
+                            /** @type {any} */ (right.value),
+                    }
                 case ">>>":
-                    return { value: left.value >>> right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) >>>
+                            /** @type {any} */ (right.value),
+                    }
                 case "+":
-                    return { value: left.value + right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) +
+                            /** @type {any} */ (right.value),
+                    }
                 case "-":
-                    return { value: left.value - right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) -
+                            /** @type {any} */ (right.value),
+                    }
                 case "*":
-                    return { value: left.value * right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) *
+                            /** @type {any} */ (right.value),
+                    }
                 case "/":
-                    return { value: left.value / right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) /
+                            /** @type {any} */ (right.value),
+                    }
                 case "%":
-                    return { value: left.value % right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) %
+                            /** @type {any} */ (right.value),
+                    }
                 case "**":
-                    return { value: left.value ** right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) **
+                            /** @type {any} */ (right.value),
+                    }
                 case "|":
-                    return { value: left.value | right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) |
+                            /** @type {any} */ (right.value),
+                    }
                 case "^":
-                    return { value: left.value ^ right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) ^
+                            /** @type {any} */ (right.value),
+                    }
                 case "&":
-                    return { value: left.value & right.value }
+                    return {
+                        value:
+                            /** @type {any} */ (left.value) &
+                            /** @type {any} */ (right.value),
+                    }
 
                 // no default
             }
@@ -361,10 +455,17 @@ const operations = Object.freeze({
                     )
 
                     if (property != null) {
-                        const receiver = object.value
-                        const methodName = property.value
+                        const receiver =
+                            /** @type {Record<PropertyKey, (...args: any[]) => any>} */ (
+                                object.value
+                            )
+                        const methodName = /** @type {PropertyKey} */ (
+                            property.value
+                        )
                         if (callAllowed.has(receiver[methodName])) {
-                            return { value: receiver[methodName](...args) }
+                            return {
+                                value: receiver[methodName](...args),
+                            }
                         }
                         if (callPassThrough.has(receiver[methodName])) {
                             return { value: args[0] }
@@ -377,7 +478,9 @@ const operations = Object.freeze({
                     if (callee.value == null && node.optional) {
                         return { value: undefined, optional: true }
                     }
-                    const func = callee.value
+                    const func = /** @type {(...args: any[]) => any} */ (
+                        callee.value
+                    )
                     if (callAllowed.has(func)) {
                         return { value: func(...args) }
                     }
@@ -438,12 +541,19 @@ const operations = Object.freeze({
     },
 
     Literal(node) {
+        const literal =
+            /** @type {Partial<SimpleLiteral> & Partial<RegExpLiteral> & Partial<BigIntLiteral>} */ (
+                node
+            )
         //istanbul ignore if : this is implementation-specific behavior.
-        if ((node.regex != null || node.bigint != null) && node.value == null) {
+        if (
+            (literal.regex != null || literal.bigint != null) &&
+            literal.value == null
+        ) {
             // It was a RegExp/BigInt literal, but Node.js didn't support it.
             return null
         }
-        return { value: node.value }
+        return { value: literal.value }
     },
 
     LogicalExpression(node, initialScope) {
@@ -478,16 +588,29 @@ const operations = Object.freeze({
             const property = getStaticPropertyNameValue(node, initialScope)
 
             if (property != null) {
-                if (!isGetter(object.value, property.value)) {
-                    return { value: object.value[property.value] }
+                if (
+                    !isGetter(
+                        /** @type {object} */ (object.value),
+                        /** @type {PropertyKey} */ (property.value),
+                    )
+                ) {
+                    return {
+                        value: /** @type {Record<PropertyKey, unknown>} */ (
+                            object.value
+                        )[/** @type {PropertyKey} */ (property.value)],
+                    }
                 }
 
                 for (const [classFn, allowed] of getterAllowed) {
                     if (
                         object.value instanceof classFn &&
-                        allowed.has(property.value)
+                        allowed.has(/** @type {string} */ (property.value))
                     ) {
-                        return { value: object.value[property.value] }
+                        return {
+                            value: /** @type {Record<PropertyKey, unknown>} */ (
+                                object.value
+                            )[/** @type {PropertyKey} */ (property.value)],
+                        }
                     }
                 }
             }
@@ -508,7 +631,9 @@ const operations = Object.freeze({
         const args = getElementValues(node.arguments, initialScope)
 
         if (callee != null && args != null) {
-            const Func = callee.value
+            const Func = /** @type {new (...args: any[]) => any} */ (
+                callee.value
+            )
             if (callAllowed.has(Func)) {
                 return { value: new Func(...args) }
             }
@@ -518,6 +643,7 @@ const operations = Object.freeze({
     },
 
     ObjectExpression(node, initialScope) {
+        /** @type {Record<PropertyKey, unknown>} */
         const object = {}
 
         for (const propertyNode of node.properties) {
@@ -533,9 +659,10 @@ const operations = Object.freeze({
                 if (key == null || value == null) {
                     return null
                 }
-                object[key.value] = value.value
+                object[/** @type {PropertyKey} */ (key.value)] = value.value
             } else if (
                 propertyNode.type === "SpreadElement" ||
+                // @ts-expect-error -- Backward compatibility
                 propertyNode.type === "ExperimentalSpreadProperty"
             ) {
                 const argument = getStaticValueR(
@@ -567,7 +694,8 @@ const operations = Object.freeze({
         )
 
         if (tag != null && expressions != null) {
-            const func = tag.value
+            const func = /** @type {(...args: any[]) => any} */ (tag.value)
+            /** @type {any[] & { raw?: string[] }} */
             const strings = node.quasi.quasis.map((q) => q.value.cooked)
             strings.raw = node.quasi.quasis.map((q) => q.value.raw)
 
@@ -585,7 +713,7 @@ const operations = Object.freeze({
             let value = node.quasis[0].value.cooked
             for (let i = 0; i < expressions.length; ++i) {
                 value += expressions[i]
-                value += node.quasis[i + 1].value.cooked
+                value += /** @type {string} */ (node.quasis[i + 1].value.cooked)
             }
             return { value }
         }
@@ -605,13 +733,13 @@ const operations = Object.freeze({
         if (arg != null) {
             switch (node.operator) {
                 case "-":
-                    return { value: -arg.value }
+                    return { value: -(/** @type {any} */ (arg.value)) }
                 case "+":
-                    return { value: +arg.value } //eslint-disable-line no-implicit-coercion
+                    return { value: +(/** @type {any} */ (arg.value)) } //eslint-disable-line no-implicit-coercion
                 case "!":
                     return { value: !arg.value }
                 case "~":
-                    return { value: ~arg.value }
+                    return { value: ~(/** @type {any} */ (arg.value)) }
                 case "typeof":
                     return { value: typeof arg.value }
 
@@ -625,22 +753,25 @@ const operations = Object.freeze({
 
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node} node The node to get.
- * @param {Scope|undefined} initialScope The scope to start finding variable.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param {Node|null|undefined} node The node to get.
+ * @param {Scope|undefined|null} initialScope The scope to start finding variable.
+ * @returns {StaticValue|null} The static value of the node, or `null`.
  */
 function getStaticValueR(node, initialScope) {
     if (node != null && Object.hasOwnProperty.call(operations, node.type)) {
-        return operations[node.type](node, initialScope)
+        return /** @type {VisitorCallback<any>} */ (operations[node.type])(
+            /** @type {RuleNode} */ (node),
+            initialScope,
+        )
     }
     return null
 }
 
 /**
  * Get the static value of property name from a MemberExpression node or a Property node.
- * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the property name of the node, or `null`.
+ * @param {MemberExpression|Property} node The node to get.
+ * @param {Scope|null} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
+ * @returns {StaticValue|null} The static value of the property name of the node, or `null`.
  */
 function getStaticPropertyNameValue(node, initialScope) {
     const nameNode = node.type === "Property" ? node.key : node.property
@@ -654,8 +785,8 @@ function getStaticPropertyNameValue(node, initialScope) {
     }
 
     if (nameNode.type === "Literal") {
-        if (nameNode.bigint) {
-            return { value: nameNode.bigint }
+        if (/** @type {Partial<BigIntLiteral>} */ (nameNode).bigint) {
+            return { value: /** @type {BigIntLiteral} */ (nameNode).bigint }
         }
         return { value: String(nameNode.value) }
     }
@@ -666,8 +797,8 @@ function getStaticPropertyNameValue(node, initialScope) {
 /**
  * Get the value of a given node if it's a static value.
  * @param {Node} node The node to get.
- * @param {Scope} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
- * @returns {{value:any}|{value:undefined,optional?:true}|null} The static value of the node, or `null`.
+ * @param {Scope|null} [initialScope] The scope to start finding variable. Optional. If this scope was given, this tries to resolve identifier references which are in the given node as much as possible.
+ * @returns {StaticValue | null} The static value of the node, or `null`.
  */
 export function getStaticValue(node, initialScope = null) {
     try {

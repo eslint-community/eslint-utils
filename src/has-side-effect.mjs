@@ -1,4 +1,13 @@
 import { getKeys, KEYS } from "eslint-visitor-keys"
+/** @typedef {import("estree").Node} Node */
+/** @typedef {import("eslint").SourceCode} SourceCode */
+/** @typedef {import("./types.mjs").HasSideEffectOptions} HasSideEffectOptions */
+/** @typedef {import("estree").BinaryExpression} BinaryExpression */
+/** @typedef {import("estree").MemberExpression} MemberExpression */
+/** @typedef {import("estree").MethodDefinition} MethodDefinition */
+/** @typedef {import("estree").Property} Property */
+/** @typedef {import("estree").PropertyDefinition} PropertyDefinition */
+/** @typedef {import("estree").UnaryExpression} UnaryExpression */
 
 const typeConversionBinaryOps = Object.freeze(
     new Set([
@@ -27,7 +36,7 @@ const typeConversionUnaryOps = Object.freeze(new Set(["-", "+", "!", "~"]))
 /**
  * Check whether the given value is an ASTNode or not.
  * @param {any} x The value to check.
- * @returns {boolean} `true` if the value is an ASTNode.
+ * @returns {x is Node} `true` if the value is an ASTNode.
  */
 function isNode(x) {
     return x !== null && typeof x === "object" && typeof x.type === "string"
@@ -35,20 +44,36 @@ function isNode(x) {
 
 const visitor = Object.freeze(
     Object.assign(Object.create(null), {
+        /**
+         * @param {Node} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         $visit(node, options, visitorKeys) {
             const { type } = node
 
-            if (typeof this[type] === "function") {
-                return this[type](node, options, visitorKeys)
+            if (typeof (/** @type {any} */ (this)[type]) === "function") {
+                return /** @type {any} */ (this)[type](
+                    node,
+                    options,
+                    visitorKeys,
+                )
             }
 
             return this.$visitChildren(node, options, visitorKeys)
         },
 
+        /**
+         * @param {Node} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         $visitChildren(node, options, visitorKeys) {
             const { type } = node
 
-            for (const key of visitorKeys[type] || getKeys(node)) {
+            for (const key of /** @type {(keyof Node)[]} */ (
+                visitorKeys[type] || getKeys(node)
+            )) {
                 const value = node[key]
 
                 if (Array.isArray(value)) {
@@ -80,6 +105,11 @@ const visitor = Object.freeze(
         AwaitExpression() {
             return true
         },
+        /**
+         * @param {BinaryExpression} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         BinaryExpression(node, options, visitorKeys) {
             if (
                 options.considerImplicitTypeConversion &&
@@ -99,6 +129,11 @@ const visitor = Object.freeze(
         ImportExpression() {
             return true
         },
+        /**
+         * @param {MemberExpression} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         MemberExpression(node, options, visitorKeys) {
             if (options.considerGetters) {
                 return true
@@ -112,6 +147,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
+        /**
+         * @param {MethodDefinition} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         MethodDefinition(node, options, visitorKeys) {
             if (
                 options.considerImplicitTypeConversion &&
@@ -125,6 +165,11 @@ const visitor = Object.freeze(
         NewExpression() {
             return true
         },
+        /**
+         * @param {Property} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         Property(node, options, visitorKeys) {
             if (
                 options.considerImplicitTypeConversion &&
@@ -135,6 +180,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
+        /**
+         * @param {PropertyDefinition} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         PropertyDefinition(node, options, visitorKeys) {
             if (
                 options.considerImplicitTypeConversion &&
@@ -145,6 +195,11 @@ const visitor = Object.freeze(
             }
             return this.$visitChildren(node, options, visitorKeys)
         },
+        /**
+         * @param {UnaryExpression} node
+         * @param {HasSideEffectOptions} options
+         * @param {Record<string, string[]>} visitorKeys
+         */
         UnaryExpression(node, options, visitorKeys) {
             if (node.operator === "delete") {
                 return true
@@ -171,17 +226,12 @@ const visitor = Object.freeze(
  * Check whether a given node has any side effect or not.
  * @param {Node} node The node to get.
  * @param {SourceCode} sourceCode The source code object.
- * @param {object} [options] The option object.
- * @param {boolean} [options.considerGetters=false] If `true` then it considers member accesses as the node which has side effects.
- * @param {boolean} [options.considerImplicitTypeConversion=false] If `true` then it considers implicit type conversion as the node which has side effects.
- * @param {object} [options.visitorKeys=KEYS] The keys to traverse nodes. Use `context.getSourceCode().visitorKeys`.
+ * @param {HasSideEffectOptions} [options] The option object.
  * @returns {boolean} `true` if the node has a certain side effect.
  */
-export function hasSideEffect(
-    node,
-    sourceCode,
-    { considerGetters = false, considerImplicitTypeConversion = false } = {},
-) {
+export function hasSideEffect(node, sourceCode, options = {}) {
+    const { considerGetters = false, considerImplicitTypeConversion = false } =
+        options
     return visitor.$visit(
         node,
         { considerGetters, considerImplicitTypeConversion },
