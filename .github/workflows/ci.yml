@@ -106,7 +106,9 @@ jobs:
               run: npm run build
 
             - name: ▶️ Run test script
-              run: npm run test
+              run: |
+                  npm run test
+                  echo $?
 
             - name: ⬆️ Upload coverage report
               uses: codecov/codecov-action@v4
