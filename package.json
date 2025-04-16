@@ -45,7 +45,7 @@
         "lint:installed-check": "installed-check -v -i installed-check -i npm-run-all2 -i knip -i rollup-plugin-dts",
         "lint:knip": "knip",
         "lint": "run-p lint:*",
-        "test": "mocha --reporter dot \"test/*.mjs\"",
+        "test": "c8 mocha --reporter dot \"test/*.mjs\"",
         "preversion": "npm test && npm run -s build",
         "postversion": "git push && git push --tags",
         "prewatch": "npm run -s clean",

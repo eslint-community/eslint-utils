@@ -108,7 +108,11 @@ jobs:
             - name: ▶️ Run test script
               run: |
                   npm run test
-                  echo $?
+
+                  # Load sec/index.js to check for syntax errors.
+                  # This is because for some reason the exit code does not become 1 in Node.js 12.
+                  # See https://github.com/eslint-community/eslint-utils/pull/253
+                  node src/index.mjs
 
             - name: ⬆️ Upload coverage report
               uses: codecov/codecov-action@v4
