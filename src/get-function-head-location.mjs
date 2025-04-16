@@ -51,10 +51,10 @@ export function getFunctionHeadLocation(node, sourceCode) {
         parent.type === "PropertyDefinition"
     ) {
         start = /** @type {SourceLocation} */ (parent.loc).start
-        end = getOpeningParenOfParams(node, sourceCode)?.loc.start
+        end = getOpeningParenOfParams(node, sourceCode).loc.start
     } else {
         start = /** @type {SourceLocation} */ (node.loc).start
-        end = getOpeningParenOfParams(node, sourceCode)?.loc.start
+        end = getOpeningParenOfParams(node, sourceCode).loc.start
     }
 
     return {
