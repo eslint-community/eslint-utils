@@ -96,11 +96,12 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
 
-            - name: 📥 Install dependencies
-              run: npm install
-
+            # If we run this after `npm install`, it may hang with npm warnings.
             - name: 📥 Install ESLint v${{ matrix.eslint }}
               run: npm install --save-dev eslint@${{ matrix.eslint }}
+
+            - name: 📥 Install dependencies
+              run: npm install
 
             - name: 🏗 Build
               run: npm run build
