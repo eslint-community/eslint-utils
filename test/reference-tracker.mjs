@@ -1,6 +1,6 @@
+import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import eslint from "eslint"
-import { createRequire } from "module"
 import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
 import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
@@ -755,9 +755,7 @@ describe("The 'ReferenceTracker' class:", () => {
                         info: 5,
                     },
                 ],
-                parser: createRequire(import.meta.url)(
-                    "@typescript-eslint/parser",
-                ),
+                parser: tsParser,
             },
         ]) {
             it(description, () => {
@@ -1124,9 +1122,7 @@ describe("The 'ReferenceTracker' class:", () => {
                         info: 5,
                     },
                 ],
-                parser: createRequire(import.meta.url)(
-                    "@typescript-eslint/parser",
-                ),
+                parser: tsParser,
             },
         ]) {
             it(description, () => {
@@ -1358,9 +1354,7 @@ describe("The 'ReferenceTracker' class:", () => {
                         info: 5,
                     },
                 ],
-                parser: createRequire(import.meta.url)(
-                    "@typescript-eslint/parser",
-                ),
+                parser: tsParser,
             },
         ]) {
             it(description, () => {

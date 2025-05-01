@@ -1,6 +1,6 @@
+import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import eslint from "eslint"
-import { createRequire } from "module"
 import semver from "semver"
 import { getStaticValue } from "../src/index.mjs"
 import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
@@ -402,27 +402,27 @@ const aMap = Object.freeze({
         {
             code: `const a = 42; a as number;`,
             expected: { value: 42 },
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `const a = 42; a satisfies number;`,
             expected: { value: 42 },
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `const a = 42; <number>a;`,
             expected: { value: 42 },
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `const a = 42; a!;`,
             expected: { value: 42 },
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `const a = 42; a<number>;`,
             expected: { value: 42 },
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {

@@ -1,7 +1,7 @@
+import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import eslint from "eslint"
-import { createRequire } from "module"
 import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
@@ -311,27 +311,27 @@ describe("The 'hasSideEffect' function", () => {
         {
             code: `a as number`,
             expected: false,
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `a satisfies number`,
             expected: false,
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `<number>a`,
             expected: false,
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `a!`,
             expected: false,
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
         {
             code: `a<number>`,
             expected: false,
-            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+            parser: tsParser,
         },
     ]) {
         it(`should return ${expected} on the code \`${code}\` and the options \`${JSON.stringify(
