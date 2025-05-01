@@ -4,13 +4,13 @@ import { findVariable } from "./find-variable.mjs"
 /** @typedef {import("./types.mjs").StaticValue} StaticValue */
 /** @typedef {import("eslint").Scope.Scope} Scope */
 /** @typedef {import("estree").Node} Node */
-/** @typedef {import("eslint").Rule.Node} RuleNode */
-/** @typedef {import("eslint").Rule.NodeTypes} NodeTypes */
-/** @typedef {import("estree").MemberExpression} MemberExpression */
-/** @typedef {import("estree").Property} Property */
-/** @typedef {import("estree").RegExpLiteral} RegExpLiteral */
-/** @typedef {import("estree").BigIntLiteral} BigIntLiteral */
-/** @typedef {import("estree").SimpleLiteral} SimpleLiteral */
+/** @typedef {import("@typescript-eslint/types").TSESTree.Node} TSESTreeNode */
+/** @typedef {import("@typescript-eslint/types").TSESTree.AST_NODE_TYPES} TSESTreeNodeTypes */
+/** @typedef {import("@typescript-eslint/types").TSESTree.MemberExpression} MemberExpression */
+/** @typedef {import("@typescript-eslint/types").TSESTree.Property} Property */
+/** @typedef {import("@typescript-eslint/types").TSESTree.RegExpLiteral} RegExpLiteral */
+/** @typedef {import("@typescript-eslint/types").TSESTree.BigIntLiteral} BigIntLiteral */
+/** @typedef {import("@typescript-eslint/types").TSESTree.Literal} Literal */
 
 const globalObject =
     typeof globalThis !== "undefined"
@@ -236,7 +236,7 @@ function isGetter(object, name) {
 
 /**
  * Get the element values of a given node list.
- * @param {(Node|null)[]} nodeList The node list to get values.
+ * @param {(Node|TSESTreeNode|null)[]} nodeList The node list to get values.
  * @param {Scope|undefined|null} initialScope The initial scope to find variables.
  * @returns {any[]|null} The value list if all nodes are constant. Otherwise, null.
  */
@@ -284,14 +284,14 @@ function isEffectivelyConst(variable) {
 }
 
 /**
- * @template {NodeTypes} T
+ * @template {TSESTreeNodeTypes} T
  * @callback VisitorCallback
- * @param {RuleNode & { type: T }} node
+ * @param {TSESTreeNode & { type: T }} node
  * @param {Scope|undefined|null} initialScope
  * @returns {StaticValue | null}
  */
 /**
- * @typedef { { [K in NodeTypes]?: VisitorCallback<K> } } Operations
+ * @typedef { { [K in TSESTreeNodeTypes]?: VisitorCallback<K> } } Operations
  */
 /**
  * @type {Operations}
@@ -542,7 +542,7 @@ const operations = Object.freeze({
 
     Literal(node) {
         const literal =
-            /** @type {Partial<SimpleLiteral> & Partial<RegExpLiteral> & Partial<BigIntLiteral>} */ (
+            /** @type {Partial<Literal> & Partial<RegExpLiteral> & Partial<BigIntLiteral>} */ (
                 node
             )
         //istanbul ignore if : this is implementation-specific behavior.
@@ -749,18 +749,33 @@ const operations = Object.freeze({
 
         return null
     },
+    TSAsExpression(node, initialScope) {
+        return getStaticValueR(node.expression, initialScope)
+    },
+    TSSatisfiesExpression(node, initialScope) {
+        return getStaticValueR(node.expression, initialScope)
+    },
+    TSTypeAssertion(node, initialScope) {
+        return getStaticValueR(node.expression, initialScope)
+    },
+    TSNonNullExpression(node, initialScope) {
+        return getStaticValueR(node.expression, initialScope)
+    },
+    TSInstantiationExpression(node, initialScope) {
+        return getStaticValueR(node.expression, initialScope)
+    },
 })
 
 /**
  * Get the value of a given node if it's a static value.
- * @param {Node|null|undefined} node The node to get.
+ * @param {Node|TSESTreeNode|null|undefined} node The node to get.
  * @param {Scope|undefined|null} initialScope The scope to start finding variable.
  * @returns {StaticValue|null} The static value of the node, or `null`.
  */
 function getStaticValueR(node, initialScope) {
     if (node != null && Object.hasOwnProperty.call(operations, node.type)) {
         return /** @type {VisitorCallback<any>} */ (operations[node.type])(
-            /** @type {RuleNode} */ (node),
+            /** @type {TSESTreeNode} */ (node),
             initialScope,
         )
     }

@@ -21,6 +21,7 @@ import { getStringIfConstant } from "./get-string-if-constant.mjs"
 /** @typedef {import("estree").Property} Property */
 /** @typedef {import("estree").AssignmentProperty} AssignmentProperty */
 /** @typedef {import("estree").Literal} Literal */
+/** @typedef {import("@typescript-eslint/types").TSESTree.Node} TSESTreeNode */
 /** @typedef {import("./types.mjs").ReferenceTrackerOptions} ReferenceTrackerOptions */
 /**
  * @template T
@@ -82,7 +83,7 @@ function isModifiedGlobal(variable) {
  * @returns {node is RuleNode & {parent: Expression}} `true` if the node is passed through.
  */
 function isPassThrough(node) {
-    const parent = /** @type {RuleNode} */ (node).parent
+    const parent = /** @type {TSESTreeNode} */ (node).parent
 
     if (parent) {
         switch (parent.type) {
@@ -95,6 +96,12 @@ function isPassThrough(node) {
                     parent.expressions[parent.expressions.length - 1] === node
                 )
             case "ChainExpression":
+                return true
+            case "TSAsExpression":
+            case "TSSatisfiesExpression":
+            case "TSTypeAssertion":
+            case "TSNonNullExpression":
+            case "TSInstantiationExpression":
                 return true
 
             default:

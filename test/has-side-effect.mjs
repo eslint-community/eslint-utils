@@ -1,12 +1,19 @@
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import eslint from "eslint"
+import { createRequire } from "module"
 import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'hasSideEffect' function", () => {
-    for (const { code, key = "body[0].expression", options, expected } of [
+    for (const {
+        code,
+        key = "body[0].expression",
+        options,
+        expected,
+        parser,
+    } of [
         {
             code: "777",
             options: undefined,
@@ -300,6 +307,32 @@ describe("The 'hasSideEffect' function", () => {
             options: undefined,
             expected: false,
         },
+        // TypeScript support
+        {
+            code: `a as number`,
+            expected: false,
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `a satisfies number`,
+            expected: false,
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `<number>a`,
+            expected: false,
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `a!`,
+            expected: false,
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `a<number>`,
+            expected: false,
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
     ]) {
         it(`should return ${expected} on the code \`${code}\` and the options \`${JSON.stringify(
             options,
@@ -312,6 +345,7 @@ describe("The 'hasSideEffect' function", () => {
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
+                    parser,
                 },
                 rules: { "test/test": "error" },
                 plugins: {

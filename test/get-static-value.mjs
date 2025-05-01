@@ -1,11 +1,12 @@
 import assert from "assert"
 import eslint from "eslint"
+import { createRequire } from "module"
 import semver from "semver"
 import { getStaticValue } from "../src/index.mjs"
 import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStaticValue' function", () => {
-    for (const { code, expected, noScope = false } of [
+    for (const { code, expected, noScope = false, parser } of [
         { code: "[]", expected: { value: [] } },
         { code: "[1, 2, 3]", expected: { value: [1, 2, 3] } },
         { code: "[,, 3]", expected: { value: [, , 3] } }, //eslint-disable-line no-sparse-arrays
@@ -397,6 +398,32 @@ const aMap = Object.freeze({
                   },
               ]
             : []),
+        // TypeScript support
+        {
+            code: `const a = 42; a as number;`,
+            expected: { value: 42 },
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `const a = 42; a satisfies number;`,
+            expected: { value: 42 },
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `const a = 42; <number>a;`,
+            expected: { value: 42 },
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `const a = 42; a!;`,
+            expected: { value: 42 },
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
+        {
+            code: `const a = 42; a<number>;`,
+            expected: { value: 42 },
+            parser: createRequire(import.meta.url)("@typescript-eslint/parser"),
+        },
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
             const linter = newCompatLinter()
@@ -407,6 +434,7 @@ const aMap = Object.freeze({
                     ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
                         ? 2022
                         : 2020,
+                    parser,
                 },
                 rules: { "test/test": "error" },
                 plugins: {

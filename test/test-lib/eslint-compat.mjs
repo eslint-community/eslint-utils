@@ -43,6 +43,17 @@ export function newCompatLinter() {
                         ...languageOptions.globals,
                     }
                 }
+                if (
+                    typeof newConfig.parserOptions.parser === "object" &&
+                    newConfig.parserOptions.parser.meta
+                ) {
+                    const parserName = newConfig.parserOptions.parser.meta.name
+                    linter.defineParser(
+                        parserName,
+                        newConfig.parserOptions.parser,
+                    )
+                    newConfig.parser = parserName
+                }
             }
             if (newConfig.plugins) {
                 const plugins = newConfig.plugins
