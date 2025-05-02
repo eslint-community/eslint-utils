@@ -1,3 +1,4 @@
+import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
@@ -566,7 +567,7 @@ describe("The 'ReferenceTracker' class:", () => {
     })
 
     describe("the 'iterateCjsReferences' method", () => {
-        for (const { description, code, traceMap, expected } of [
+        for (const { description, code, traceMap, expected, parser } of [
             {
                 description:
                     "should iterate the references of a given CJS modules.",
@@ -700,6 +701,62 @@ describe("The 'ReferenceTracker' class:", () => {
                 },
                 expected: [],
             },
+            // TypeScript support
+            {
+                description: "should support TypeScript.",
+                code: [
+                    "/* global require */",
+                    "const abc = require('abc');",
+                    "(abc as M).a;",
+                    "(abc satisfies M).b;",
+                    "(<M>abc).c;",
+                    "abc!.d;",
+                    "const v = abc<M>;",
+                    "v.e;",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [READ]: 2 },
+                        c: { [READ]: 3 },
+                        d: { [READ]: 4 },
+                        e: { [READ]: 5 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "b"],
+                        type: READ,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "c"],
+                        type: READ,
+                        info: 3,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "d"],
+                        type: READ,
+                        info: 4,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "e"],
+                        type: READ,
+                        info: 5,
+                    },
+                ],
+                parser: tsParser,
+            },
         ]) {
             it(description, () => {
                 const linter = newCompatLinter()
@@ -707,6 +764,14 @@ describe("The 'ReferenceTracker' class:", () => {
                 let actual = null
                 linter.verify(code, {
                     ...config,
+                    ...(parser
+                        ? {
+                              languageOptions: {
+                                  ...config.languageOptions,
+                                  parser,
+                              },
+                          }
+                        : {}),
                     plugins: {
                         test: {
                             rules: {
@@ -751,7 +816,7 @@ describe("The 'ReferenceTracker' class:", () => {
     })
 
     describe("the 'iterateEsmReferences' method", () => {
-        for (const { description, code, traceMap, expected } of [
+        for (const { description, code, traceMap, expected, parser } of [
             {
                 description:
                     "should iterate the references of a given ES modules (with CJS module and the default export).",
@@ -1003,6 +1068,62 @@ describe("The 'ReferenceTracker' class:", () => {
                     },
                 ],
             },
+            // TypeScript support
+            {
+                description: "should support TypeScript.",
+                code: [
+                    "import * as abc from 'abc';",
+                    "(abc as M).a;",
+                    "(abc satisfies M).b;",
+                    "(<M>abc).c;",
+                    "abc!.d;",
+                    "const v = abc<M>;",
+                    "v.e;",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        [ESM]: true,
+                        a: { [READ]: 1 },
+                        b: { [READ]: 2 },
+                        c: { [READ]: 3 },
+                        d: { [READ]: 4 },
+                        e: { [READ]: 5 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "b"],
+                        type: READ,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "c"],
+                        type: READ,
+                        info: 3,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "d"],
+                        type: READ,
+                        info: 4,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "e"],
+                        type: READ,
+                        info: 5,
+                    },
+                ],
+                parser: tsParser,
+            },
         ]) {
             it(description, () => {
                 const linter = newCompatLinter()
@@ -1010,6 +1131,14 @@ describe("The 'ReferenceTracker' class:", () => {
                 let actual = null
                 linter.verify(code, {
                     ...config,
+                    ...(parser
+                        ? {
+                              languageOptions: {
+                                  ...config.languageOptions,
+                                  parser,
+                              },
+                          }
+                        : {}),
                     plugins: {
                         test: {
                             rules: {
@@ -1054,7 +1183,7 @@ describe("The 'ReferenceTracker' class:", () => {
     })
 
     describe("the 'iteratePropertyReferences' method", () => {
-        for (const { description, code, traceMap, expected } of [
+        for (const { description, code, traceMap, expected, parser } of [
             {
                 description:
                     "should iterate the property references of a target expression.",
@@ -1173,6 +1302,60 @@ describe("The 'ReferenceTracker' class:", () => {
                     },
                 ],
             },
+            // TypeScript support
+            {
+                description: "should support TypeScript.",
+                code: [
+                    "(target().abc as M).a;",
+                    "(target() satisfies M).abc.b;",
+                    "(<M>target()).abc.c;",
+                    "target().abc!.d;",
+                    "const v = target()<M>;",
+                    "v.abc.e;",
+                ].join("\n"),
+                traceMap: {
+                    abc: {
+                        a: { [READ]: 1 },
+                        b: { [READ]: 2 },
+                        c: { [READ]: 3 },
+                        d: { [READ]: 4 },
+                        e: { [READ]: 5 },
+                    },
+                },
+                expected: [
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "a"],
+                        type: READ,
+                        info: 1,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "b"],
+                        type: READ,
+                        info: 2,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "c"],
+                        type: READ,
+                        info: 3,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "d"],
+                        type: READ,
+                        info: 4,
+                    },
+                    {
+                        node: { type: "MemberExpression" },
+                        path: ["abc", "e"],
+                        type: READ,
+                        info: 5,
+                    },
+                ],
+                parser: tsParser,
+            },
         ]) {
             it(description, () => {
                 const linter = newCompatLinter()
@@ -1180,6 +1363,14 @@ describe("The 'ReferenceTracker' class:", () => {
                 let actual = null
                 linter.verify(code, {
                     ...config,
+                    ...(parser
+                        ? {
+                              languageOptions: {
+                                  ...config.languageOptions,
+                                  parser,
+                              },
+                          }
+                        : {}),
                     plugins: {
                         test: {
                             rules: {
@@ -1199,7 +1390,7 @@ describe("The 'ReferenceTracker' class:", () => {
                                                 ) {
                                                     return
                                                 }
-                                                actual = Array.from(
+                                                const current = Array.from(
                                                     tracker.iteratePropertyReferences(
                                                         node,
                                                         traceMap,
@@ -1218,6 +1409,11 @@ describe("The 'ReferenceTracker' class:", () => {
                                                         },
                                                     }),
                                                 )
+                                                if (actual) {
+                                                    actual.push(...current)
+                                                } else {
+                                                    actual = current
+                                                }
                                             },
                                         }
                                     },
