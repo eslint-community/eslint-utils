@@ -47,7 +47,7 @@
         "lint": "run-p lint:*",
         "test-coverage": "c8 mocha --reporter dot \"test/*.mjs\"",
         "test": "mocha --reporter dot \"test/*.mjs\"",
-        "preversion": "npm test-coverage && npm run -s build",
+        "preversion": "npm run test-coverage && npm run -s build",
         "postversion": "git push && git push --tags",
         "prewatch": "npm run -s clean",
         "watch": "warun \"{src,test}/**/*.mjs\" -- npm run -s test:mocha"
