@@ -318,10 +318,10 @@ function isEffectivelyConst(variable) {
 /**
  * Checks if a variable has mutation in its property.
  * @param {Variable} variable The variable to check.
- * @param {Scope|null} [initialScope] The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
+ * @param {Scope|null} initialScope The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
  * @returns {boolean} True if the variable has mutation in its property.
  */
-function hasMutationInProperty(variable, initialScope = null) {
+function hasMutationInProperty(variable, initialScope) {
     for (const ref of variable.references) {
         let node = /** @type {TSESTreeNode} */ (ref.identifier)
         while (node && node.parent && node.parent.type === "MemberExpression") {
@@ -628,7 +628,7 @@ const operations = Object.freeze({
                             typeof init.value === "object" &&
                             init.value !== null
                         ) {
-                            if (hasMutationInProperty(variable)) {
+                            if (hasMutationInProperty(variable, initialScope)) {
                                 // This variable has mutation in its property.
                                 return null
                             }
