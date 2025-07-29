@@ -398,6 +398,55 @@ const aMap = Object.freeze({
                   },
               ]
             : []),
+        // Mutations
+        {
+            code: "const a = {foo: 'a'}; a.bar = 'b'; a",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a[0] = 'b'; a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.copyWithin(0, 1); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.fill('b'); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.pop(); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.push('b'); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a', 'b']; a.reverse(); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.shift(); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['b', 'a', 'c']; a.sort(); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a', 'c']; a.splice(1, 0, 'b'); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = ['a']; a.unshift('b'); a.join()",
+            expected: null,
+        },
+        {
+            code: "const a = {foo: ['a']}; a.foo.shift(); a",
+            expected: null,
+        },
         // TypeScript support
         {
             code: `const a = 42; a as number;`,
