@@ -24,7 +24,7 @@ function getParentSyntaxParen(node, sourceCode) {
                 return sourceCode.getTokenAfter(
                     /** @type {RuleNode} */ (/** @type {unknown} */ (
                         /** @type {TSNewExpression | TSCallExpression} */ (parent).typeParameters
-                    )) ?? parent.callee,
+                    )) || parent.callee,
                     isOpeningParenToken,
                 )
             }
