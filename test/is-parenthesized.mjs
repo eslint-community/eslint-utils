@@ -1,10 +1,11 @@
+import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import { isParenthesized } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'isParenthesized' function", () => {
-    for (const { code, expected } of [
+    for (const { code, expected, parser } of [
         {
             code: "777",
             expected: {
@@ -215,6 +216,73 @@ describe("The 'isParenthesized' function", () => {
                 "body[0].parent": false,
             },
         },
+        // TypeScript support
+        {
+            code: "f<import('foo')>(a)",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": false,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "f<import('foo')>((a))",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": true,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "f<import('foo')>(a,b)",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": false,
+                "body[0].expression.arguments[1]": false,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "f<import('foo')>((a),b)",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": true,
+                "body[0].expression.arguments[1]": false,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "f<import('foo')>(a,(b))",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": false,
+                "body[0].expression.arguments[1]": true,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "new f<import('foo')>(a)",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": false,
+            },
+            parser: tsParser,
+        },
+        {
+            code: "new f<import('foo')>((a))",
+            expected: {
+                "body[0]": false,
+                "body[0].expression": false,
+                "body[0].expression.arguments[0]": true,
+            },
+            parser: tsParser,
+        },
     ]) {
         describe(`on the code \`${code}\``, () => {
             for (const key of Object.keys(expected)) {
@@ -226,6 +294,7 @@ describe("The 'isParenthesized' function", () => {
                         languageOptions: {
                             ecmaVersion: 2020,
                             sourceType: "script",
+                            parser,
                         },
                         rules: { "test/test": "error" },
                         plugins: {

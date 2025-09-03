@@ -1,5 +1,7 @@
 import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
 /** @typedef {import("estree").Node} Node */
+/** @typedef {import("@typescript-eslint/types").TSESTree.NewExpression} TSNewExpression */
+/** @typedef {import("@typescript-eslint/types").TSESTree.CallExpression} TSCallExpression */
 /** @typedef {import("eslint").SourceCode} SourceCode */
 /** @typedef {import("eslint").AST.Token} Token */
 /** @typedef {import("eslint").Rule.Node} RuleNode */
@@ -11,6 +13,7 @@ import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
  * @param {SourceCode} sourceCode The source code object to get tokens.
  * @returns {Token|null} The left parenthesis of the parent node syntax
  */
+// eslint-disable-next-line complexity
 function getParentSyntaxParen(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
 
@@ -19,7 +22,13 @@ function getParentSyntaxParen(node, sourceCode) {
         case "NewExpression":
             if (parent.arguments.length === 1 && parent.arguments[0] === node) {
                 return sourceCode.getTokenAfter(
-                    parent.callee,
+                    /** @type {RuleNode} */ (
+                        /** @type {unknown} */ (
+                            /** @type {TSNewExpression | TSCallExpression} */ (
+                                parent
+                            ).typeParameters
+                        )
+                    ) || parent.callee,
                     isOpeningParenToken,
                 )
             }
