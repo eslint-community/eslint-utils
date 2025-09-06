@@ -22,7 +22,7 @@ function getParentSyntaxParen(node, sourceCode) {
         case "NewExpression":
             if (parent.arguments.length === 1 && parent.arguments[0] === node) {
                 return sourceCode.getTokenAfter(
-                    // @ts-ignore https://github.com/typescript-eslint/typescript-eslint/pull/5384
+                    // @ts-expect-error https://github.com/typescript-eslint/typescript-eslint/pull/5384
                     parent.typeArguments ||
                         /** @type {RuleNode} */ (
                             /** @type {unknown} */ (
