@@ -22,13 +22,16 @@ function getParentSyntaxParen(node, sourceCode) {
         case "NewExpression":
             if (parent.arguments.length === 1 && parent.arguments[0] === node) {
                 return sourceCode.getTokenAfter(
-                    /** @type {RuleNode} */ (
-                        /** @type {unknown} */ (
-                            /** @type {TSNewExpression | TSCallExpression} */ (
-                                parent
-                            ).typeParameters
-                        )
-                    ) || parent.callee,
+                    // @ts-expect-error https://github.com/typescript-eslint/typescript-eslint/pull/5384
+                    parent.typeArguments ||
+                        /** @type {RuleNode} */ (
+                            /** @type {unknown} */ (
+                                /** @type {TSNewExpression | TSCallExpression} */ (
+                                    parent
+                                ).typeParameters
+                            )
+                        ) ||
+                        parent.callee,
                     isOpeningParenToken,
                 )
             }
