@@ -1,3 +1,4 @@
+// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- will address this in the next change moving to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
