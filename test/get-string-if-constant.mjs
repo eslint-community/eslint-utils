@@ -1,6 +1,6 @@
 import assert from "assert"
+import { Linter } from "eslint"
 import { getStringIfConstant } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
@@ -22,7 +22,7 @@ describe("The 'getStringIfConstant' function", () => {
         { code: "/(?<a>\\w+)\\k<a>/gu", expected: "/(?<a>\\w+)\\k<a>/gu" },
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-            const linter = newCompatLinter()
+            const linter = new Linter()
 
             let actual = null
             linter.verify(code, {
@@ -32,7 +32,7 @@ describe("The 'getStringIfConstant' function", () => {
                     test: {
                         rules: {
                             test: {
-                                create(_context) {
+                                create() {
                                     return {
                                         "Program > ExpressionStatement > *"(
                                             node,
@@ -63,7 +63,7 @@ describe("The 'getStringIfConstant' function", () => {
             { code: "Symbol.prototype", expected: null },
         ]) {
             it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-                const linter = newCompatLinter()
+                const linter = new Linter()
 
                 let actual = null
                 linter.verify(code, {
@@ -83,7 +83,7 @@ describe("The 'getStringIfConstant' function", () => {
                                             ) {
                                                 actual = getStringIfConstant(
                                                     node,
-                                                    getScope(context, node),
+                                                    context.sourceCode.getScope(node),
                                                 )
                                             },
                                         }

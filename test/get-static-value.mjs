@@ -1,10 +1,7 @@
-// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- will address this in the next change moving to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
-import eslint from "eslint"
-import semver from "semver"
+import { Linter } from "eslint"
 import { getStaticValue } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStaticValue' function", () => {
     for (const { code, expected, noScope = false, parser } of [
@@ -357,48 +354,44 @@ const aMap = Object.freeze({
             expected: { value: false },
         },
         { code: "new Map([[1,2], [4,6]]).size", expected: { value: 2 } },
-        ...(semver.gte(eslint.Linter.version, "8.0.0")
-            ? [
-                  {
-                      code: `class A {
+        {
+            code: `class A {
                           #x = 0;
                           fn () {
                               const foo = {x:42}
                               foo.#x // not 42
                           }
                       }`,
-                      expected: null,
-                  },
-                  {
-                      code: `class A {
+            expected: null,
+        },
+        {
+            code: `class A {
                           #x = 0;
                           fn () {
                               const foo = {x:42}
                               foo.x // 42
                           }
                       }`,
-                      expected: { value: 42 },
-                  },
-                  {
-                      code: `class A {
+            expected: { value: 42 },
+        },
+        {
+            code: `class A {
                           #parseInt;
                           fn () {
                               Number.#parseInt('42') // not 42
                           }
                       }`,
-                      expected: null,
-                  },
-                  {
-                      code: `class A {
+            expected: null,
+        },
+        {
+            code: `class A {
                           #parseInt;
                           fn () {
                               Number.parseInt('42') // 42
                           }
                       }`,
-                      expected: { value: 42 },
-                  },
-              ]
-            : []),
+            expected: { value: 42 },
+        },
         // Mutations
         {
             code: "const a = {foo: 'a'}; a.bar = 'b'; a",
@@ -476,14 +469,12 @@ const aMap = Object.freeze({
         },
     ]) {
         it(`should return ${JSON.stringify(expected)} from ${code}`, () => {
-            const linter = newCompatLinter()
+            const linter = new Linter()
 
             let actual = null
             const messages = linter.verify(code, {
                 languageOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                        ? 2022
-                        : 2020,
+                    ecmaVersion: 2022,
                     parser,
                 },
                 rules: { "test/test": "error" },
@@ -498,7 +489,9 @@ const aMap = Object.freeze({
                                                 node,
                                                 noScope
                                                     ? null
-                                                    : getScope(context, node),
+                                                    : context.sourceCode.getScope(
+                                                          node,
+                                                      ),
                                             )
                                         },
                                     }

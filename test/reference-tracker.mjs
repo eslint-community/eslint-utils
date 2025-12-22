@@ -1,14 +1,11 @@
-// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- will address this in the next change moving to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
-import eslint from "eslint"
-import semver from "semver"
+import {Linter} from "eslint"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 const config = {
     languageOptions: {
-        ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0") ? 2022 : 2020,
+        ecmaVersion: 2022,
         sourceType: "module",
         globals: { Reflect: false },
     },
@@ -500,8 +497,6 @@ describe("The 'ReferenceTracker' class:", () => {
                 },
                 expected: [],
             },
-            ...(semver.gte(eslint.Linter.version, "8.0.0")
-                ? [
                       {
                           description:
                               "should not mix up public and private identifiers.",
@@ -515,11 +510,9 @@ describe("The 'ReferenceTracker' class:", () => {
                           },
                           expected: [],
                       },
-                  ]
-                : []),
         ]) {
             it(description, () => {
-                const linter = newCompatLinter()
+                const linter = new Linter()
 
                 let actual = null
                 linter.verify(code, {
@@ -533,7 +526,7 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(node),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateGlobalReferences(
@@ -683,7 +676,7 @@ describe("The 'ReferenceTracker' class:", () => {
             },
             {
                 description:
-                    "should NOT iterate the references of a given CJS modules if the 'require' variable was overrided.",
+                    "should NOT iterate the references of a given CJS modules if the 'require' variable was overridden.",
                 code: [
                     "/*global require */",
                     "const require = () => {};",
@@ -760,7 +753,7 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = newCompatLinter()
+                const linter = new Linter()
 
                 let actual = null
                 linter.verify(code, {
@@ -782,7 +775,7 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(node),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateCjsReferences(
@@ -1127,7 +1120,7 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = newCompatLinter()
+                const linter = new Linter()
 
                 let actual = null
                 linter.verify(code, {
@@ -1149,7 +1142,7 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(node),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateEsmReferences(
@@ -1359,7 +1352,7 @@ describe("The 'ReferenceTracker' class:", () => {
             },
         ]) {
             it(description, () => {
-                const linter = newCompatLinter()
+                const linter = new Linter()
 
                 let actual = null
                 linter.verify(code, {
@@ -1378,8 +1371,7 @@ describe("The 'ReferenceTracker' class:", () => {
                                 test: {
                                     create(context) {
                                         const sourceCode =
-                                            context.sourceCode ||
-                                            context.getSourceCode()
+                                            context.sourceCode
                                         const tracker = new ReferenceTracker(
                                             sourceCode.scopeManager.globalScope,
                                         )

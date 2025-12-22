@@ -350,7 +350,7 @@ export class ReferenceTracker {
         }
 
         const parent = /** @type {RuleNode} */ (node).parent
-        if (parent.type === "MemberExpression") {
+        if (parent?.type === "MemberExpression") {
             if (parent.object === node) {
                 const key = getPropertyName(parent)
                 if (key == null || !has(traceMap, key)) {
@@ -375,13 +375,13 @@ export class ReferenceTracker {
             }
             return
         }
-        if (parent.type === "CallExpression") {
+        if (parent?.type === "CallExpression") {
             if (parent.callee === node && traceMap[CALL]) {
                 yield { node: parent, path, type: CALL, info: traceMap[CALL] }
             }
             return
         }
-        if (parent.type === "NewExpression") {
+        if (parent?.type === "NewExpression") {
             if (parent.callee === node && traceMap[CONSTRUCT]) {
                 yield {
                     node: parent,
@@ -392,20 +392,20 @@ export class ReferenceTracker {
             }
             return
         }
-        if (parent.type === "AssignmentExpression") {
+        if (parent?.type === "AssignmentExpression") {
             if (parent.right === node) {
                 yield* this._iterateLhsReferences(parent.left, path, traceMap)
                 yield* this._iteratePropertyReferences(parent, path, traceMap)
             }
             return
         }
-        if (parent.type === "AssignmentPattern") {
+        if (parent?.type === "AssignmentPattern") {
             if (parent.right === node) {
                 yield* this._iterateLhsReferences(parent.left, path, traceMap)
             }
             return
         }
-        if (parent.type === "VariableDeclarator") {
+        if (parent?.type === "VariableDeclarator") {
             if (parent.init === node) {
                 yield* this._iterateLhsReferences(parent.id, path, traceMap)
             }

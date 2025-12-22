@@ -1,9 +1,8 @@
-// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- will address this in the next change moving to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
 import { isParenthesized } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { Linter } from "eslint"
 
 describe("The 'isParenthesized' function", () => {
     for (const { code, expected, parser } of [
@@ -288,7 +287,7 @@ describe("The 'isParenthesized' function", () => {
         describe(`on the code \`${code}\``, () => {
             for (const key of Object.keys(expected)) {
                 it(`should return ${expected[key]} at "${key}"`, () => {
-                    const linter = newCompatLinter()
+                    const linter = new Linter()
 
                     let actual = null
                     const messages = linter.verify(code, {
@@ -307,7 +306,7 @@ describe("The 'isParenthesized' function", () => {
                                                 Program(node) {
                                                     actual = isParenthesized(
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                                 },
                                             }
@@ -376,7 +375,7 @@ describe("The 'isParenthesized' function", () => {
         describe(`on the code \`${code}\` and 2 times`, () => {
             for (const key of Object.keys(expected)) {
                 it(`should return ${expected[key]} at "${key}"`, () => {
-                    const linter = newCompatLinter()
+                    const linter = new Linter()
 
                     let actual = null
                     const messages = linter.verify(code, {
@@ -392,7 +391,7 @@ describe("The 'isParenthesized' function", () => {
                                                     actual = isParenthesized(
                                                         2,
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                                 },
                                             }

@@ -1,11 +1,8 @@
-// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- will address this in the next change moving to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
-import eslint from "eslint"
-import semver from "semver"
+import { Linter } from "eslint"
 import { hasSideEffect } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'hasSideEffect' function", () => {
     for (const {
@@ -161,8 +158,6 @@ describe("The 'hasSideEffect' function", () => {
             options: { considerImplicitTypeConversion: true },
             expected: false,
         },
-        ...(semver.gte(eslint.Linter.version, "8.0.0")
-            ? [
                   {
                       code: "(class { x })",
                       options: undefined,
@@ -198,8 +193,6 @@ describe("The 'hasSideEffect' function", () => {
                       options: { considerImplicitTypeConversion: true },
                       expected: false,
                   },
-              ]
-            : []),
         {
             code: "new C()",
             options: undefined,
@@ -338,14 +331,12 @@ describe("The 'hasSideEffect' function", () => {
         it(`should return ${expected} on the code \`${code}\` and the options \`${JSON.stringify(
             options,
         )}\``, () => {
-            const linter = newCompatLinter()
+            const linter = new Linter()
 
             let actual = null
             const messages = linter.verify(code, {
                 languageOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                        ? 2022
-                        : 2020,
+                    ecmaVersion: 2022,
                     parser,
                 },
                 rules: { "test/test": "error" },
@@ -358,7 +349,7 @@ describe("The 'hasSideEffect' function", () => {
                                         Program(node) {
                                             actual = hasSideEffect(
                                                 getProperty(node, key),
-                                                context.getSourceCode(),
+                                                context.sourceCode,
                                                 options,
                                             )
                                         },

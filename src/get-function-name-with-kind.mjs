@@ -16,11 +16,11 @@ import { getPropertyName } from "./get-property-name.mjs"
 export function getFunctionNameWithKind(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
     const tokens = []
-    const isObjectMethod = parent.type === "Property" && parent.value === node
+    const isObjectMethod = parent?.type === "Property" && parent.value === node
     const isClassMethod =
-        parent.type === "MethodDefinition" && parent.value === node
+        parent?.type === "MethodDefinition" && parent.value === node
     const isClassFieldMethod =
-        parent.type === "PropertyDefinition" && parent.value === node
+        parent?.type === "PropertyDefinition" && parent.value === node
 
     // Modifiers.
     if (isClassMethod || isClassFieldMethod) {
@@ -77,20 +77,20 @@ export function getFunctionNameWithKind(node, sourceCode) {
     } else if (hasId(node)) {
         tokens.push(`'${node.id.name}'`)
     } else if (
-        parent.type === "VariableDeclarator" &&
+        parent?.type === "VariableDeclarator" &&
         parent.id &&
         parent.id.type === "Identifier"
     ) {
         tokens.push(`'${parent.id.name}'`)
     } else if (
-        (parent.type === "AssignmentExpression" ||
-            parent.type === "AssignmentPattern") &&
+        (parent?.type === "AssignmentExpression" ||
+            parent?.type === "AssignmentPattern") &&
         parent.left &&
         parent.left.type === "Identifier"
     ) {
         tokens.push(`'${parent.left.name}'`)
     } else if (
-        parent.type === "ExportDefaultDeclaration" &&
+        parent?.type === "ExportDefaultDeclaration" &&
         parent.declaration === node
     ) {
         tokens.push("'default'")

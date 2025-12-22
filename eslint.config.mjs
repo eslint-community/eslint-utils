@@ -5,6 +5,7 @@ import n from "eslint-plugin-n"
 import packageJson from "eslint-plugin-package-json"
 import * as regexp from "eslint-plugin-regexp"
 import { defineConfig } from "eslint/config"
+import globals from "globals"
 
 export default defineConfig(
     // Global ignores
@@ -35,9 +36,27 @@ export default defineConfig(
                 "always",
                 { enforceForIfStatements: true },
             ],
+            "no-template-curly-in-string": "error",
             "no-useless-rename": "error",
             "object-shorthand": "error",
             "operator-assignment": "error",
+        },
+    },
+    // ESM
+    {
+        files: ["**/*.mjs"],
+        languageOptions: { sourceType: "module" },
+    },
+    // Test files
+    {
+        files: ["./test/**/*.mjs"],
+        languageOptions: {
+            globals: {
+                ...globals.mocha,
+            },
+        },
+        rules: {
+            "jsdoc/require-jsdoc": "off",
         },
     },
     {
