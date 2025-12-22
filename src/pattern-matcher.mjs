@@ -3,7 +3,7 @@
  * See LICENSE file in root directory for full license.
  */
 
-const placeholder = /\$(?:[$&`']|[1-9][0-9]?)/gu
+const placeholder = /\$(?:[$&`']|[1-9]\d?)/gu
 
 /** @type {WeakMap<PatternMatcher, {pattern:RegExp,escaped:boolean}>} */
 const internal = new WeakMap()

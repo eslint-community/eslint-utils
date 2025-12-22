@@ -13,7 +13,6 @@ import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
  * @param {SourceCode} sourceCode The source code object to get tokens.
  * @returns {Token|null} The left parenthesis of the parent node syntax
  */
-// eslint-disable-next-line complexity
 function getParentSyntaxParen(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
 

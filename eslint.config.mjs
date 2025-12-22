@@ -36,6 +36,7 @@ export default defineConfig(
                 "always",
                 { enforceForIfStatements: true },
             ],
+            "no-param-reassign": "error",
             "no-template-curly-in-string": "error",
             "no-useless-rename": "error",
             "object-shorthand": "error",
@@ -44,7 +45,7 @@ export default defineConfig(
     },
     // ESM
     {
-        files: ["**/*.mjs"],
+        files: ["**/*.mjs", "rollup.config.js"],
         languageOptions: { sourceType: "module" },
     },
     // Test files

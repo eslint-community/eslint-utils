@@ -12,7 +12,6 @@ import { getPropertyName } from "./get-property-name.mjs"
  * @param {SourceCode} [sourceCode] The source code object to get the code of computed property keys.
  * @returns {string} The name and kind of the function node.
  */
-// eslint-disable-next-line complexity
 export function getFunctionNameWithKind(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
     const tokens = []

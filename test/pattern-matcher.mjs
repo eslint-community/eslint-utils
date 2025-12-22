@@ -16,7 +16,7 @@ const NAMED_CAPTURE_GROUP_SUPPORTED = (() => {
  * @param {string[]} subStrings The substrings.
  * @param {number} index The index.
  * @param {string} input The input.
- * @returns {RegExpExecArray} The created object.
+ * @returns {string[]} The created object.
  */
 function newRegExpExecArray(subStrings, index, input) {
     Object.assign(subStrings, { index, input })
@@ -51,7 +51,7 @@ describe("The 'PatternMatcher' class:", () => {
         })
 
         it("should throw Error if the RegExp value does not have 'g' flag.", () => {
-            for (const value of [/foo/u, /bar/imu]) {
+            for (const value of [/foo/u, /bar/iu]) {
                 assert.throws(
                     () => new PatternMatcher(value),
                     /^Error: 'pattern' should contains 'g' flag\.$/u,

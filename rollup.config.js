@@ -38,7 +38,6 @@ function config(ext) {
     ]
 }
 
-/* eslint-disable @eslint-community/mysticatea/node/no-sync */
 // Replace extension `.mts` to `.ts` in the `dist/*.d.mts` file name.
 // This is needed because rollup-plugin-dts<=v4 doesn't support `.mts` extension.
 for (const file of fs.readdirSync(path.resolve("dist"))) {
@@ -50,6 +49,5 @@ for (const file of fs.readdirSync(path.resolve("dist"))) {
         fs.unlinkSync(path.resolve("dist", file))
     }
 }
-/* eslint-enable @eslint-community/mysticatea/node/no-sync */
 
 export default [...config(".js"), ...config(".mjs")]

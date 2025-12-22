@@ -217,7 +217,7 @@ export class ReferenceTracker {
      * Iterate the references of ES modules.
      * @template T
      * @param {TraceMap<T>} traceMap The trace map.
-     * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
+     * @yields {TrackedReferences<T>} The iterator to iterate references.
      */
     *iterateEsmReferences(traceMap) {
         const programNode = /** @type {Program} */ (this.globalScope.block)
@@ -236,7 +236,6 @@ export class ReferenceTracker {
 
             if (nextTraceMap[READ]) {
                 yield {
-                    // eslint-disable-next-line object-shorthand -- apply type
                     node: /** @type {RuleNode} */ (node),
                     path,
                     type: READ,
@@ -249,7 +248,6 @@ export class ReferenceTracker {
                     const exportTraceMap = nextTraceMap[key]
                     if (exportTraceMap[READ]) {
                         yield {
-                            // eslint-disable-next-line object-shorthand -- apply type
                             node: /** @type {RuleNode} */ (node),
                             path: path.concat(key),
                             type: READ,
@@ -342,7 +340,6 @@ export class ReferenceTracker {
      * @param {TraceMapObject<T>} traceMap The trace map.
      * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
      */
-    //eslint-disable-next-line complexity
     *_iteratePropertyReferences(rootNode, path, traceMap) {
         let node = rootNode
         while (isPassThrough(node)) {
@@ -474,7 +471,7 @@ export class ReferenceTracker {
      * @param {ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier | ExportSpecifier} specifierNode The ModuleSpecifier node to iterate references.
      * @param {string[]} path The current path.
      * @param {TraceMapObject<T>} traceMap The trace map.
-     * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
+     * @yields {TrackedReferences<T>} The iterator to iterate references.
      */
     *_iterateImportReferences(specifierNode, path, traceMap) {
         const type = specifierNode.type
