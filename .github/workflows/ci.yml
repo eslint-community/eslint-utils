@@ -116,7 +116,7 @@ jobs:
                   node src/index.mjs
 
             - name: ⬆️ Upload coverage report
-              uses: codecov/codecov-action@v4
+              uses: codecov/codecov-action@v5
 
     release:
         name: 🚀 Release
