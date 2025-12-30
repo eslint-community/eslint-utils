@@ -46,9 +46,9 @@ export function getFunctionHeadLocation(node, sourceCode) {
         start = arrowToken.loc.start
         end = arrowToken.loc.end
     } else if (
-        parent.type === "Property" ||
-        parent.type === "MethodDefinition" ||
-        parent.type === "PropertyDefinition"
+        parent?.type === "Property" ||
+        parent?.type === "MethodDefinition" ||
+        parent?.type === "PropertyDefinition"
     ) {
         start = /** @type {SourceLocation} */ (parent.loc).start
         end = getOpeningParenOfParams(node, sourceCode).loc.start

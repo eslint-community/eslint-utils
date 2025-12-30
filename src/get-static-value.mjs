@@ -1,4 +1,4 @@
-/* globals globalThis, global, self, window */
+/* globals self, window */
 
 import { findVariable } from "./find-variable.mjs"
 /** @typedef {import("./types.mjs").StaticValue} StaticValue */
@@ -403,7 +403,6 @@ const operations = Object.freeze({
         return null
     },
 
-    //eslint-disable-next-line complexity
     BinaryExpression(node, initialScope) {
         if (node.operator === "in" || node.operator === "instanceof") {
             // Not supported.
@@ -415,9 +414,9 @@ const operations = Object.freeze({
         if (left != null && right != null) {
             switch (node.operator) {
                 case "==":
-                    return { value: left.value == right.value } //eslint-disable-line eqeqeq
+                    return { value: left.value == right.value }
                 case "!=":
-                    return { value: left.value != right.value } //eslint-disable-line eqeqeq
+                    return { value: left.value != right.value }
                 case "===":
                     return { value: left.value === right.value }
                 case "!==":
@@ -836,7 +835,7 @@ const operations = Object.freeze({
                 case "-":
                     return { value: -(/** @type {any} */ (arg.value)) }
                 case "+":
-                    return { value: +(/** @type {any} */ (arg.value)) } //eslint-disable-line no-implicit-coercion
+                    return { value: +(/** @type {any} */ (arg.value)) }
                 case "!":
                     return { value: !arg.value }
                 case "~":
@@ -919,7 +918,7 @@ function getStaticPropertyNameValue(node, initialScope) {
 export function getStaticValue(node, initialScope = null) {
     try {
         return getStaticValueR(node, initialScope)
-    } catch (_error) {
+    } catch {
         return null
     }
 }

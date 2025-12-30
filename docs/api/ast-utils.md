@@ -12,7 +12,7 @@ Get the proper location of a given function node to report.
 
 <details><summary>Show the location examples:</summary>
 
-```
+```sh
 - `function foo() {}`
    ^^^^^^^^^^^^
 - `(function foo() {})`
@@ -164,7 +164,7 @@ const { getFunctionHeadLocation } = require("@eslint-community/eslint-utils")
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         return {
             FunctionDeclaration(node) {
@@ -191,84 +191,82 @@ Get the name and kind of a given function node.
 
 <details><summary>Show the name and kind examples:</summary>
 
-```
-- `function foo() {}`  ............................... `function 'foo'`
-- `(function foo() {})`  ............................. `function 'foo'`
-- `(function() {})`  ................................. `function`
-- `function* foo() {}`  .............................. `generator function 'foo'`
-- `(function* foo() {})`  ............................ `generator function 'foo'`
-- `(function*() {})`  ................................ `generator function`
-- `() => {}`  ........................................ `arrow function`
-- `async () => {}`  .................................. `async arrow function`
-- `const foo = () => {}`  ............................ `arrow function 'foo'`
-- `const foo = async () => {}`  ...................... `async arrow function 'foo'`
-- `foo = () => {}`  .................................. `arrow function 'foo'`
-- `foo = async () => {}`  ............................ `async arrow function 'foo'`
-- `const foo = function() {}`  ....................... `function 'foo'`
-- `const foo = function* () {}`  ..................... `generator function 'foo'`
-- `const foo = async function() {}`  ................. `async function 'foo'`
-- `foo = function() {}`  ............................. `function 'foo'`
-- `foo = function* () {}`  ........................... `generator function 'foo'`
-- `foo = async function() {}`  ....................... `async function 'foo'`
-- `({ foo: function foo() {} })`  .................... `method 'foo'`
-- `({ foo: function() {} })`  ........................ `method 'foo'`
-- `({ ['foo']: function() {} })`  .................... `method 'foo'`
-- `({ [foo]: function() {} })`  ...................... `method`
-- `({ [foo]: function() {} })`  ...................... `method [foo]` if sourceCode is present.
-- `({ foo() {} })`  .................................. `method 'foo'`
-- `({ foo: function* foo() {} })`  ................... `generator method 'foo'`
-- `({ foo: function*() {} })`  ....................... `generator method 'foo'`
-- `({ ['foo']: function*() {} })`  ................... `generator method 'foo'`
-- `({ [foo]: function*() {} })`  ..................... `generator method`
-- `({ [foo]: function*() {} })`  ..................... `generator method [foo]` if sourceCode is present.
-- `({ *foo() {} })`  ................................. `generator method 'foo'`
-- `({ foo: async function foo() {} })`  .............. `async method 'foo'`
-- `({ foo: async function() {} })`  .................. `async method 'foo'`
-- `({ ['foo']: async function() {} })`  .............. `async method 'foo'`
-- `({ [foo]: async function() {} })`  ................ `async method`
-- `({ [foo]: async function() {} })`  ................ `async method [foo]` if sourceCode is present.
-- `({ async foo() {} })`  ............................ `async method 'foo'`
-- `({ get foo() {} })`  .............................. `getter 'foo'`
-- `({ set foo(a) {} })`  ............................. `setter 'foo'`
-- `class A { constructor() {} }`  .................... `constructor`
-- `class A { foo() {} }`  ............................ `method 'foo'`
-- `class A { *foo() {} }`  ........................... `generator method 'foo'`
-- `class A { async foo() {} }`  ...................... `async method 'foo'`
-- `class A { ['foo']() {} }`  ........................ `method 'foo'`
-- `class A { *['foo']() {} }`  ....................... `generator method 'foo'`
-- `class A { async ['foo']() {} }`  .................. `async method 'foo'`
-- `class A { [foo]() {} }`  .......................... `method`
-- `class A { [foo]() {} }`  .......................... `method [foo]` if sourceCode is present.
-- `class A { *[foo]() {} }`  ......................... `generator method`
-- `class A { *[foo]() {} }`  ......................... `generator method [foo]` if sourceCode is present.
-- `class A { async [foo]() {} }`  .................... `async method`
-- `class A { async [foo]() {} }`  .................... `async method [foo]` if sourceCode is present.
-- `class A { get foo() {} }`  ........................ `getter 'foo'`
-- `class A { set foo(a) {} }`  ....................... `setter 'foo'`
-- `class A { static foo() {} }`  ..................... `static method 'foo'`
-- `class A { static *foo() {} }`  .................... `static generator method 'foo'`
-- `class A { static async foo() {} }`  ............... `static async method 'foo'`
-- `class A { static get foo() {} }`  ................. `static getter 'foo'`
-- `class A { static set foo(a) {} }`  ................ `static setter 'foo'`
-- `class A { #foo() {} }`  ........................... `private method #foo`
-- `class A { '#foo'() {} }`  ......................... `method '#foo'`
-- `class A { *#foo() {} }`  .......................... `private generator method #foo`
-- `class A { async #foo() {} }`  ..................... `private async method #foo`
-- `class A { get #foo() {} }`  ....................... `private getter #foo`
-- `class A { set #foo(a) {} }`  ...................... `private setter #foo`
-- `class A { static #foo() {} }`  .................... `static private method #foo`
-- `class A { static *#foo() {} }`  ................... `static private generator method #foo`
-- `class A { static async #foo() {} }`  .............. `static private async method #foo`
-- `class A { static get #foo() {} }`  ................ `static private getter #foo`
-- `class A { static set #foo(a) {} }`  ............... `static private setter #foo`
-- `class A { '#foo' = function() {} }`  .............. `method '#foo'"`
-- `class A { #foo = function() {} }`  ................ `private method #foo"`
-- `class A { #foo = function*() {} }`  ............... `private generator method #foo"`
-- `class A { #foo = async function() {} }`  .......... `private async method #foo"`
-- `class A { static #foo = function() {} }`  ......... `static private method #foo"`
-- `class A { static #foo = function*() {} }`  ........ `static private generator method #foo"`
-- `class A { static #foo = async function() {} }`  ... `static private async method #foo"`
-```
+-   `function foo() {}` ............................... `function 'foo'`
+-   `(function foo() {})` ............................. `function 'foo'`
+-   `(function() {})` ................................. `function`
+-   `function* foo() {}` .............................. `generator function 'foo'`
+-   `(function* foo() {})` ............................ `generator function 'foo'`
+-   `(function*() {})` ................................ `generator function`
+-   `() => {}` ........................................ `arrow function`
+-   `async () => {}` .................................. `async arrow function`
+-   `const foo = () => {}` ............................ `arrow function 'foo'`
+-   `const foo = async () => {}` ...................... `async arrow function 'foo'`
+-   `foo = () => {}` .................................. `arrow function 'foo'`
+-   `foo = async () => {}` ............................ `async arrow function 'foo'`
+-   `const foo = function() {}` ....................... `function 'foo'`
+-   `const foo = function* () {}` ..................... `generator function 'foo'`
+-   `const foo = async function() {}` ................. `async function 'foo'`
+-   `foo = function() {}` ............................. `function 'foo'`
+-   `foo = function* () {}` ........................... `generator function 'foo'`
+-   `foo = async function() {}` ....................... `async function 'foo'`
+-   `({ foo: function foo() {} })` .................... `method 'foo'`
+-   `({ foo: function() {} })` ........................ `method 'foo'`
+-   `({ ['foo']: function() {} })` .................... `method 'foo'`
+-   `({ [foo]: function() {} })` ...................... `method`
+-   `({ [foo]: function() {} })` ...................... `method [foo]` if sourceCode is present.
+-   `({ foo() {} })` .................................. `method 'foo'`
+-   `({ foo: function* foo() {} })` ................... `generator method 'foo'`
+-   `({ foo: function*() {} })` ....................... `generator method 'foo'`
+-   `({ ['foo']: function*() {} })` ................... `generator method 'foo'`
+-   `({ [foo]: function*() {} })` ..................... `generator method`
+-   `({ [foo]: function*() {} })` ..................... `generator method [foo]` if sourceCode is present.
+-   `({ *foo() {} })` ................................. `generator method 'foo'`
+-   `({ foo: async function foo() {} })` .............. `async method 'foo'`
+-   `({ foo: async function() {} })` .................. `async method 'foo'`
+-   `({ ['foo']: async function() {} })` .............. `async method 'foo'`
+-   `({ [foo]: async function() {} })` ................ `async method`
+-   `({ [foo]: async function() {} })` ................ `async method [foo]` if sourceCode is present.
+-   `({ async foo() {} })` ............................ `async method 'foo'`
+-   `({ get foo() {} })` .............................. `getter 'foo'`
+-   `({ set foo(a) {} })` ............................. `setter 'foo'`
+-   `class A { constructor() {} }` .................... `constructor`
+-   `class A { foo() {} }` ............................ `method 'foo'`
+-   `class A { *foo() {} }` ........................... `generator method 'foo'`
+-   `class A { async foo() {} }` ...................... `async method 'foo'`
+-   `class A { ['foo']() {} }` ........................ `method 'foo'`
+-   `class A { *['foo']() {} }` ....................... `generator method 'foo'`
+-   `class A { async ['foo']() {} }` .................. `async method 'foo'`
+-   `class A { [foo]() {} }` .......................... `method`
+-   `class A { [foo]() {} }` .......................... `method [foo]` if sourceCode is present.
+-   `class A { *[foo]() {} }` ......................... `generator method`
+-   `class A { *[foo]() {} }` ......................... `generator method [foo]` if sourceCode is present.
+-   `class A { async [foo]() {} }` .................... `async method`
+-   `class A { async [foo]() {} }` .................... `async method [foo]` if sourceCode is present.
+-   `class A { get foo() {} }` ........................ `getter 'foo'`
+-   `class A { set foo(a) {} }` ....................... `setter 'foo'`
+-   `class A { static foo() {} }` ..................... `static method 'foo'`
+-   `class A { static *foo() {} }` .................... `static generator method 'foo'`
+-   `class A { static async foo() {} }` ............... `static async method 'foo'`
+-   `class A { static get foo() {} }` ................. `static getter 'foo'`
+-   `class A { static set foo(a) {} }` ................ `static setter 'foo'`
+-   `class A { #foo() {} }` ........................... `private method #foo`
+-   `class A { '#foo'() {} }` ......................... `method '#foo'`
+-   `class A { *#foo() {} }` .......................... `private generator method #foo`
+-   `class A { async #foo() {} }` ..................... `private async method #foo`
+-   `class A { get #foo() {} }` ....................... `private getter #foo`
+-   `class A { set #foo(a) {} }` ...................... `private setter #foo`
+-   `class A { static #foo() {} }` .................... `static private method #foo`
+-   `class A { static *#foo() {} }` ................... `static private generator method #foo`
+-   `class A { static async #foo() {} }` .............. `static private async method #foo`
+-   `class A { static get #foo() {} }` ................ `static private getter #foo`
+-   `class A { static set #foo(a) {} }` ............... `static private setter #foo`
+-   `class A { '#foo' = function() {} }` .............. `method '#foo'"`
+-   `class A { #foo = function() {} }` ................ `private method #foo"`
+-   `class A { #foo = function*() {} }` ............... `private generator method #foo"`
+-   `class A { #foo = async function() {} }` .......... `private async method #foo"`
+-   `class A { static #foo = function() {} }` ......... `static private method #foo"`
+-   `class A { static #foo = function*() {} }` ........ `static private generator method #foo"`
+-   `class A { static #foo = async function() {} }` ... `static private async method #foo"`
 
 </details>
 
@@ -291,7 +289,7 @@ const { getFunctionNameWithKind } = require("@eslint-community/eslint-utils")
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         return {
             FunctionDeclaration(node) {
@@ -342,8 +340,6 @@ module.exports = {
         return {
             MemberExpression(node) {
                 const name = getPropertyName(node, context.sourceCode.getScope(node))
-                // When using ESLint<8.37.0, write as follows:
-                // const name = getPropertyName(node, context.getScope())
             },
         }
     },
@@ -400,8 +396,6 @@ module.exports = {
         return {
             ExpressionStatement(node) {
                 const evaluated = getStaticValue(node, context.sourceCode.getScope(node))
-                // When using ESLint<8.37.0, write as follows:
-                // const evaluated = getStaticValue(node, context.getScope())
                 if (evaluated) {
                     const staticValue = evaluated.value
                     // ...
@@ -484,7 +478,7 @@ const { hasSideEffect } = require("@eslint-community/eslint-utils")
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
         return {
             ":expression"(node) {
                 if (hasSideEffect(node, sourceCode)) {
@@ -557,7 +551,7 @@ const { isParenthesized } = require("@eslint-community/eslint-utils")
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
         return {
             ":expression"(node) {
                 if (isParenthesized(node, sourceCode)) {

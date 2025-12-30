@@ -13,25 +13,23 @@ import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
  * @param {SourceCode} sourceCode The source code object to get tokens.
  * @returns {Token|null} The left parenthesis of the parent node syntax
  */
-// eslint-disable-next-line complexity
 function getParentSyntaxParen(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
 
-    switch (parent.type) {
+    switch (parent?.type) {
         case "CallExpression":
         case "NewExpression":
             if (parent.arguments.length === 1 && parent.arguments[0] === node) {
                 return sourceCode.getTokenAfter(
-                    // @ts-expect-error https://github.com/typescript-eslint/typescript-eslint/pull/5384
-                    parent.typeArguments ||
-                        /** @type {RuleNode} */ (
-                            /** @type {unknown} */ (
-                                /** @type {TSNewExpression | TSCallExpression} */ (
-                                    parent
-                                ).typeParameters
-                            )
-                        ) ||
-                        parent.callee,
+                    "typeArguments" in parent && parent.typeArguments
+                        ? /** @type {RuleNode} */ (
+                              /** @type {unknown} */ (
+                                  /** @type {TSNewExpression | TSCallExpression} */ (
+                                      parent
+                                  ).typeArguments
+                              )
+                          )
+                        : parent.callee,
                     isOpeningParenToken,
                 )
             }

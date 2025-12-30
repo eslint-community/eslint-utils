@@ -1,10 +1,10 @@
 import assert from "assert"
 import { findVariable } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { Linter } from "eslint"
 
 describe("The 'findVariable' function", () => {
     function getVariable(code, selector, withString = null) {
-        const linter = newCompatLinter()
+        const linter = new Linter();
         let variable = null
 
         linter.verify(code, {
@@ -18,7 +18,7 @@ describe("The 'findVariable' function", () => {
                                 return {
                                     [selector](node) {
                                         variable = findVariable(
-                                            getScope(context, node),
+                                            context.sourceCode.getScope(node),
                                             withString || node,
                                         )
                                     },

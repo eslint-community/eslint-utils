@@ -1,8 +1,7 @@
 import assert from "assert"
-import eslint from "eslint"
+import eslint, { Linter } from "eslint"
 import semver from "semver"
 import { getFunctionHeadLocation } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getFunctionHeadLocation' function", () => {
     const expectedResults = {
@@ -104,7 +103,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
         it(`should return "${JSON.stringify(
             expectedLoc,
         )}" for "${key}".`, () => {
-            const linter = newCompatLinter()
+            const linter = new Linter()
 
             let actualLoc = null
             const messages = linter.verify(
@@ -112,9 +111,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                 {
                     rules: { "test/test": "error" },
                     languageOptions: {
-                        ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                            ? 2022
-                            : 2020,
+                        ecmaVersion: 2022,
                     },
                     plugins: {
                         test: {
@@ -126,7 +123,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                                                 actualLoc =
                                                     getFunctionHeadLocation(
                                                         node,
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                             },
                                         }

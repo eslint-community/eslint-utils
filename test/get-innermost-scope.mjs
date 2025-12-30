@@ -1,6 +1,6 @@
 import assert from "assert"
 import { getInnermostScope } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { Linter } from "eslint"
 
 describe("The 'getInnermostScope' function", () => {
     let i = 0
@@ -57,7 +57,7 @@ describe("The 'getInnermostScope' function", () => {
         },
     ]) {
         it(`should return the innermost scope (${++i})`, () => {
-            const linter = newCompatLinter()
+            const linter = new Linter()
 
             let actualScope = null
             let expectedScope = null
@@ -75,10 +75,10 @@ describe("The 'getInnermostScope' function", () => {
                                 create(context) {
                                     return {
                                         Program(node) {
-                                            const scope = getScope(
-                                                context,
-                                                node,
-                                            )
+                                            const scope =
+                                                context.sourceCode.getScope(
+                                                    node,
+                                                )
                                             actualScope = getInnermostScope(
                                                 scope,
                                                 selectNode(node),

@@ -17,7 +17,7 @@ const { isArrowToken } = require("@eslint-community/eslint-utils")
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
+        const sourceCode = context.sourceCode
 
         return {
             ArrowFunctionExpression(node) {
