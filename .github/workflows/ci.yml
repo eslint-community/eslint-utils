@@ -145,7 +145,7 @@ jobs:
               run: npm run build
 
             - name: 🚀 Release
-              uses: cycjimmy/semantic-release-action@v5
+              uses: cycjimmy/semantic-release-action@v6
               with:
                   # semantic-release@v25 is required for trusted publishing.
                   # https://github.com/semantic-release/semantic-release/releases/tag/v25.0.1
