@@ -17,6 +17,10 @@ import { isClosingParenToken, isOpeningParenToken } from "./token-predicate.mjs"
 function getParentSyntaxParen(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent
 
+    if (!parent) {
+        return null
+    }
+
     switch (parent.type) {
         case "CallExpression":
         case "NewExpression":
