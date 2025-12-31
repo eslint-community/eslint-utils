@@ -350,6 +350,9 @@ export class ReferenceTracker {
         }
 
         const parent = /** @type {RuleNode} */ (node).parent
+        if (!parent) {
+            return
+        }
         if (parent.type === "MemberExpression") {
             if (parent.object === node) {
                 const key = getPropertyName(parent)
