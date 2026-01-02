@@ -4,7 +4,7 @@ import { getProperty } from "dot-prop"
 import eslint from "eslint"
 import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
-import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { getSourceCode, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'hasSideEffect' function", () => {
     for (const {
@@ -357,7 +357,7 @@ describe("The 'hasSideEffect' function", () => {
                                         Program(node) {
                                             actual = hasSideEffect(
                                                 getProperty(node, key),
-                                                context.getSourceCode(),
+                                                getSourceCode(context),
                                                 options,
                                             )
                                         },
