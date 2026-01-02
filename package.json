@@ -1,6 +1,6 @@
 {
     "name": "@eslint-community/eslint-utils",
-    "version": "0.0.0-semantically-released",
+    "version": "4.9.1",
     "description": "Utilities for ESLint plugins.",
     "keywords": [
         "eslint"

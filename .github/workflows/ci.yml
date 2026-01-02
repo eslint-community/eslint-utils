@@ -1,44 +1,21 @@
 name: CI
+
 on:
+    pull_request: ~
     push:
         branches:
-            # default semantic-release branches
-            - +([0-9])?(.{+([0-9]),x}).x
             - main
-            - next
-            - next-major
-            - beta
-            - alpha
-    pull_request:
-    schedule:
-        - cron: 0 0 * * 0
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
-
-permissions:
-    contents: write # to be able to publish a GitHub release
-    id-token: write # to enable use of OIDC for npm provenance
-    issues: write # to be able to comment on released issues
-    pull-requests: write # to be able to comment on released pull requests
 
 jobs:
     lint:
         name: ⬣ Lint
         runs-on: ubuntu-latest
         steps:
-            - name: ⬇️ Checkout repo
-              uses: actions/checkout@v6
-
-            - name: ⎔ Setup Node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 24
-
-            - name: 📥 Install dependencies
-              run: npm install
-
+            - uses: ./.github/actions/setup
             - name: ▶️ Run lint script
               run: npm run lint
 
@@ -117,48 +94,3 @@ jobs:
 
             - name: ⬆️ Upload coverage report
               uses: codecov/codecov-action@v5
-
-    release:
-        name: 🚀 Release
-        needs: [lint, test]
-        runs-on: ubuntu-latest
-        if: github.repository == 'eslint-community/eslint-utils' &&
-            contains('refs/heads/main,refs/heads/next,refs/heads/beta,refs/heads/alpha',
-            github.ref) && github.event_name == 'push'
-        steps:
-            - name: ⬇️ Checkout repo
-              uses: actions/checkout@v6
-
-            - name: ⎔ Setup node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: lts/*
-
-            # npm 11.5.1 or later is required so update to latest to be sure
-            - name: Update npm
-              run: npm install -g npm@latest
-
-            - name: 📥 Install dependencies
-              run: npm install
-
-            - name: 🏗 Build
-              run: npm run build
-
-            - name: 🚀 Release
-              uses: cycjimmy/semantic-release-action@v6
-              with:
-                  # semantic-release@v25 is required for trusted publishing.
-                  # https://github.com/semantic-release/semantic-release/releases/tag/v25.0.1
-                  semantic_version: 25
-                  branches: |
-                      [
-                        '+([0-9])?(.{+([0-9]),x}).x',
-                        'main',
-                        'next',
-                        'next-major',
-                        {name: 'beta', prerelease: true},
-                        {name: 'alpha', prerelease: true}
-                      ]
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_CONFIG_PROVENANCE: true

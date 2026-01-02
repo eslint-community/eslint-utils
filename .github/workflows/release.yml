@@ -1,0 +1,28 @@
+name: Release
+
+on:
+    push:
+        branches:
+            - main
+
+concurrency:
+    group: ${{ github.workflow }}
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+            id-token: write # Required for OIDC
+        steps:
+            - uses: googleapis/release-please-action@v4
+              id: release
+              with:
+                  token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+            - uses: ./.github/actions/setup
+              if: ${{ steps.release.outputs.release_created }}
+            - run: |
+                  npm run build
+                  npm publish
+              if: ${{ steps.release.outputs.release_created }}
