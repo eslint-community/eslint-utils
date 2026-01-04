@@ -24,7 +24,13 @@ jobs:
             - name: ⬇️ Checkout repo
               uses: actions/checkout@v6
               if: ${{ steps.release.outputs.release_created }}
-            - uses: ./.github/actions/setup
+            - name: ⎔ Setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: lts/*
+              if: ${{ steps.release.outputs.release_created }}
+            - name: 📥 Install dependencies
+              run: npm install
               if: ${{ steps.release.outputs.release_created }}
             - run: |
                   npm run build

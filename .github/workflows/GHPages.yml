@@ -25,7 +25,12 @@ jobs:
         steps:
             - name: ⬇️ Checkout repo
               uses: actions/checkout@v6
-            - uses: ./.github/actions/setup
+            - name: ⎔ Setup node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: lts/*
+            - name: 📥 Install dependencies
+              run: npm install
             - name: Build docs
               run: npm run docs:build
             - name: Setup Pages
