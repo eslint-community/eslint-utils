@@ -21,18 +21,23 @@ jobs:
               with:
                   config-file: .github/release-please/config.json
                   manifest-file: .github/release-please/manifest.json
+
             - name: ⬇️ Checkout repo
-              uses: actions/checkout@v6
               if: ${{ steps.release.outputs.release_created }}
-            - name: ⎔ Setup node
+              uses: actions/checkout@v6
+
+            - name: ⎔ Setup Node
+              if: ${{ steps.release.outputs.release_created }}
               uses: actions/setup-node@v6
               with:
                   node-version: lts/*
-              if: ${{ steps.release.outputs.release_created }}
+
             - name: 📥 Install dependencies
-              run: npm install
               if: ${{ steps.release.outputs.release_created }}
-            - run: |
+              run: npm install
+
+            - name: 📦 Build and publish package
+              if: ${{ steps.release.outputs.release_created }}
+              run: |
                   npm run build
                   npm publish
-              if: ${{ steps.release.outputs.release_created }}
