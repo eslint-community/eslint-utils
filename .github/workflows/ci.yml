@@ -20,12 +20,14 @@ jobs:
             - name: ⬇️ Checkout repo
               uses: actions/checkout@v6
 
-            - name: ⎔ Setup node
+            - name: ⎔ Setup Node
               uses: actions/setup-node@v6
               with:
                   node-version: lts/*
+
             - name: 📥 Install dependencies
               run: npm install
+
             - name: ▶️ Run lint script
               run: npm run lint
 
