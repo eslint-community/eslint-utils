@@ -1,0 +1,40 @@
+name: 🐛 Bug
+description: Report a bug encountered trying to run the code
+
+title: "🐛 Bug: <short description of the bug>"
+
+labels:
+    - "bug"
+
+body:
+    - type: checkboxes
+      attributes:
+          description: If any of these required steps are not taken, we may not be able to review your issue. Help us to help you!
+          label: Bug Report Checklist
+          options:
+              - label: I have tried restarting my IDE and the issue persists.
+                required: true
+              - label: I have [searched for related issues](https://github.com/eslint-community/eslint-utils/issues) and found none that matched my issue.
+                required: true
+    - type: textarea
+      attributes:
+          description: Description of the problem you encountered
+          label: Overview
+      validations:
+          required: true
+    - type: input
+      attributes:
+          description: Version of this package you tried
+          label: Version
+          placeholder: 1.2.3
+      validations:
+          required: true
+    - type: input
+      attributes:
+          description: Version of ESLint
+          label: ESLint Version
+          placeholder: 1.2.3
+    - type: textarea
+      attributes:
+          description: Any additional info you'd like to provide.
+          label: Additional Info

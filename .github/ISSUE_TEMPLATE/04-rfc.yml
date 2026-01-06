@@ -1,0 +1,27 @@
+name: 💬 RFC
+description: Request feedback from the community on a significant change to the project.
+
+title: "💬 RFC: <short description of the proposal>"
+
+labels:
+    - "rfc"
+
+body:
+    - attributes:
+          description: If any of these required steps are not taken, we may not be able to review your issue. Help us to help you!
+          label: RFC Checklist
+          options:
+              - label: I have [searched for related issues](https://github.com/eslint-community/eslint-utils/issues) and found none that matched my issue.
+                required: true
+      type: checkboxes
+    - attributes:
+          description: Please provide details about your proposal.
+          label: Overview
+      type: textarea
+      validations:
+          required: true
+    - attributes:
+          description: How long should this RFC remain open for feedback? This should be no less than 6 weeks from the publishing date.
+          label: This RFC will remain open until
+          placeholder: YYYY-MM-DD
+      type: input

@@ -1,0 +1,26 @@
+name: 🚀 Feature
+description: Request that a new feature be added or an existing feature improved
+
+title: "🚀 Feature: <short description of the feature>"
+
+labels:
+    - "feature"
+
+body:
+    - attributes:
+          description: If any of these required steps are not taken, we may not be able to review your issue. Help us to help you!
+          label: Feature Request Checklist
+          options:
+              - label: I have [searched for related issues](https://github.com/eslint-community/eslint-utils/issues) and found none that matched my issue.
+                required: true
+      type: checkboxes
+    - attributes:
+          description: What would you like to be able to do?
+          label: Overview
+      type: textarea
+      validations:
+          required: true
+    - attributes:
+          description: Any additional info you'd like to provide.
+          label: Additional Info
+      type: textarea
