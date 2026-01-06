@@ -1,3 +1,4 @@
+// eslint-disable-next-line @eslint-community/mysticatea/node/no-missing-import -- Will be addressed in the next change migrating to flat config
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import eslint from "eslint"
