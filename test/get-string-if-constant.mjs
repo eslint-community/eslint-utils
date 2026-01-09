@@ -32,7 +32,7 @@ describe("The 'getStringIfConstant' function", () => {
                     test: {
                         rules: {
                             test: {
-                                create(_context) {
+                                create() {
                                     return {
                                         "Program > ExpressionStatement > *"(
                                             node,

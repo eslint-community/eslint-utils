@@ -1,4 +1,4 @@
-/* globals globalThis, global, self, window */
+/* globals self, window */
 
 import { findVariable } from "./find-variable.mjs"
 /** @typedef {import("./types.mjs").StaticValue} StaticValue */
@@ -212,6 +212,7 @@ const getterAllowed = [
  * Get the property descriptor.
  * @param {object} object The object to get.
  * @param {string|number|symbol} name The property name to get.
+ * @returns {PropertyDescriptor|null} The property descriptor. Null if not found.
  */
 function getPropertyDescriptor(object, name) {
     let x = object
@@ -229,6 +230,7 @@ function getPropertyDescriptor(object, name) {
  * Check if a property is getter or not.
  * @param {object} object The object to check.
  * @param {string|number|symbol} name The property name to check.
+ * @returns {boolean} True if the property is getter.
  */
 function isGetter(object, name) {
     const d = getPropertyDescriptor(object, name)
@@ -283,7 +285,7 @@ function isBuiltinGlobal(variable) {
 
 /**
  * Checks if a variable can be considered as a constant.
- * @param {Variable} variable
+ * @param {Variable} variable The variable to check.
  * @returns {variable is Variable & {defs: [import("eslint").Scope.Definition & { type: "Variable" }]}} True if the variable can be considered as a constant.
  */
 function canBeConsideredConst(variable) {
@@ -300,8 +302,8 @@ function canBeConsideredConst(variable) {
 
 /**
  * Returns whether the given variable is never written to after initialization.
- * @param {Variable} variable
- * @returns {boolean}
+ * @param {Variable} variable The variable to check.
+ * @returns {boolean} True if the variable is effectively constant.
  */
 function isEffectivelyConst(variable) {
     const refs = variable.references
@@ -403,7 +405,6 @@ const operations = Object.freeze({
         return null
     },
 
-    //eslint-disable-next-line complexity
     BinaryExpression(node, initialScope) {
         if (node.operator === "in" || node.operator === "instanceof") {
             // Not supported.
@@ -415,9 +416,9 @@ const operations = Object.freeze({
         if (left != null && right != null) {
             switch (node.operator) {
                 case "==":
-                    return { value: left.value == right.value } //eslint-disable-line eqeqeq
+                    return { value: left.value == right.value }
                 case "!=":
-                    return { value: left.value != right.value } //eslint-disable-line eqeqeq
+                    return { value: left.value != right.value }
                 case "===":
                     return { value: left.value === right.value }
                 case "!==":
@@ -836,7 +837,7 @@ const operations = Object.freeze({
                 case "-":
                     return { value: -(/** @type {any} */ (arg.value)) }
                 case "+":
-                    return { value: +(/** @type {any} */ (arg.value)) } //eslint-disable-line no-implicit-coercion
+                    return { value: +(/** @type {any} */ (arg.value)) }
                 case "!":
                     return { value: !arg.value }
                 case "~":
@@ -919,7 +920,7 @@ function getStaticPropertyNameValue(node, initialScope) {
 export function getStaticValue(node, initialScope = null) {
     try {
         return getStaticValueR(node, initialScope)
-    } catch (_error) {
+    } catch {
         return null
     }
 }

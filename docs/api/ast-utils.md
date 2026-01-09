@@ -12,7 +12,7 @@ Get the proper location of a given function node to report.
 
 <details><summary>Show the location examples:</summary>
 
-```
+```js
 - `function foo() {}`
    ^^^^^^^^^^^^
 - `(function foo() {})`
@@ -189,7 +189,7 @@ Get the name and kind of a given function node.
 
 <details><summary>Show the name and kind examples:</summary>
 
-```
+```js
 - `function foo() {}`  ............................... `function 'foo'`
 - `(function foo() {})`  ............................. `function 'foo'`
 - `(function() {})`  ................................. `function`

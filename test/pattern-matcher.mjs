@@ -3,9 +3,10 @@ import { PatternMatcher } from "../src/index.mjs"
 
 const NAMED_CAPTURE_GROUP_SUPPORTED = (() => {
     try {
-        new RegExp("(?<a>)", "u") //eslint-disable-line no-new, prefer-regex-literals
+        // eslint-disable-next-line regexp/no-empty-capturing-group, prefer-regex-literals, regexp/no-empty-group
+        new RegExp("(?<a>)", "u")
         return true
-    } catch (_error) {
+    } catch {
         return false
     }
 })()
@@ -50,7 +51,7 @@ describe("The 'PatternMatcher' class:", () => {
         })
 
         it("should throw Error if the RegExp value does not have 'g' flag.", () => {
-            for (const value of [/foo/u, /bar/imu]) {
+            for (const value of [/foo/u, /bar/iu]) {
                 assert.throws(
                     () => new PatternMatcher(value),
                     /^Error: 'pattern' should contains 'g' flag\.$/u,

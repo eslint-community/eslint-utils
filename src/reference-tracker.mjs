@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/require-yields */
 import { findVariable } from "./find-variable.mjs"
 import { getPropertyName } from "./get-property-name.mjs"
 import { getStringIfConstant } from "./get-string-if-constant.mjs"
@@ -40,7 +41,7 @@ const IMPORT_TYPE = /^(?:Import|Export(?:All|Default|Named))Declaration$/u
 
 /**
  * Check whether a given node is an import node or not.
- * @param {Node} node
+ * @param {Node} node A node to check.
  * @returns {node is ImportDeclaration|ExportAllDeclaration|ExportNamedDeclaration&{source: Literal}} `true` if the node is an import node.
  */
 function isHasSource(node) {
@@ -119,15 +120,18 @@ export class ReferenceTracker {
      * Initialize this tracker.
      * @param {Scope} globalScope The global scope.
      * @param {object} [options] The options.
-     * @param {"legacy"|"strict"} [options.mode="strict"] The mode to determine the ImportDeclaration's behavior for CJS modules.
-     * @param {string[]} [options.globalObjectNames=["global","globalThis","self","window"]] The variable names for Global Object.
+     * @param {"legacy"|"strict"} [options.mode] The mode to determine the ImportDeclaration's behavior for CJS modules.
+     * @param {string[]} [options.globalObjectNames] The variable names for Global Object.
      */
     constructor(globalScope, options = {}) {
         const {
             mode = "strict",
             globalObjectNames = ["global", "globalThis", "self", "window"],
         } = options
-        /** @private @type {Variable[]} */
+        /**
+         * @private
+         * @type {Variable[]}
+         */
         this.variableStack = []
         /** @private */
         this.globalScope = globalScope
@@ -217,7 +221,7 @@ export class ReferenceTracker {
      * Iterate the references of ES modules.
      * @template T
      * @param {TraceMap<T>} traceMap The trace map.
-     * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
+     * @yields {TrackedReferences<T>} The iterator to iterate references.
      */
     *iterateEsmReferences(traceMap) {
         const programNode = /** @type {Program} */ (this.globalScope.block)
@@ -236,7 +240,6 @@ export class ReferenceTracker {
 
             if (nextTraceMap[READ]) {
                 yield {
-                    // eslint-disable-next-line object-shorthand -- apply type
                     node: /** @type {RuleNode} */ (node),
                     path,
                     type: READ,
@@ -249,7 +252,6 @@ export class ReferenceTracker {
                     const exportTraceMap = nextTraceMap[key]
                     if (exportTraceMap[READ]) {
                         yield {
-                            // eslint-disable-next-line object-shorthand -- apply type
                             node: /** @type {RuleNode} */ (node),
                             path: path.concat(key),
                             type: READ,
@@ -342,7 +344,6 @@ export class ReferenceTracker {
      * @param {TraceMapObject<T>} traceMap The trace map.
      * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
      */
-    //eslint-disable-next-line complexity
     *_iteratePropertyReferences(rootNode, path, traceMap) {
         let node = rootNode
         while (isPassThrough(node)) {
@@ -477,7 +478,7 @@ export class ReferenceTracker {
      * @param {ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier | ExportSpecifier} specifierNode The ModuleSpecifier node to iterate references.
      * @param {string[]} path The current path.
      * @param {TraceMapObject<T>} traceMap The trace map.
-     * @returns {IterableIterator<TrackedReferences<T>>} The iterator to iterate references.
+     * @yields {TrackedReferences<T>} The iterator to iterate references.
      */
     *_iterateImportReferences(specifierNode, path, traceMap) {
         const type = specifierNode.type

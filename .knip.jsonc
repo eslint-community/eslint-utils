@@ -2,4 +2,6 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "entry": ["src/index.mjs", "test/**/*.mjs"],
     "ignore": ["./docs/.vitepress/**/*"],
+    // Used only in CI while testing eslint v8.  Once v8 support is dropped, this should be removed.
+    "ignoreDependencies": ["@types/eslint"],
 }

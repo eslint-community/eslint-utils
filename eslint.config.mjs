@@ -41,6 +41,7 @@ export default defineConfig(
             "no-useless-rename": "error",
             "object-shorthand": "error",
             "operator-assignment": "error",
+            "jsdoc/no-undefined-types": "off",
         },
     },
     // ESM

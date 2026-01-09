@@ -48,6 +48,7 @@ const visitor = Object.freeze(
          * @param {Node} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {any}
          */
         $visit(node, options, visitorKeys) {
             const { type } = node
@@ -67,6 +68,7 @@ const visitor = Object.freeze(
          * @param {Node} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         $visitChildren(node, options, visitorKeys) {
             const { type } = node
@@ -109,6 +111,7 @@ const visitor = Object.freeze(
          * @param {BinaryExpression} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         BinaryExpression(node, options, visitorKeys) {
             if (
@@ -133,6 +136,7 @@ const visitor = Object.freeze(
          * @param {MemberExpression} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         MemberExpression(node, options, visitorKeys) {
             if (options.considerGetters) {
@@ -151,6 +155,7 @@ const visitor = Object.freeze(
          * @param {MethodDefinition} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         MethodDefinition(node, options, visitorKeys) {
             if (
@@ -169,6 +174,7 @@ const visitor = Object.freeze(
          * @param {Property} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         Property(node, options, visitorKeys) {
             if (
@@ -184,6 +190,7 @@ const visitor = Object.freeze(
          * @param {PropertyDefinition} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         PropertyDefinition(node, options, visitorKeys) {
             if (
@@ -199,6 +206,7 @@ const visitor = Object.freeze(
          * @param {UnaryExpression} node
          * @param {HasSideEffectOptions} options
          * @param {Record<string, string[]>} visitorKeys
+         * @returns {boolean}
          */
         UnaryExpression(node, options, visitorKeys) {
             if (node.operator === "delete") {

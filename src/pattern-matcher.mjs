@@ -3,7 +3,7 @@
  * See LICENSE file in root directory for full license.
  */
 
-const placeholder = /\$(?:[$&`']|[1-9][0-9]?)/gu
+const placeholder = /\$(?:[$&`']|[1-9]\d?)/gu
 
 /** @type {WeakMap<PatternMatcher, {pattern:RegExp,escaped:boolean}>} */
 const internal = new WeakMap()
@@ -128,7 +128,7 @@ export class PatternMatcher {
     /**
      * Find the pattern in a given string.
      * @param {string} str The string to find.
-     * @returns {IterableIterator<RegExpExecArray>} The iterator which iterate the matched information.
+     * @yields {RegExpExecArray} The iterator which iterate the matched information.
      */
     *execAll(str) {
         const { pattern, escaped } =
