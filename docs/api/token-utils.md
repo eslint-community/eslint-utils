@@ -11,17 +11,15 @@ Check whether a given token is a `=>` token or not.
 
 ### Examples
 
-```js{10}
+```js{8}
 const { isArrowToken } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         return {
             ArrowFunctionExpression(node) {
-                const arrowToken = sourceCode.getTokenBefore(node.body, isArrowToken)
+                const arrowToken = context.sourceCode.getTokenBefore(node.body, isArrowToken)
             },
         }
     },
