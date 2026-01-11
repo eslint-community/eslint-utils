@@ -266,8 +266,8 @@ export class ReferenceTracker {
                         esm
                             ? nextTraceMap
                             : this.mode === "legacy"
-                            ? { default: nextTraceMap, ...nextTraceMap }
-                            : { default: nextTraceMap },
+                              ? { default: nextTraceMap, ...nextTraceMap }
+                              : { default: nextTraceMap },
                     )
 
                     if (esm) {
@@ -487,8 +487,8 @@ export class ReferenceTracker {
                 type === "ImportDefaultSpecifier"
                     ? "default"
                     : specifierNode.imported.type === "Identifier"
-                    ? specifierNode.imported.name
-                    : specifierNode.imported.value
+                      ? specifierNode.imported.name
+                      : specifierNode.imported.value
             if (!has(traceMap, key)) {
                 return
             }
