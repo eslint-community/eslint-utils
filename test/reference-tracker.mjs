@@ -1378,7 +1378,8 @@ describe("The 'ReferenceTracker' class:", () => {
                                 test: {
                                     create(context) {
                                         const tracker = new ReferenceTracker(
-                                            context.sourceCode.scopeManager.globalScope,
+                                            context.sourceCode.scopeManager
+                                                .globalScope,
                                         )
                                         return {
                                             "CallExpression:exit"(node) {
