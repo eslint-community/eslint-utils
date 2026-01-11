@@ -1,6 +1,6 @@
 import assert from "assert"
 import { getStringIfConstant } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStringIfConstant' function", () => {
     for (const { code, expected } of [
@@ -83,7 +83,9 @@ describe("The 'getStringIfConstant' function", () => {
                                             ) {
                                                 actual = getStringIfConstant(
                                                     node,
-                                                    getScope(context, node),
+                                                    context.sourceCode.getScope(
+                                                        node,
+                                                    ),
                                                 )
                                             },
                                         }

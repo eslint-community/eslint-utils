@@ -4,7 +4,7 @@ import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
 import { getStaticValue } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getStaticValue' function", () => {
     for (const { code, expected, noScope = false, parser } of [
@@ -498,7 +498,9 @@ const aMap = Object.freeze({
                                                 node,
                                                 noScope
                                                     ? null
-                                                    : getScope(context, node),
+                                                    : context.sourceCode.getScope(
+                                                          node,
+                                                      ),
                                             )
                                         },
                                     }

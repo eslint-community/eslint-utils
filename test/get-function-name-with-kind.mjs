@@ -193,7 +193,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
                                             actualResult =
                                                 getFunctionNameWithKind(
                                                     node,
-                                                    context.getSourceCode(),
+                                                    context.sourceCode,
                                                 )
                                         },
                                     }
