@@ -17,16 +17,16 @@ const globalObject =
     typeof globalThis !== "undefined"
         ? globalThis
         : // @ts-ignore
-        typeof self !== "undefined"
-        ? // @ts-ignore
-          self
-        : // @ts-ignore
-        typeof window !== "undefined"
-        ? // @ts-ignore
-          window
-        : typeof global !== "undefined"
-        ? global
-        : {}
+          typeof self !== "undefined"
+          ? // @ts-ignore
+            self
+          : // @ts-ignore
+            typeof window !== "undefined"
+            ? // @ts-ignore
+              window
+            : typeof global !== "undefined"
+              ? global
+              : {}
 
 const builtinNames = Object.freeze(
     new Set([
@@ -293,8 +293,8 @@ function canBeConsideredConst(variable) {
     const def = variable.defs[0]
     return Boolean(
         def.parent &&
-            def.type === "Variable" &&
-            (def.parent.kind === "const" || isEffectivelyConst(variable)),
+        def.type === "Variable" &&
+        (def.parent.kind === "const" || isEffectivelyConst(variable)),
     )
 }
 
