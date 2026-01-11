@@ -306,7 +306,7 @@ describe("The 'isParenthesized' function", () => {
                                                 Program(node) {
                                                     actual = isParenthesized(
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                                 },
                                             }
@@ -391,7 +391,7 @@ describe("The 'isParenthesized' function", () => {
                                                     actual = isParenthesized(
                                                         2,
                                                         getProperty(node, key),
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                                 },
                                             }

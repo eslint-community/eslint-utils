@@ -349,7 +349,7 @@ describe("The 'hasSideEffect' function", () => {
                                         Program(node) {
                                             actual = hasSideEffect(
                                                 getProperty(node, key),
-                                                context.getSourceCode(),
+                                                context.sourceCode,
                                                 options,
                                             )
                                         },

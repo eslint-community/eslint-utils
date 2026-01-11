@@ -19,17 +19,7 @@ module.exports = {
         ecmaVersion: 2022,
         sourceType: "script",
     },
-    rules: {
-        "no-restricted-properties": [
-            "error",
-            {
-                object: "context",
-                property: "getScope",
-                message:
-                    "If you are using it in a test case, use test/test-lib/eslint-compat.mjs#getScope instead. Other than that, the API should also be compatible with ESLint v9.",
-            },
-        ],
-    },
+    rules: {},
     overrides: [
         {
             files: ["**/*.mjs", "rollup.config.js"],
