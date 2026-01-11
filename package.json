@@ -70,7 +70,7 @@
         "npm-run-all2": "^6.2.6",
         "opener": "^1.5.2",
         "prettier": "2.8.8",
-        "rimraf": "^3.0.2",
+        "rimraf": "^6.1.2",
         "rollup": "^2.79.2",
         "rollup-plugin-dts": "^4.2.3",
         "rollup-plugin-sourcemaps": "^0.6.3",
