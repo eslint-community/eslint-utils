@@ -2,8 +2,6 @@
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { getProperty } from "dot-prop"
-import eslint from "eslint"
-import semver from "semver"
 import { hasSideEffect } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
@@ -161,45 +159,41 @@ describe("The 'hasSideEffect' function", () => {
             options: { considerImplicitTypeConversion: true },
             expected: false,
         },
-        ...(semver.gte(eslint.Linter.version, "8.0.0")
-            ? [
-                  {
-                      code: "(class { x })",
-                      options: undefined,
-                      expected: false,
-                  },
-                  {
-                      code: "(class { x = a++ })",
-                      options: undefined,
-                      expected: true,
-                  },
-                  {
-                      code: "(class { x = 42 })",
-                      options: { considerImplicitTypeConversion: true },
-                      expected: false,
-                  },
-                  {
-                      code: "(class { [x] = 42 })",
-                      options: undefined,
-                      expected: false,
-                  },
-                  {
-                      code: "(class { [x] = 42 })",
-                      options: { considerImplicitTypeConversion: true },
-                      expected: true,
-                  },
-                  {
-                      code: "(class { [0] = 42 })",
-                      options: { considerImplicitTypeConversion: true },
-                      expected: false,
-                  },
-                  {
-                      code: "(class { ['x'] = 42 })",
-                      options: { considerImplicitTypeConversion: true },
-                      expected: false,
-                  },
-              ]
-            : []),
+        {
+            code: "(class { x })",
+            options: undefined,
+            expected: false,
+        },
+        {
+            code: "(class { x = a++ })",
+            options: undefined,
+            expected: true,
+        },
+        {
+            code: "(class { x = 42 })",
+            options: { considerImplicitTypeConversion: true },
+            expected: false,
+        },
+        {
+            code: "(class { [x] = 42 })",
+            options: undefined,
+            expected: false,
+        },
+        {
+            code: "(class { [x] = 42 })",
+            options: { considerImplicitTypeConversion: true },
+            expected: true,
+        },
+        {
+            code: "(class { [0] = 42 })",
+            options: { considerImplicitTypeConversion: true },
+            expected: false,
+        },
+        {
+            code: "(class { ['x'] = 42 })",
+            options: { considerImplicitTypeConversion: true },
+            expected: false,
+        },
         {
             code: "new C()",
             options: undefined,
@@ -343,9 +337,7 @@ describe("The 'hasSideEffect' function", () => {
             let actual = null
             const messages = linter.verify(code, {
                 languageOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                        ? 2022
-                        : 2020,
+                    ecmaVersion: 2022,
                     parser,
                 },
                 rules: { "test/test": "error" },
