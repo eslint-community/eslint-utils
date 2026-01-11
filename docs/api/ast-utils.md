@@ -158,19 +158,17 @@ The location object.
 
 ### Example
 
-```js{12}
+```js{10}
 const { getFunctionHeadLocation } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         return {
             FunctionDeclaration(node) {
                 context.report({
                     node,
-                    loc: getFunctionHeadLocation(node, sourceCode),
+                    loc: getFunctionHeadLocation(node, context.sourceCode),
                     message: "disallow this function!",
                 })
             },
@@ -285,20 +283,18 @@ The name and kind of the function.
 
 ### Example
 
-```js{11}
+```js{9}
 const { getFunctionNameWithKind } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
-
         return {
             FunctionDeclaration(node) {
                 context.report({
                     node,
                     message: "disallow this {{name}}!",
-                    data: { name: getFunctionNameWithKind(node, sourceCode) }
+                    data: { name: getFunctionNameWithKind(node, context.sourceCode) }
                 })
             },
         }
@@ -342,8 +338,6 @@ module.exports = {
         return {
             MemberExpression(node) {
                 const name = getPropertyName(node, context.sourceCode.getScope(node))
-                // When using ESLint<8.37.0, write as follows:
-                // const name = getPropertyName(node, context.getScope())
             },
         }
     },
@@ -400,8 +394,6 @@ module.exports = {
         return {
             ExpressionStatement(node) {
                 const evaluated = getStaticValue(node, context.sourceCode.getScope(node))
-                // When using ESLint<8.37.0, write as follows:
-                // const evaluated = getStaticValue(node, context.getScope())
                 if (evaluated) {
                     const staticValue = evaluated.value
                     // ...
@@ -478,16 +470,15 @@ The side effect means that it _may_ modify a certain variable or object member. 
 
 ### Example
 
-```js{9}
+```js{8}
 const { hasSideEffect } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
         return {
             ":expression"(node) {
-                if (hasSideEffect(node, sourceCode)) {
+                if (hasSideEffect(node, context.sourceCode)) {
                     // ...
                 }
             },
@@ -551,16 +542,15 @@ If `times` was given, it returns `true` only if the node is parenthesized the `t
 
 ### Example
 
-```js{9}
+```js{8}
 const { isParenthesized } = require("@eslint-community/eslint-utils")
 
 module.exports = {
     meta: {},
     create(context) {
-        const sourceCode = context.getSourceCode()
         return {
             ":expression"(node) {
-                if (isParenthesized(node, sourceCode)) {
+                if (isParenthesized(node, context.sourceCode)) {
                     // ...
                 }
             },
