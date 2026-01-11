@@ -1,13 +1,11 @@
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
-import eslint from "eslint"
-import semver from "semver"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
 import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 const config = {
     languageOptions: {
-        ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0") ? 2022 : 2020,
+        ecmaVersion: 2022,
         sourceType: "module",
         globals: { Reflect: false },
     },
@@ -499,23 +497,19 @@ describe("The 'ReferenceTracker' class:", () => {
                 },
                 expected: [],
             },
-            ...(semver.gte(eslint.Linter.version, "8.0.0")
-                ? [
-                      {
-                          description:
-                              "should not mix up public and private identifiers.",
-                          code: [
-                              "class C { #value; wrap() { var value = MyObj.#value; } }",
-                          ].join("\n"),
-                          traceMap: {
-                              MyObj: {
-                                  value: { [READ]: 1 },
-                              },
-                          },
-                          expected: [],
-                      },
-                  ]
-                : []),
+            {
+                description:
+                    "should not mix up public and private identifiers.",
+                code: [
+                    "class C { #value; wrap() { var value = MyObj.#value; } }",
+                ].join("\n"),
+                traceMap: {
+                    MyObj: {
+                        value: { [READ]: 1 },
+                    },
+                },
+                expected: [],
+            },
         ]) {
             it(description, () => {
                 const linter = newCompatLinter()

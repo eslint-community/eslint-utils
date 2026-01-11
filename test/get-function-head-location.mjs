@@ -1,6 +1,4 @@
 import assert from "assert"
-import eslint from "eslint"
-import semver from "semver"
 import { getFunctionHeadLocation } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
@@ -49,44 +47,40 @@ describe("The 'getFunctionHeadLocation' function", () => {
         "class A { static async foo() {} }": [10, 26],
         "class A { static get foo() {} }": [10, 24],
         "class A { static set foo(a) {} }": [10, 24],
-        ...(semver.gte(eslint.Linter.version, "8.0.0")
-            ? {
-                  "class A { #foo() {} }": [10, 14],
-                  "class A { *#foo() {} }": [10, 15],
-                  "class A { async #foo() {} }": [10, 20],
-                  "class A { get #foo() {} }": [10, 18],
-                  "class A { set #foo(a) {} }": [10, 18],
-                  "class A { static #foo() {} }": [10, 21],
-                  "class A { static *#foo() {} }": [10, 22],
-                  "class A { static async #foo() {} }": [10, 27],
-                  "class A { static get #foo() {} }": [10, 25],
-                  "class A { static set #foo(a) {} }": [10, 25],
-                  "class A { foo = function() {} }": [10, 24],
-                  "class A { foo = () => {} }": [19, 21],
-                  "class A { foo = function*() {} }": [10, 25],
-                  "class A { foo = async function() {} }": [10, 30],
-                  "class A { ['foo'] = function() {} }": [10, 28],
-                  "class A { ['foo'] = () => {} }": [23, 25],
-                  "class A { ['foo'] = function*() {} }": [10, 29],
-                  "class A { ['foo'] = async function() {} }": [10, 34],
-                  "class A { [foo] = function() {} }": [10, 26],
-                  "class A { [foo] = () => {} }": [21, 23],
-                  "class A { [foo] = function*() {} }": [10, 27],
-                  "class A { [foo] = async function() {} }": [10, 32],
-                  "class A { static foo = function() {} }": [10, 31],
-                  "class A { static foo = () => {} }": [26, 28],
-                  "class A { static foo = function*() {} }": [10, 32],
-                  "class A { static foo = async function() {} }": [10, 37],
-                  "class A { #foo = function() {} }": [10, 25],
-                  "class A { #foo = () => {} }": [20, 22],
-                  "class A { #foo = function*() {} }": [10, 26],
-                  "class A { #foo = async function() {} }": [10, 31],
-                  "class A { static #foo = function() {} }": [10, 32],
-                  "class A { static #foo = () => {} }": [27, 29],
-                  "class A { static #foo = function*() {} }": [10, 33],
-                  "class A { static #foo = async function() {} }": [10, 38],
-              }
-            : {}),
+        "class A { #foo() {} }": [10, 14],
+        "class A { *#foo() {} }": [10, 15],
+        "class A { async #foo() {} }": [10, 20],
+        "class A { get #foo() {} }": [10, 18],
+        "class A { set #foo(a) {} }": [10, 18],
+        "class A { static #foo() {} }": [10, 21],
+        "class A { static *#foo() {} }": [10, 22],
+        "class A { static async #foo() {} }": [10, 27],
+        "class A { static get #foo() {} }": [10, 25],
+        "class A { static set #foo(a) {} }": [10, 25],
+        "class A { foo = function() {} }": [10, 24],
+        "class A { foo = () => {} }": [19, 21],
+        "class A { foo = function*() {} }": [10, 25],
+        "class A { foo = async function() {} }": [10, 30],
+        "class A { ['foo'] = function() {} }": [10, 28],
+        "class A { ['foo'] = () => {} }": [23, 25],
+        "class A { ['foo'] = function*() {} }": [10, 29],
+        "class A { ['foo'] = async function() {} }": [10, 34],
+        "class A { [foo] = function() {} }": [10, 26],
+        "class A { [foo] = () => {} }": [21, 23],
+        "class A { [foo] = function*() {} }": [10, 27],
+        "class A { [foo] = async function() {} }": [10, 32],
+        "class A { static foo = function() {} }": [10, 31],
+        "class A { static foo = () => {} }": [26, 28],
+        "class A { static foo = function*() {} }": [10, 32],
+        "class A { static foo = async function() {} }": [10, 37],
+        "class A { #foo = function() {} }": [10, 25],
+        "class A { #foo = () => {} }": [20, 22],
+        "class A { #foo = function*() {} }": [10, 26],
+        "class A { #foo = async function() {} }": [10, 31],
+        "class A { static #foo = function() {} }": [10, 32],
+        "class A { static #foo = () => {} }": [27, 29],
+        "class A { static #foo = function*() {} }": [10, 33],
+        "class A { static #foo = async function() {} }": [10, 38],
     }
 
     for (const key of Object.keys(expectedResults)) {
@@ -112,9 +106,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                 {
                     rules: { "test/test": "error" },
                     languageOptions: {
-                        ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                            ? 2022
-                            : 2020,
+                        ecmaVersion: 2022,
                     },
                     plugins: {
                         test: {

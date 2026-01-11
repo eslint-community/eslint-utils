@@ -1,6 +1,4 @@
 import assert from "assert"
-import eslint from "eslint"
-import semver from "semver"
 import { getFunctionNameWithKind } from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
@@ -70,63 +68,46 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "export default async function* () {}":
             "async generator function 'default'",
         "export default async () => {}": "async arrow function 'default'",
-
-        ...(semver.gte(eslint.Linter.version, "8.0.0")
-            ? {
-                  "class A { #foo() {} }": "private method #foo",
-                  "class A { '#foo'() {} }": "method '#foo'",
-                  "class A { *#foo() {} }": "private generator method #foo",
-                  "class A { async #foo() {} }": "private async method #foo",
-                  "class A { get #foo() {} }": "private getter #foo",
-                  "class A { set #foo(a) {} }": "private setter #foo",
-                  "class A { static #foo() {} }": "static private method #foo",
-                  "class A { static *#foo() {} }":
-                      "static private generator method #foo",
-                  "class A { static async #foo() {} }":
-                      "static private async method #foo",
-                  "class A { static get #foo() {} }":
-                      "static private getter #foo",
-                  "class A { static set #foo(a) {} }":
-                      "static private setter #foo",
-                  "class A { foo = function() {} }": "method 'foo'",
-                  "class A { foo = () => {} }": "method 'foo'",
-                  "class A { foo = function*() {} }": "generator method 'foo'",
-                  "class A { foo = async function() {} }": "async method 'foo'",
-                  "class A { ['foo'] = function() {} }": "method 'foo'",
-                  "class A { ['foo'] = () => {} }": "method 'foo'",
-                  "class A { ['foo'] = function*() {} }":
-                      "generator method 'foo'",
-                  "class A { ['foo'] = async function() {} }":
-                      "async method 'foo'",
-                  "class A { [foo] = function() {} }": "method [foo]",
-                  "class A { [foo] = () => {} }": "method [foo]",
-                  "class A { [foo] = function*() {} }":
-                      "generator method [foo]",
-                  "class A { [foo] = async function() {} }":
-                      "async method [foo]",
-                  "class A { static foo = function() {} }":
-                      "static method 'foo'",
-                  "class A { static foo = () => {} }": "static method 'foo'",
-                  "class A { static foo = function*() {} }":
-                      "static generator method 'foo'",
-                  "class A { static foo = async function() {} }":
-                      "static async method 'foo'",
-                  "class A { #foo = function() {} }": "private method #foo",
-                  "class A { #foo = () => {} }": "private method #foo",
-                  "class A { #foo = function*() {} }":
-                      "private generator method #foo",
-                  "class A { #foo = async function() {} }":
-                      "private async method #foo",
-                  "class A { static #foo = function() {} }":
-                      "static private method #foo",
-                  "class A { static #foo = () => {} }":
-                      "static private method #foo",
-                  "class A { static #foo = function*() {} }":
-                      "static private generator method #foo",
-                  "class A { static #foo = async function() {} }":
-                      "static private async method #foo",
-              }
-            : {}),
+        "class A { #foo() {} }": "private method #foo",
+        "class A { '#foo'() {} }": "method '#foo'",
+        "class A { *#foo() {} }": "private generator method #foo",
+        "class A { async #foo() {} }": "private async method #foo",
+        "class A { get #foo() {} }": "private getter #foo",
+        "class A { set #foo(a) {} }": "private setter #foo",
+        "class A { static #foo() {} }": "static private method #foo",
+        "class A { static *#foo() {} }": "static private generator method #foo",
+        "class A { static async #foo() {} }":
+            "static private async method #foo",
+        "class A { static get #foo() {} }": "static private getter #foo",
+        "class A { static set #foo(a) {} }": "static private setter #foo",
+        "class A { foo = function() {} }": "method 'foo'",
+        "class A { foo = () => {} }": "method 'foo'",
+        "class A { foo = function*() {} }": "generator method 'foo'",
+        "class A { foo = async function() {} }": "async method 'foo'",
+        "class A { ['foo'] = function() {} }": "method 'foo'",
+        "class A { ['foo'] = () => {} }": "method 'foo'",
+        "class A { ['foo'] = function*() {} }": "generator method 'foo'",
+        "class A { ['foo'] = async function() {} }": "async method 'foo'",
+        "class A { [foo] = function() {} }": "method [foo]",
+        "class A { [foo] = () => {} }": "method [foo]",
+        "class A { [foo] = function*() {} }": "generator method [foo]",
+        "class A { [foo] = async function() {} }": "async method [foo]",
+        "class A { static foo = function() {} }": "static method 'foo'",
+        "class A { static foo = () => {} }": "static method 'foo'",
+        "class A { static foo = function*() {} }":
+            "static generator method 'foo'",
+        "class A { static foo = async function() {} }":
+            "static async method 'foo'",
+        "class A { #foo = function() {} }": "private method #foo",
+        "class A { #foo = () => {} }": "private method #foo",
+        "class A { #foo = function*() {} }": "private generator method #foo",
+        "class A { #foo = async function() {} }": "private async method #foo",
+        "class A { static #foo = function() {} }": "static private method #foo",
+        "class A { static #foo = () => {} }": "static private method #foo",
+        "class A { static #foo = function*() {} }":
+            "static private generator method #foo",
+        "class A { static #foo = async function() {} }":
+            "static private async method #foo",
     }
 
     for (const key of Object.keys(expectedResults)) {
@@ -140,9 +121,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
             const messages = linter.verify(key, {
                 rules: { "test/test": "error" },
                 languageOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                        ? 2022
-                        : 2020,
+                    ecmaVersion: 2022,
                     sourceType: "module",
                 },
                 plugins: {
@@ -178,9 +157,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
             const messages = linter.verify(key, {
                 rules: { "test/test": "error" },
                 languageOptions: {
-                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
-                        ? 2022
-                        : 2020,
+                    ecmaVersion: 2022,
                     sourceType: "module",
                 },
                 plugins: {
