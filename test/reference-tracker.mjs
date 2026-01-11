@@ -2,7 +2,7 @@
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import { CALL, CONSTRUCT, ESM, READ, ReferenceTracker } from "../src/index.mjs"
-import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
+import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 const config = {
     languageOptions: {
@@ -527,7 +527,9 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(
+                                                            node,
+                                                        ),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateGlobalReferences(
@@ -776,7 +778,9 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(
+                                                            node,
+                                                        ),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateCjsReferences(
@@ -1143,7 +1147,9 @@ describe("The 'ReferenceTracker' class:", () => {
                                             "Program:exit"(node) {
                                                 const tracker =
                                                     new ReferenceTracker(
-                                                        getScope(context, node),
+                                                        context.sourceCode.getScope(
+                                                            node,
+                                                        ),
                                                     )
                                                 actual = Array.from(
                                                     tracker.iterateEsmReferences(
@@ -1371,11 +1377,8 @@ describe("The 'ReferenceTracker' class:", () => {
                             rules: {
                                 test: {
                                     create(context) {
-                                        const sourceCode =
-                                            context.sourceCode ||
-                                            context.getSourceCode()
                                         const tracker = new ReferenceTracker(
-                                            sourceCode.scopeManager.globalScope,
+                                            context.sourceCode.scopeManager.globalScope,
                                         )
                                         return {
                                             "CallExpression:exit"(node) {

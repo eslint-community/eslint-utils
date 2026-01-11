@@ -118,7 +118,7 @@ describe("The 'getFunctionHeadLocation' function", () => {
                                                 actualLoc =
                                                     getFunctionHeadLocation(
                                                         node,
-                                                        context.getSourceCode(),
+                                                        context.sourceCode,
                                                     )
                                             },
                                         }
