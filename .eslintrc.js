@@ -1,11 +1,25 @@
 "use strict"
 
+const globals = require("globals")
+
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
     root: true,
-    extends: ["plugin:@eslint-community/mysticatea/es2020"],
+    extends: [
+        "eslint:recommended",
+        "plugin:n/recommended",
+        "plugin:@eslint-community/eslint-comments/recommended",
+        "plugin:prettier/recommended",
+    ],
+    env: {
+        node: true,
+    },
+    globals: {},
+    parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "script",
+    },
     rules: {
-        "@eslint-community/mysticatea/prettier": "off",
         "no-restricted-properties": [
             "error",
             {
@@ -18,13 +32,15 @@ module.exports = {
     },
     overrides: [
         {
+            files: ["**/*.mjs", "rollup.config.js"],
+            parserOptions: {
+                sourceType: "module",
+            },
+        },
+        {
             files: ["src/**/*.mjs", "test/**/*.mjs"],
-            extends: ["plugin:@eslint-community/mysticatea/+modules"],
-            rules: {
-                "init-declarations": "off",
-
-                "@eslint-community/mysticatea/node/no-unsupported-features/es-syntax":
-                    ["error", { ignores: ["modules"] }],
+            globals: {
+                ...globals.mocha,
             },
         },
     ],

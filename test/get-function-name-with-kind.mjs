@@ -149,7 +149,7 @@ describe("The 'getFunctionNameWithKind' function", () => {
                     test: {
                         rules: {
                             test: {
-                                create(_context) {
+                                create() {
                                     return {
                                         ":function"(node) {
                                             actualResult =

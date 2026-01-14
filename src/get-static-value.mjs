@@ -1,4 +1,4 @@
-/* globals globalThis, global, self, window */
+/* globals self, window */
 
 import { findVariable } from "./find-variable.mjs"
 /** @typedef {import("./types.mjs").StaticValue} StaticValue */

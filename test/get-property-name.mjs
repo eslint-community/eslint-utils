@@ -71,7 +71,7 @@ describe("The 'getPropertyName' function", () => {
                     test: {
                         rules: {
                             test: {
-                                create(_context) {
+                                create() {
                                     return {
                                         "Property,PropertyDefinition,MethodDefinition,MemberExpression"(
                                             node,
