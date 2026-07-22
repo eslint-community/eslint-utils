@@ -34,7 +34,7 @@ jobs:
             - name: ⎔ Setup Node
               uses: actions/setup-node@v7
               with:
-                  node-version: 24
+                  node-version: 26
 
             - name: 📥 Install dependencies
               run: npm install
@@ -55,16 +55,16 @@ jobs:
                     # On other platforms
                     - os: windows-latest
                       eslint: 9
-                      node: 24
+                      node: 26
                     - os: macos-latest
                       eslint: 9
-                      node: 24
+                      node: 26
                     # On old ESLint versions
                     - eslint: 8
-                      node: 24
+                      node: 26
                       os: ubuntu-latest
                     - eslint: 8.57.0
-                      node: 24
+                      node: 26
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 8.57.0
