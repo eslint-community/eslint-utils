@@ -34,7 +34,7 @@ jobs:
             - name: ⎔ Setup Node
               uses: actions/setup-node@v7
               with:
-                  node-version: lts/*
+                  node-version: 24
 
             - name: 📥 Install dependencies
               run: npm install
@@ -49,7 +49,7 @@ jobs:
         strategy:
             matrix:
                 eslint: [9]
-                node: [26.x, 24.x, 22.x, 20.x, "20.19.0"]
+                node: [18, 20, 22, 24]
                 os: [ubuntu-latest]
                 include:
                     # On other platforms
@@ -61,7 +61,19 @@ jobs:
                       node: 24
                     # On old Node versions & ESLint v8
                     - eslint: 8
-                      node: 20.19.0
+                      node: 12.22.0
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 12
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 14.17.0
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 14
+                      os: ubuntu-latest
+                    - eslint: 8
+                      node: 16
                       os: ubuntu-latest
                     # On old ESLint versions
                     - eslint: 7
@@ -72,7 +84,7 @@ jobs:
                       os: ubuntu-latest
                     # On the minimum supported ESLint/Node.js version
                     - eslint: 6.0.0
-                      node: 20.19.0
+                      node: 12.22.0
                       os: ubuntu-latest
         runs-on: ${{ matrix.os }}
         steps:
