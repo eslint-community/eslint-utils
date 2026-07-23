@@ -50,4 +50,4 @@ for (const file of fs.readdirSync(path.resolve("dist"))) {
     }
 }
 
-export default [...config(".js"), ...config(".mjs")]
+export default [...config(".mjs")]

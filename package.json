@@ -18,12 +18,12 @@
     "sideEffects": false,
     "exports": {
         ".": {
-            "import": "./index.mjs",
-            "require": "./index.js"
+            "types": "./index.d.mts",
+            "import": "./index.mjs"
         },
         "./package.json": "./package.json"
     },
-    "main": "index",
+    "main": "index.mjs",
     "module": "index.mjs",
     "files": [
         "index.*"
