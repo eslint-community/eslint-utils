@@ -1,5 +1,6 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "entry": ["src/index.mjs", "test/**/*.mjs"],
-    "ignore": ["./docs/.vitepress/**/*"]
+    "ignore": ["./docs/.vitepress/**/*"],
+    "ignoreDependencies": ["@vitest/coverage-v8"]
 }

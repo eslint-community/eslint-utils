@@ -1,7 +1,5 @@
 "use strict"
 
-const globals = require("globals")
-
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
     root: true,
@@ -39,9 +37,6 @@ module.exports = {
         },
         {
             files: ["src/**/*.mjs", "test/**/*.mjs"],
-            globals: {
-                ...globals.mocha,
-            },
         },
     ],
 }
