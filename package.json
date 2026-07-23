@@ -33,8 +33,8 @@
         "build": "npm run build:dts && npm run build:rollup",
         "build:dts": "tsc -p tsconfig.build.json",
         "build:rollup": "rollup -c",
-        "clean": "rimraf .nyc_output coverage index.* dist",
-        "coverage": "opener ./coverage/lcov-report/index.html",
+        "clean": "rimraf coverage index.* dist",
+        "coverage": "opener ./coverage/index.html",
         "docs:build": "vitepress build docs",
         "docs:watch": "vitepress dev docs",
         "format": "npm run -s format:prettier -- --write",
@@ -42,15 +42,15 @@
         "format:check": "npm run -s format:prettier -- --check",
         "lint:eslint": "eslint .",
         "lint:format": "npm run -s format:check",
-        "lint:installed-check": "installed-check -v -i installed-check -i npm-run-all2 -i knip -i rollup-plugin-dts",
+        "lint:installed-check": "installed-check -v -i installed-check -i npm-run-all2 -i knip -i rollup-plugin-dts -i vitest -i @vitest/coverage-v8",
         "lint:knip": "knip",
         "lint": "run-p lint:*",
-        "test-coverage": "c8 mocha --reporter dot \"test/*.mjs\"",
-        "test": "mocha --reporter dot \"test/*.mjs\"",
+        "test-coverage": "vitest run --coverage",
+        "test": "vitest run",
         "preversion": "npm run test-coverage && npm run -s build",
         "postversion": "git push && git push --tags",
         "prewatch": "npm run -s clean",
-        "watch": "warun \"{src,test}/**/*.mjs\" -- npm run -s test:mocha"
+        "watch": "vitest watch"
     },
     "dependencies": {
         "eslint-visitor-keys": "^3.4.3"
@@ -62,7 +62,7 @@
         "@types/node": "^20.19.43",
         "@typescript-eslint/parser": "^5.62.0",
         "@typescript-eslint/types": "^5.62.0",
-        "c8": "^8.0.1",
+        "@vitest/coverage-v8": "^2.1.9",
         "dot-prop": "^7.2.0",
         "eslint": "^8.57.1",
         "eslint-config-prettier": "^10.1.8",
@@ -71,7 +71,6 @@
         "globals": "^13.24.0",
         "installed-check": "^8.0.1",
         "knip": "^5.88.1",
-        "mocha": "^9.2.2",
         "npm-run-all2": "^6.2.6",
         "opener": "^1.5.2",
         "prettier": "2.8.8",
@@ -82,7 +81,7 @@
         "semver": "^7.8.5",
         "typescript": "^4.9.5",
         "vitepress": "^1.6.4",
-        "warun": "^1.0.0"
+        "vitest": "^2.1.9"
     },
     "peerDependencies": {
         "eslint": "^6.0.0 || ^7.0.0 || >=8.0.0"
