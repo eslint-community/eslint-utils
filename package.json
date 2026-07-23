@@ -68,7 +68,6 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-n": "^15.7.0",
         "eslint-plugin-prettier": "^4.2.5",
-        "globals": "^13.24.0",
         "installed-check": "^8.0.1",
         "knip": "^5.88.1",
         "npm-run-all2": "^6.2.6",

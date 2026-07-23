@@ -1,1 +1,4 @@
 coverage
+dist
+index.*
+.nyc_output

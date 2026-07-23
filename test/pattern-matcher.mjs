@@ -1,3 +1,4 @@
+import { describe, it } from "vitest"
 import assert from "assert"
 import { PatternMatcher } from "../src/index.mjs"
 
