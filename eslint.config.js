@@ -2,12 +2,10 @@
 
 const js = require("@eslint/js")
 const globals = require("globals")
-const { FlatCompat } = require("@eslint/eslintrc")
-
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-})
+const pluginN = require("eslint-plugin-n")
+const pluginComments = require("@eslint-community/eslint-plugin-eslint-comments")
+const pluginPrettier = require("eslint-plugin-prettier")
+const configPrettier = require("eslint-config-prettier")
 
 module.exports = [
     {
@@ -21,12 +19,20 @@ module.exports = [
             "docs/.vitepress/cache/",
         ],
     },
-    ...compat.extends(
-        "eslint:recommended",
-        "plugin:n/recommended",
-        "plugin:@eslint-community/eslint-comments/recommended",
-        "plugin:prettier/recommended",
-    ),
+    js.configs.recommended,
+    {
+        plugins: {
+            n: pluginN,
+            "@eslint-community/eslint-comments": pluginComments,
+            prettier: pluginPrettier,
+        },
+        rules: {
+            ...pluginN.configs.recommended.rules,
+            ...pluginComments.configs.recommended.rules,
+            ...pluginPrettier.configs.recommended.rules,
+            ...configPrettier.rules,
+        },
+    },
     {
         languageOptions: {
             ecmaVersion: 2022,

@@ -1,11 +1,5 @@
 {
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "entry": ["src/index.mjs", "test/**/*.mjs"],
-    "ignore": ["./docs/.vitepress/**/*"],
-    "ignoreDependencies": [
-        "@eslint-community/eslint-plugin-eslint-comments",
-        "eslint-config-prettier",
-        "eslint-plugin-n",
-        "eslint-plugin-prettier"
-    ]
+    "ignore": ["./docs/.vitepress/**/*"]
 }
