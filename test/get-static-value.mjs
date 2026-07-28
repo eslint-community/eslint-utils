@@ -1,3 +1,4 @@
+import { describe, it } from "vitest"
 import tsParser from "@typescript-eslint/parser"
 import assert from "assert"
 import eslint from "eslint"
