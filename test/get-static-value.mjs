@@ -444,6 +444,58 @@ const aMap = Object.freeze({
             expected: null,
         },
         {
+            code: "const a = new Set(); a.add('a'); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Set(['a']); a.delete('a'); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Set(['a']); a.clear(); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Map(); a.set('a', 1); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Map([['a', 1]]); a.delete('a'); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Map([['a', 1]]); a.clear(); a.size",
+            expected: null,
+        },
+        {
+            code: "const method = 'add'; const a = new Set(); a[method]('a'); a.size",
+            expected: null,
+        },
+        {
+            code: "const a = new Set(['a']); a.has('a')",
+            expected: { value: true },
+        },
+        {
+            code: "const a = {value: 1, add: String}; a.add(2); a.value",
+            expected: { value: 1 },
+        },
+        {
+            code: "const a = {value: 1, clear: String}; a.clear(); a.value",
+            expected: { value: 1 },
+        },
+        {
+            code: "const a = {value: 1, delete: String}; a.delete(2); a.value",
+            expected: { value: 1 },
+        },
+        {
+            code: "const a = {value: 1, set: String}; a.set(2); a.value",
+            expected: { value: 1 },
+        },
+        {
+            code: `const a = {value: 1, set: String}; a["s" + "et"](2); a.value`,
+            expected: { value: 1 },
+        },
+        {
             code: "const a = {foo: ['a']}; a.foo.shift(); a",
             expected: null,
         },
