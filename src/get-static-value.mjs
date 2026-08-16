@@ -319,9 +319,10 @@ function isEffectivelyConst(variable) {
  * Checks if a variable has mutation in its property.
  * @param {Variable} variable The variable to check.
  * @param {Scope|null} initialScope The scope to start finding variable. Optional. If the node is a computed property node and this scope was given, this checks the computed property name by the `getStringIfConstant` function with the scope, and returns the value of it.
+ * @param {object} initialValue The initial value of the variable.
  * @returns {boolean} True if the variable has mutation in its property.
  */
-function hasMutationInProperty(variable, initialScope) {
+function hasMutationInProperty(variable, initialScope, initialValue) {
     for (const ref of variable.references) {
         let node = /** @type {TSESTreeNode} */ (ref.identifier)
         while (node && node.parent && node.parent.type === "MemberExpression") {
@@ -346,6 +347,14 @@ function hasMutationInProperty(variable, initialScope) {
         ) {
             const methodName = getStaticPropertyNameValue(node, initialScope)
             if (isNameOfMutationArrayMethod(methodName)) {
+                // This is a mutation.
+                return true
+            }
+            // Exclude nested receivers such as `set.foo.add()`.
+            if (
+                node.object === ref.identifier &&
+                isNameOfMutationCollectionMethod(methodName, initialValue)
+            ) {
                 // This is a mutation.
                 return true
             }
@@ -374,6 +383,26 @@ function hasMutationInProperty(variable, initialScope) {
             name === "splice" ||
             name === "unshift"
         )
+    }
+
+    /**
+     * Checks if a method name is one of the mutation methods of the given collection.
+     * @param {StaticValue|null} methodName The method name to check.
+     * @param {object} collection The collection to check.
+     * @returns {boolean} True if the method name is a mutation method of the collection.
+     */
+    function isNameOfMutationCollectionMethod(methodName, collection) {
+        if (methodName == null || methodName.value == null) {
+            return false
+        }
+        const name = methodName.value
+        if (collection instanceof Set) {
+            return name === "add" || name === "delete" || name === "clear"
+        }
+        if (collection instanceof Map) {
+            return name === "set" || name === "delete" || name === "clear"
+        }
+        return false
     }
 }
 
@@ -628,7 +657,13 @@ const operations = Object.freeze({
                             typeof init.value === "object" &&
                             init.value !== null
                         ) {
-                            if (hasMutationInProperty(variable, initialScope)) {
+                            if (
+                                hasMutationInProperty(
+                                    variable,
+                                    initialScope,
+                                    init.value,
+                                )
+                            ) {
                                 // This variable has mutation in its property.
                                 return null
                             }
