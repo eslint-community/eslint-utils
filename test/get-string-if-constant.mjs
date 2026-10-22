@@ -1,3 +1,4 @@
+import { describe, it } from "vitest"
 import assert from "assert"
 import { getStringIfConstant } from "../src/index.mjs"
 import { getScope, newCompatLinter } from "./test-lib/eslint-compat.mjs"
