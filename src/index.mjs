@@ -21,10 +21,16 @@
 /** @typedef {import("./types.mjs").ClosingBracketToken} ClosingBracketToken */
 /** @typedef {import("./types.mjs").OpeningBraceToken} OpeningBraceToken */
 /** @typedef {import("./types.mjs").ClosingBraceToken} ClosingBraceToken */
+/** @typedef {import("./types.mjs").FunctionKind} FunctionKind */
+/** @typedef {import("./types.mjs").FunctionModifier} FunctionModifier */
+/** @typedef {import("./types.mjs").FunctionNameWithKindParts} FunctionNameWithKindParts */
 
 import { findVariable } from "./find-variable.mjs"
 import { getFunctionHeadLocation } from "./get-function-head-location.mjs"
-import { getFunctionNameWithKind } from "./get-function-name-with-kind.mjs"
+import {
+    getFunctionNameWithKind,
+    getFunctionNameWithKindParts,
+} from "./get-function-name-with-kind.mjs"
 import { getInnermostScope } from "./get-innermost-scope.mjs"
 import { getPropertyName } from "./get-property-name.mjs"
 import { getStaticValue } from "./get-static-value.mjs"
@@ -71,6 +77,7 @@ export default {
     findVariable,
     getFunctionHeadLocation,
     getFunctionNameWithKind,
+    getFunctionNameWithKindParts,
     getInnermostScope,
     getPropertyName,
     getStaticValue,
@@ -110,6 +117,7 @@ export {
     findVariable,
     getFunctionHeadLocation,
     getFunctionNameWithKind,
+    getFunctionNameWithKindParts,
     getInnermostScope,
     getPropertyName,
     getStaticValue,
