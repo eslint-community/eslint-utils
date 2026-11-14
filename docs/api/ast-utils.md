@@ -308,6 +308,82 @@ module.exports = {
 
 ---
 
+## getFunctionNameWithKindParts
+
+```js
+const { modifiers, kinds, name } = utils.getFunctionNameWithKindParts(node)
+const { modifiers, kinds, name } = utils.getFunctionNameWithKindParts(
+    node,
+    sourceCode,
+)
+```
+
+Get the modifiers, kinds, and name of a given function node separately.
+
+`getFunctionNameWithKind` concatenates these three parts with spaces.
+
+<details><summary>Show the parts examples:</summary>
+
+```
+- `function foo() {}`  ................ `{ modifiers: [], kinds: ["function"], name: "'foo'" }`
+- `(function() {})`  .................. `{ modifiers: [], kinds: ["function"], name: null }`
+- `async () => {}`  ................... `{ modifiers: ["async"], kinds: ["arrow", "function"], name: null }`
+- `export default function () {}`  .... `{ modifiers: [], kinds: ["function"], name: "'default'" }`
+- `class A { constructor() {} }`  ..... `{ modifiers: [], kinds: ["constructor"], name: null }`
+- `class A { static async #foo() {} }`  `{ modifiers: ["static", "private", "async"], kinds: ["method"], name: "#foo" }`
+- `({ [foo]: function() {} })`  ....... `{ modifiers: [], kinds: ["method"], name: null }`
+- `({ [foo]: function() {} })`  ....... `{ modifiers: [], kinds: ["method"], name: "[foo]" }` if sourceCode is present.
+```
+
+</details>
+
+### Parameters
+
+| Name       | Type       | Description                                                                                                                                |
+| :--------- | :--------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| node       | Node       | The function node to get the parts. This should be any of `FunctionDeclaration`, `FunctionExpression`, and `ArrowFunctionExpression` node. |
+| sourceCode | SourceCode | Optional. The source code object to get the text of computed property keys.                                                                |
+
+### Return value
+
+An object `{ modifiers, kinds, name }`:
+
+-   `modifiers`: `Array<"static" | "private" | "async" | "generator">`
+-   `kinds`: `Array<"constructor" | "getter" | "setter" | "method" | "arrow" | "function">`
+-   `name`: `string | null`
+
+### Example
+
+```js{11,15}
+const { getFunctionNameWithKindParts } = require("@eslint-community/eslint-utils")
+
+module.exports = {
+    meta: {},
+    create(context) {
+        const sourceCode = context.getSourceCode()
+
+        return {
+            "ExportDefaultDeclaration > :function"(node) {
+                if (!node.id) {
+                    const { modifiers, kinds } = getFunctionNameWithKindParts(
+                        node,
+                        sourceCode,
+                    )
+                    const kind = [...modifiers, ...kinds].join(" ")
+                    context.report({
+                        node,
+                        message: "The {{kind}} should be named.",
+                        data: { kind },
+                    })
+                }
+            },
+        }
+    },
+}
+```
+
+---
+
 ## getPropertyName
 
 ```js

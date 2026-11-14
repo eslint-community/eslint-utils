@@ -73,3 +73,19 @@ export type OpeningBracketToken = PunctuatorToken<"[">
 export type ClosingBracketToken = PunctuatorToken<"]">
 export type OpeningBraceToken = PunctuatorToken<"{">
 export type ClosingBraceToken = PunctuatorToken<"}">
+
+export type FunctionModifier = "static" | "private" | "async" | "generator"
+
+export type FunctionKind =
+    | "constructor"
+    | "getter"
+    | "setter"
+    | "method"
+    | "arrow"
+    | "function"
+
+export type FunctionNameWithKindParts = {
+    kinds: FunctionKind[]
+    modifiers: FunctionModifier[]
+    name: string | null
+}

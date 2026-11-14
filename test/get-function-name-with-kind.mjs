@@ -1,7 +1,10 @@
 import assert from "assert"
 import eslint from "eslint"
 import semver from "semver"
-import { getFunctionNameWithKind } from "../src/index.mjs"
+import {
+    getFunctionNameWithKind,
+    getFunctionNameWithKindParts,
+} from "../src/index.mjs"
 import { newCompatLinter } from "./test-lib/eslint-compat.mjs"
 
 describe("The 'getFunctionNameWithKind' function", () => {
@@ -34,6 +37,9 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "({ foo: function foo() {} })": "method 'foo'",
         "({ foo: function() {} })": "method 'foo'",
         "({ ['foo']: function() {} })": "method 'foo'",
+        "({ '': function() {} })": "method ''",
+        "({ ['']: function() {} })": "method ''",
+        "({ '': () => {} })": "method ''",
         "({ [foo]: function() {} })": "method [foo]",
         "({ foo() {} })": "method 'foo'",
         "({ foo: function* foo() {} })": "generator method 'foo'",
@@ -53,6 +59,8 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "class A { *foo() {} }": "generator method 'foo'",
         "class A { async foo() {} }": "async method 'foo'",
         "class A { ['foo']() {} }": "method 'foo'",
+        "class A { ''() {} }": "method ''",
+        "class A { ['']() {} }": "method ''",
         "class A { *['foo']() {} }": "generator method 'foo'",
         "class A { async ['foo']() {} }": "async method 'foo'",
         "class A { [foo]() {} }": "method [foo]",
@@ -94,6 +102,8 @@ describe("The 'getFunctionNameWithKind' function", () => {
                   "class A { foo = async function() {} }": "async method 'foo'",
                   "class A { ['foo'] = function() {} }": "method 'foo'",
                   "class A { ['foo'] = () => {} }": "method 'foo'",
+                  "class A { '' = () => {} }": "method ''",
+                  "class A { [''] = () => {} }": "method ''",
                   "class A { ['foo'] = function*() {} }":
                       "generator method 'foo'",
                   "class A { ['foo'] = async function() {} }":
@@ -212,4 +222,284 @@ describe("The 'getFunctionNameWithKind' function", () => {
             assert.strictEqual(actualResult, expectedResult2)
         })
     }
+
+    it('should return "" when node has no parent.', () => {
+        const detachedNode = {
+            type: "FunctionExpression",
+            id: null,
+            params: [],
+            body: { type: "BlockStatement", body: [] },
+            async: false,
+            generator: false,
+        }
+        assert.strictEqual(getFunctionNameWithKind(detachedNode), "")
+    })
+})
+
+describe("The 'getFunctionNameWithKindParts' function", () => {
+    const explicitCases = [
+        {
+            code: "function foo() {}",
+            expected: {
+                modifiers: [],
+                kinds: ["function"],
+                name: "'foo'",
+            },
+        },
+        {
+            code: "(function() {})",
+            expected: {
+                modifiers: [],
+                kinds: ["function"],
+                name: null,
+            },
+        },
+        {
+            code: "async () => {}",
+            expected: {
+                modifiers: ["async"],
+                kinds: ["arrow", "function"],
+                name: null,
+            },
+        },
+        {
+            code: "export default function () {}",
+            expected: {
+                modifiers: [],
+                kinds: ["function"],
+                name: "'default'",
+            },
+        },
+        {
+            code: "export default async function* () {}",
+            expected: {
+                modifiers: ["async", "generator"],
+                kinds: ["function"],
+                name: "'default'",
+            },
+        },
+        {
+            code: "export default () => {}",
+            expected: {
+                modifiers: [],
+                kinds: ["arrow", "function"],
+                name: "'default'",
+            },
+        },
+        {
+            code: "class A { constructor() {} }",
+            expected: {
+                modifiers: [],
+                kinds: ["constructor"],
+                name: null,
+            },
+        },
+        {
+            code: "class A { static async foo() {} }",
+            expected: {
+                modifiers: ["static", "async"],
+                kinds: ["method"],
+                name: "'foo'",
+            },
+        },
+        {
+            code: "({ '': function() {} })",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
+            },
+        },
+        {
+            code: "({ ['']: () => {} })",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
+            },
+        },
+        {
+            code: "class A { ''() {} }",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
+            },
+        },
+        {
+            code: "({ [foo]: async function*() {} })",
+            expectedWithoutSourceCode: {
+                modifiers: ["async", "generator"],
+                kinds: ["method"],
+                name: null,
+            },
+            expected: {
+                modifiers: ["async", "generator"],
+                kinds: ["method"],
+                name: "[foo]",
+            },
+        },
+        {
+            code: "({ [foo +\nbar]: function() {} })",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: null,
+            },
+        },
+        ...(semver.gte(eslint.Linter.version, "8.0.0")
+            ? [
+                  {
+                      code: "class A { static async *#foo() {} }",
+                      expected: {
+                          modifiers: [
+                              "static",
+                              "private",
+                              "async",
+                              "generator",
+                          ],
+                          kinds: ["method"],
+                          name: "#foo",
+                      },
+                  },
+                  {
+                      code: "class A { static #foo = async () => {} }",
+                      expected: {
+                          modifiers: ["static", "private", "async"],
+                          kinds: ["method"],
+                          name: "#foo",
+                      },
+                  },
+              ]
+            : []),
+    ]
+
+    for (const testCase of explicitCases) {
+        it(`should return separate modifiers, kinds, and name for "${testCase.code.replace(
+            /\n/gu,
+            "\\n",
+        )}".`, () => {
+            const linter = newCompatLinter()
+            let withoutSourceCode = null
+            let withSourceCode = null
+            let joinedFromHelper = null
+
+            const messages = linter.verify(testCase.code, {
+                rules: { "test/test": "error" },
+                languageOptions: {
+                    ecmaVersion: semver.gte(eslint.Linter.version, "8.0.0")
+                        ? 2022
+                        : 2020,
+                    sourceType: "module",
+                },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create(context) {
+                                    return {
+                                        ":function"(node) {
+                                            withoutSourceCode =
+                                                getFunctionNameWithKindParts(
+                                                    node,
+                                                )
+                                            withSourceCode =
+                                                getFunctionNameWithKindParts(
+                                                    node,
+                                                    context.getSourceCode(),
+                                                )
+                                            joinedFromHelper =
+                                                getFunctionNameWithKind(
+                                                    node,
+                                                    context.getSourceCode(),
+                                                )
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            })
+
+            assert.strictEqual(
+                messages.length,
+                0,
+                messages[0] && messages[0].message,
+            )
+            assert.deepStrictEqual(
+                withoutSourceCode,
+                testCase.expectedWithoutSourceCode || testCase.expected,
+            )
+            assert.deepStrictEqual(withSourceCode, testCase.expected)
+            assert.strictEqual(
+                [
+                    ...withSourceCode.modifiers,
+                    ...withSourceCode.kinds,
+                    ...(withSourceCode.name ? [withSourceCode.name] : []),
+                ].join(" "),
+                joinedFromHelper,
+            )
+        })
+    }
+
+    it("should handle AssignmentPattern default parameter functions.", () => {
+        const linter = newCompatLinter()
+        const collected = []
+
+        const messages = linter.verify(
+            "function outer(fn = async () => {}) {}",
+            {
+                rules: { "test/test": "error" },
+                languageOptions: {
+                    ecmaVersion: 2020,
+                    sourceType: "module",
+                },
+                plugins: {
+                    test: {
+                        rules: {
+                            test: {
+                                create() {
+                                    return {
+                                        ArrowFunctionExpression(node) {
+                                            collected.push(
+                                                getFunctionNameWithKindParts(
+                                                    node,
+                                                ),
+                                            )
+                                        },
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        )
+
+        assert.strictEqual(messages.length, 0)
+        assert.deepStrictEqual(collected, [
+            {
+                modifiers: ["async"],
+                kinds: ["arrow", "function"],
+                name: "'fn'",
+            },
+        ])
+    })
+
+    it("should return empty modifiers/kinds and null name when node has no parent.", () => {
+        const detachedNode = {
+            type: "FunctionExpression",
+            id: null,
+            params: [],
+            body: { type: "BlockStatement", body: [] },
+            async: true,
+            generator: true,
+        }
+        assert.deepStrictEqual(getFunctionNameWithKindParts(detachedNode), {
+            modifiers: [],
+            kinds: [],
+            name: null,
+        })
+    })
 })
