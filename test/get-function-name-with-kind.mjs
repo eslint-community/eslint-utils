@@ -37,6 +37,9 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "({ foo: function foo() {} })": "method 'foo'",
         "({ foo: function() {} })": "method 'foo'",
         "({ ['foo']: function() {} })": "method 'foo'",
+        "({ '': function() {} })": "method ''",
+        "({ ['']: function() {} })": "method ''",
+        "({ '': () => {} })": "method ''",
         "({ [foo]: function() {} })": "method [foo]",
         "({ foo() {} })": "method 'foo'",
         "({ foo: function* foo() {} })": "generator method 'foo'",
@@ -56,6 +59,8 @@ describe("The 'getFunctionNameWithKind' function", () => {
         "class A { *foo() {} }": "generator method 'foo'",
         "class A { async foo() {} }": "async method 'foo'",
         "class A { ['foo']() {} }": "method 'foo'",
+        "class A { ''() {} }": "method ''",
+        "class A { ['']() {} }": "method ''",
         "class A { *['foo']() {} }": "generator method 'foo'",
         "class A { async ['foo']() {} }": "async method 'foo'",
         "class A { [foo]() {} }": "method [foo]",
@@ -97,6 +102,8 @@ describe("The 'getFunctionNameWithKind' function", () => {
                   "class A { foo = async function() {} }": "async method 'foo'",
                   "class A { ['foo'] = function() {} }": "method 'foo'",
                   "class A { ['foo'] = () => {} }": "method 'foo'",
+                  "class A { '' = () => {} }": "method ''",
+                  "class A { [''] = () => {} }": "method ''",
                   "class A { ['foo'] = function*() {} }":
                       "generator method 'foo'",
                   "class A { ['foo'] = async function() {} }":
@@ -293,6 +300,30 @@ describe("The 'getFunctionNameWithKindParts' function", () => {
                 modifiers: ["static", "async"],
                 kinds: ["method"],
                 name: "'foo'",
+            },
+        },
+        {
+            code: "({ '': function() {} })",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
+            },
+        },
+        {
+            code: "({ ['']: () => {} })",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
+            },
+        },
+        {
+            code: "class A { ''() {} }",
+            expected: {
+                modifiers: [],
+                kinds: ["method"],
+                name: "''",
             },
         },
         {

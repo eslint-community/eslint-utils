@@ -80,7 +80,7 @@ export function getFunctionNameWithKindParts(node, sourceCode) {
             name = `#${parent.key.name}`
         } else {
             const propertyName = getPropertyName(parent)
-            if (propertyName) {
+            if (propertyName != null) {
                 name = `'${propertyName}'`
             } else if (sourceCode) {
                 const keyText = sourceCode.getText(parent.key)
